@@ -1,0 +1,695 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Queries and Tag Names</title>
+</head>
+<body>
+<span style="font-weight: bold;">jEmplode/RMML's Big Boy Parser<br>
+<br>
+<span style="font-weight: bold;"><span style="font-weight: bold;"></span></span></span>The
+parser in jEmplode/RMML is much nicer in that it has a proper tokenizer
+now, so it can support things like functions without catching on
+fire.&nbsp; It's also much more flexible about how it treats tag names
+vs string literals, so you can do things like "artist=source" and find
+all the tunes where the artist is the same value as the album (before,
+the rvalue always had to be a literal).&nbsp; A subtle resulting change
+is that if you don't quote your string literals and happen to use a tag
+name as intending it to be a string literal, it will be treated as the
+tag variable, not the string literal, so if you mean "source" as a
+string and not the source tag, put it in quotes.<br>
+<br>
+<span style="font-weight: bold;">Tag Names</span><br>
+<table style="text-align: left;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Tag Name<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Data Type<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">artist<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the name of the artist of the
+node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">bitrate<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the bitrate of the node (in
+[vf][ms][0-9]+ format where v = variable, f = fixed; m = mono, s =
+stereo; 0-9+ = bitrate in kps<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">codec<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the codec of the node ("mp3",
+"vorbis", "flac", "wma", "taxi", "" for playlists)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">colored<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-style: italic;">Runtime
+Only</span> - whether or not the node is set to be colored in the UI<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">comment<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the comment of the node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">copy<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;">whether or not this node is
+identified as a copy or an original<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">copyright<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;">whether or not this node is
+identified as copyrighted<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ctime<br>
+      </td>
+      <td style="vertical-align: top;">time<br>
+      </td>
+      <td style="vertical-align: top;">the time the node was created
+(in seconds since epoch)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">decade<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the decade of the year of the
+node, so if year = 1996, decade = 1990<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">dirty<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;">whether or not the node has been
+modified since the last sync<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">drive<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the drive number that houses the
+node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">duration<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the duration of the song in
+milliseconds<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ext<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the file extension of the file
+if it were a file (including the dot, so codec = vorbis returns ext =
+.ogg)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">fid<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the file identifier for the node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">fid_generation<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the generation of the node;
+changes every time the node's fid is recycled<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">genre<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the genre of the node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">iconType<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-style: italic;">Runtime
+Only</span> - returns the type of icon that is used to represent the
+node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">length<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the length of the node in bytes<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">marked<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;">whether or not the node has been
+marked<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">offset<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the offset in btyes of the music
+content from the beginning of the file (for instance, this will skip
+ID3v2 tags)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">options<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">a bit set of options (the
+meaning of the bits are different for each device)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">pickn<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the number of tracks of the
+playlist to pick at random<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">pickpercent<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the percentage of tracks of the
+playlist to pick at random<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">pin<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">an assignable PIN number for the
+node for easy access<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">play_count<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">number of times the node has
+been played<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">play_last<br>
+      </td>
+      <td style="vertical-align: top;">time<br>
+      </td>
+      <td style="vertical-align: top;">the date the node was last
+played (in seconds from epoch) <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">playlist<br>
+      </td>
+      <td style="vertical-align: top;">binary<br>
+      </td>
+      <td style="vertical-align: top;">an encoded value containing the
+list of FID numbers of the children of the playlist<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">pos<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-style: italic;">Runtime
+Only</span> - returns the position of this node in the context of
+whatever playlist you are currently viewing (or 1 if there is no
+playlist context)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">profile<br>
+      </td>
+      <td style="vertical-align: top;">binary<br>
+      </td>
+      <td style="vertical-align: top;">an encoded value containing
+information about the track for use on the device while playing<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">refs<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the number of non-soup playlists
+that contain this node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">rid<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">a 32 character hash generated
+based on the content of the music of the node that should be unique for
+every tune<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">samplerate<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the samplerate of the node (in
+samples per second)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">size<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the number of entries in the
+playlist<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">skip_count<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the number of times the node has
+been skipped<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">soup<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the encoded format that jEmplode
+uses to represent the query that defines the soup playlist<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">source<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the name of the source of the
+node (for instance, the album name, "Live", or equivalent)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">stereo<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;">whether or not the tune is stereo<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">title<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the title of the node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">tracknr<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the track number of the node<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">tracknrorpos<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">if the node does not have a
+track number specified, returns the position of the tune in its playlist<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">tracks<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the number of tracks that are
+contained in the playlist and all of its nested playlists<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">trailer<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the offset in bytes from the end
+of the file where the music content ends (for instance, this will skip
+ID3v1 tags)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">type<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">the type of the node ("tune",
+"playlist", "taxi", or "illegal")<span style="font-style: italic;"></span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">wendy<br>
+      </td>
+      <td style="vertical-align: top;">string<br>
+      </td>
+      <td style="vertical-align: top;">a comma separated list of wendy
+flag names that the tune is flagged with<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">year<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">the year of the node<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-weight: bold;">Functions</span><span
+ style="font-weight: bold;"><br>
+</span>
+<table style="text-align: left;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Function
+Signature<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Parameter<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Return Type<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">date(x)<br>
+      </td>
+      <td style="vertical-align: top;">A date string in your local
+format (i.e. "MM/DD/YYYY" or "DD/MM/YYYY")<br>
+      </td>
+      <td style="vertical-align: top;">time<br>
+      </td>
+      <td style="vertical-align: top;">Returns the specified date in
+number of seconds from epoch<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">daysago(x)<br>
+      </td>
+      <td style="vertical-align: top;">Number of days<br>
+      </td>
+      <td style="vertical-align: top;">time</td>
+      <td style="vertical-align: top;">Returns the time x days ago in
+number of seconds from epoch<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">fibonacci(x)<br>
+      </td>
+      <td style="vertical-align: top;">Iteration number<br>
+      </td>
+      <td style="vertical-align: top;">numeric<br>
+      </td>
+      <td style="vertical-align: top;">Returns the value of the
+fibonacci sequence at the given iteration<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">hasoption(x)<br>
+      </td>
+      <td style="vertical-align: top;">The index of the bit in the
+option set<br>
+      </td>
+      <td style="vertical-align: top;">boolean<br>
+      </td>
+      <td style="vertical-align: top;">Returns whether or not the
+specified bit is turned on in the option set<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">now()<br>
+      </td>
+      <td style="vertical-align: top;">n/a<br>
+      </td>
+      <td style="vertical-align: top;">time<br>
+      </td>
+      <td style="vertical-align: top;">Returns the current date in
+number of seconds from epoch<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">secondsago(x)<br>
+      </td>
+      <td style="vertical-align: top;">Number of seconds<br>
+      </td>
+      <td style="vertical-align: top;">time<br>
+      </td>
+      <td style="vertical-align: top;">Returns the time x seconds ago
+in number of seconds from epoch<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-weight: bold;"><br>
+Operators<br>
+</span>
+<table style="text-align: left;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x and y, x
+&amp;&amp; y, x &amp; y<br>
+      </td>
+      <td style="vertical-align: top;">Logical and of x and y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x or y, x
+|| y, x | y<br>
+      </td>
+      <td style="vertical-align: top;">Logical or of x and y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">not x, !x<br>
+      </td>
+      <td style="vertical-align: top;">Logical negation of x.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x = y, x ==
+y, x equals y, x is y<br>
+      </td>
+      <td style="vertical-align: top;">Compares the values of x and
+y.&nbsp; If x and/or y are tag names, the value of the x tag for the
+node will be replaced for the variable.&nbsp; For instance, "title =
+Super" would match tunes with a title of "Super", or "title = artist"
+would match all the nodes where the title is the same as the artist.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x != y, x
+&lt;&gt; y<br>
+      </td>
+      <td style="vertical-align: top;">"Not Equals" comparison (inverse
+results of =)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">x &lt; y, x &gt; y, x &lt;= y, x
+&gt;= y<br>
+      </td>
+      <td style="vertical-align: top;">Less than, Greater than, Less
+than or equal, Greater than or equal comparison of x and y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x contains
+y, x like y<br>
+      </td>
+      <td style="vertical-align: top;">Substring comparison.&nbsp;
+Returns true if the value of x contains the value of y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x + y<br>
+      </td>
+      <td style="vertical-align: top;">Returns the sum of x and y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x - y<br>
+      </td>
+      <td style="vertical-align: top;">Returns the difference of x and
+y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">-x<br>
+      </td>
+      <td style="vertical-align: top;">Returns the negation of x.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x * y<br>
+      </td>
+      <td style="vertical-align: top;">Returns the multiplication of x
+and y.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x / y<br>
+      </td>
+      <td style="vertical-align: top;">Returns the division of x by y
+(integer).<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; white-space: nowrap;">x<br>
+      </td>
+      <td style="vertical-align: top;">If the value of x is not empty,
+"0", "false", "no", of "off" this will return true, otherwise it will
+return false.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">( ... )<br>
+      </td>
+      <td style="vertical-align: top;">Order of operations grouping
+(can be nested)<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-weight: bold;"><br>
+Examples<br>
+</span><span style="font-style: italic;">title like "alking" and
+(artist = "James Taylor" or artist like "James")</span><br>
+Finds all tunes that contain "alking" in their titles (i.e. "Walking
+Man") and and whose artist is either "James Taylor" or anyone who has
+the word "James" in the author field.<br>
+<br>
+<span style="font-style: italic;">dirty = "true"</span><br>
+Finds all tunes or playlists that are marked dirty.<br>
+<br>
+<span style="font-style: italic;">refs &gt; 3 and not (tracknr = 2)</span><br>
+Finds all tunes that have a reference count greater than 3 and whose
+track number does not equal 2.<br>
+<br>
+<span style="font-style: italic;">refs != 3 &amp;&amp; (refs &lt;= 1 ||
+genre = "Rock")</span><br>
+Finds all tunes whose reference count does not equal 3 and whose
+reference count is either less than or equal to 1 or whose genre is
+equal to "Rock".<br>
+<br>
+<span style="font-style: italic;">wendy contains "Kirsten" or wendy
+contains "Mike"</span><br>
+Finds all the tunes that have the Kirsten or Mike wendy flag set.<br>
+<br>
+<span style="font-style: italic;">ctime &lt; date("07/10/96")<br>
+<span style="font-style: italic;"></span></span>Finds all the tunes
+that have a creation time that is before July 10th, 1996 (or October
+7th, 1996 if your locale interprets dates wrong ;) )<br>
+<br>
+<span style="font-style: italic;">artist = source<br>
+<span style="font-style: italic;"><span style="font-style: italic;"></span></span></span>Finds
+all the tunes that have an artist that is the same as the album.<br>
+<br>
+<span style="font-style: italic;">refs<br>
+<span style="font-style: italic;"></span></span>Finds all the tunes
+that have a reference.<br>
+<br>
+<span style="font-style: italic;">!refs<span style="font-style: italic;"><span
+ style="font-style: italic;"></span></span><br>
+</span>Finds all the tunes that do not have a reference.<br>
+<br>
+<span style="font-style: italic;">play_last &gt; daysago(5)<br>
+<span style="font-style: italic;"></span></span>Finds all the tunes
+that have been played in the last 5 days.<br>
+<br>
+<span style="font-style: italic;">play_count &lt; fibonacci(10) * 3<br>
+</span>Finds all the tunes that have a playcount that is less than
+three times the 10th iteration of the Fibonacci sequence :)<br>
+<span style="font-style: italic;"><span style="font-style: italic;"></span><br>
+</span>These are just samples -- You can mix and match any of these
+operators to construct any number of queries.<br>
+<span style="font-weight: bold;"><br>
+</span><span style="font-weight: bold;"></span>
+</body>
+</html>

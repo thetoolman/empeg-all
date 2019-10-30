@@ -1,0 +1,513 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+<BASE HREF="..">
+<link rel="SHORTCUT ICON" href="/graphics/bcl_icon.ico"  type="image/x-icon">
+<TITLE>BC LaserWorks: Custom Laser Cutting and Engraving</TITLE>
+<meta name="robots" content="INDEX,FOLLOW">
+<LINK REL=StyleSheet HREF="bclaser.css" TYPE="text/css">
+
+
+<TITLE>Riocar, Empeg, lenses, replacement lens and personalized stereo lens by BC LaserWorks</TITLE>
+<META name="description" content="Custom and reproduction colored acrylic 
+lenses for the Riocar and Empeg MK2 players.">
+<META name="keywords" content="Riocar, Empeg, lenses, replacement lens, retrofit, 
+personalized stereo, engraved lens, leaser cut lens, custom lenses, RioCar, 
+Reproduction">
+
+<script>
+
+<!--
+
+function Dollar (val) {  // force to valid dollar amount
+var str,pos,rnd=0;
+  if (val < .995) rnd = 1;  // for old Netscape browsers
+  str = escape (val*1.0 + 0.005001 + rnd);  // float, round, escape
+  pos = str.indexOf (".");
+  if (pos > 0) str = str.substring (rnd, pos + 3);
+  return str;
+}
+
+function ReadForm (obj1, on_submit) { // process un-named selects
+var i,amt,des,obj,pos,val,qty;
+  amt = obj1.baseamt.value*1.0;       // base amount
+  des = obj1.basedes.value;           // base description
+  
+  for (i=0; i<obj1.length; i++) {     // run entire form
+    obj = obj1.elements[i];           // a form element
+    if (obj.type == "select-one" &&   // just get selects
+        obj.name == "") {             // must be un-named
+      pos = obj.selectedIndex;        // which option selected
+      val = obj.options[pos].value;   // selected value
+      pos  = val.indexOf ("@");       // price set?
+      if (pos >= 0) amt = val.substring (pos + 1)*1.0;
+      pos  = val.indexOf ("+");       // price increment?
+      if (pos >= 0) amt = amt + val.substring (pos + 1)*1.0;
+      pos  = val.indexOf ("%");       // percent change?
+      if (pos >= 0) amt = amt + (amt * val.substring (pos + 1)/100.0);
+      if (des.length == 0) des = val;
+      else des = des + ", " + val;    // accumulate value
+    }
+  }
+
+  pos = obj1.quantity.value.indexOf (".");
+  if (pos > 0) 
+  {
+      alert('Please enter an integer quantity');
+      obj1.xs0.focus();
+      return (false);
+  }
+  else
+  {
+      qty = obj1.quantity.value * 1.0;
+  }
+  
+  if (on_submit && obj1.quantity.value < 1)
+  {
+      alert('Please enter a valid quantity');
+      obj1.xs0.focus();
+      return (false);
+  }
+  if (on_submit && obj1.engrave_name.checked && 
+          (obj1.engraved_name.value == "" || obj1.engraved_name.value.length > 10)
+     )
+  {
+      alert('Please enter from 1 to 10 characters in the Name field\n'+
+              'Please note: This error sometimes messes up the shopping cart.' +
+              'Be sure to check your order carefully before checking out.');
+      obj1.xs0.focus();
+      return (false);
+  }
+  if (obj1.engrave_name.checked && obj1.engraved_name.value != "")
+  {
+      des = des + ",name:" + obj1.engraved_name.value;
+      amt = amt + 3.00;
+  }
+
+  obj1.item_name.value = des;
+  obj1.amount.value = Dollar (amt);
+  if (obj1.tot) obj1.tot.value = "$" + Dollar (qty*amt);
+  return (true);
+}
+
+
+function swap_image(imgName, img) 
+{
+    if (document.images) 
+    {
+        document.images[imgName].src = img;
+    }
+}
+
+function imgchg(imgName, img) 
+{
+    swap_image(imgName, "empeg/prodimages/" + img + ".jpg");
+}
+
+
+  function openWindow(url, w, h) {
+    var options = "width=" + w + ",height=" + h + ",";
+    options += "resizable=no,scrollbars=no,status=yes,";
+    options += "menubar=no,toolbar=no,location=no,directories=no";
+    var newWin = window.open(url, 'newWin', options);
+    newWin.focus();
+  }
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function xMM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+function MM_swapImage(imgName, x, img) 
+{
+    
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+//-->
+</script>
+</head>
+<body>
+<!-- **************** HEADER ************************ -->
+
+<table class=menu cellspacing=0 cellpadding=0 >
+<tr class=menu>
+<td><img SRC= "graphics/bannerempeg.jpg"  
+alt="Laser Cutting &amp; Engraving" height=86></td>
+
+ <td width="100%"><img SRC="graphics/banner.jpg" alt="Laser Cutting &amp; Engraving" height=86></td>
+</tr>
+</table>
+
+<div class=menu align=center>
+<font size="2" color="#FFFFFF">
+<strong>
+
+<A class=menu href="index.html" 
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Home</a>
+|
+<A class=menu href="cutting.html" 
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Cutting</a>
+|
+<A class=menu href="engrave.html"
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Engraving</a>
+|
+<A class=menu href="marking.html"
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Laser Marking</a>
+|
+<A class=menu href="links.html"
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Links</a>
+|
+<A class=menu href="info.html"
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Information</a>
+|
+<A class=menu href="payment.html"
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Payment</a>
+|
+<A class=menu href="contact.html"
+   onmouseover="this.style.backgroundColor='ffcc66';"
+   onmouseout="this.style.backgroundColor='transparent';">
+Contact</a>
+</strong>
+</font>
+</div>
+
+<table>
+<tr>
+  <td class=menu valign=top>
+        <br><br>
+        Product Categories:<br>
+        <br>
+
+        <A href="robots/robots.html">
+        <img src="graphics/robotics.jpg" alt=Robotics></a>
+        <br>
+        <br>
+
+        <A href="gears/gears.html">
+        <img src="graphics/gears.jpg" alt="Gear Sets"></a>
+        <br>
+        <br>
+<!--
+        <A href="empeg/empeg.html">
+        <img src="graphics/empeg.jpg" alt=empeg></a>
+        <br>
+        <br>
+        <br><br>
+        Other Links:<br>
+        <br>
+
+        <A class=menubar href="fun/lasercam.html">LaserCAM
+        </a>
+        <br>
+        <br>
+		<a href=http://savenetradio.org border=0><img src=graphics/savenetradio.gif></a>
+		<br>
+		<br>
+-->
+<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>
+  </td>
+  <td>
+<br>
+
+<!-- **************** HEADER END ************************ -->
+
+
+<div>
+        <p style="font-size:larger; font-weight:bold">
+		NOTE: we are no longer taking lens orders directly from the web site. If you see something your 
+		really have to have, contact us through the contact page and we'll see what we can do for you.
+        <p style="font-size:larger; font-weight:bold">
+        Lens Descriptions</p>
+        <p>
+        Lenses can be engraved with a border that shows through.
+        You can add your name (or any text up to 10 characters) at the bottom.
+        If you only want the empeg logo without the border, you can do that too.
+
+         <p style="font-size:larger; font-weight:bold">
+        Colors available for flat border lens:
+        <p>
+            Roll over each color to see a picture <br>
+
+            <br>
+          
+			<img align=right src="empeg/prodimages/Smoke.jpg" name="flat_color" width=300>
+
+            <a href="javascript:;" onMouseOver=
+               "swap_image('flat_color','empeg/prodimages/Smoke.jpg')">Smoke</a><br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('flat_color','empeg/prodimages/DarkSmoke.jpg')">Dark Smoke</a><br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('flat_color','empeg/prodimages/Red.jpg')">Red</a><br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('flat_color','empeg/prodimages/Green.jpg')">Green</a><br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('flat_color','empeg/prodimages/Bronze.jpg')">Bronze</a><br>
+        <br clear=all>
+        </p>
+        <br>
+        <p style="font-size:larger; font-weight:bold">
+        Borders
+        <p>
+            Roll over each lens name to see the empeg <br>
+            **along the top is a closeup shot of the images in drawn form**
+            <br>
+            <br>
+            <img align=right src="empeg/photos/Dancers1.jpg" name="border_img" width="297" height="150">
+            
+            <a href="javascript:;" onMouseOver=
+               "swap_image('border_img','empeg/photos/Dancers1.gif',1)">
+            <img src="empeg/photos/dan.gif" width="107" height="18" border="0" 
+               name="one"></a>&nbsp;&nbsp;<br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('border_img','empeg/photos/DJlens.gif',1)">
+            <img src="empeg/photos/DJ.gif" width="62" height="18" border="0" 
+               name="two"></a>&nbsp;&nbsp;<br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('border_img','empeg/photos/bones.gif',1)">
+            <img src="empeg/photos/skull.gif" width="88" height="18" border="0" 
+               name="three"></a>&nbsp;&nbsp;<br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('border_img','empeg/photos/starslens.gif',1)">
+            <img src="empeg/photos/stars.gif" width="87" height="18" border="0" 
+               name="four"></a>&nbsp;&nbsp;<br>
+            <a href="javascript:;" onMouseOver=
+               "swap_image('border_img','empeg/photos/stickpeople.gif',1)">
+            <img src="empeg/photos/stick.gif" width="142" height="18" border="0" 
+               name="five"></a>&nbsp;&nbsp;<br>
+        <br clear=all>
+        </p>
+<!-- ******************* End of Descriptions *********************** -->
+            <HR>
+        <p style="font-weight:bold">
+            Empeg MK2 and RioCar Reproduction Lenses
+        <p>
+        Lenses are lasercut from 0.06"acrylic to replicate the original Empeg MK2/ 
+        RioCar lenses. Available in 5 colors (Smoke, Dark Smoke, Bronze, Green, 
+        and Red).
+        <p>
+        Please note: Every effort has been made to match the colors of the Empeg 
+        photos to reality but they are not exact. I have retouched a Smoke 
+        Lens image to &quot;simulate&quot; the look of the Bronze and Dark 
+        Smoke Lenses.
+        <p>
+        <small>
+        Empeg Lens images copyright Tony Fabris.
+        </small> 
+        </p>
+        
+<!-- ******************* Flat Lens Order *********************** -->
+        <HR>
+        <p style="font-weight:bold">
+        Flat Lens<br>
+        Price: $7.00</p>
+        <img src="empeg/prodimages/Smoke.jpg" width="500" height="125" name="lensImg1"> 
+<!--
+        <form target="paypal" method="POST" 
+              action="https://www.paypal.com/cgi-bin/webscr" 
+              onSubmit="this.target = 'paypal'; ReadForm (this, true);">
+          <input type="hidden" name="cmd" value="_cart">
+          <input type="hidden" name="add" value="1"> 
+          <input type="hidden" name="business" value="phil@bclaserworks.com">
+          <input type="hidden" name="item_name" value="">
+          <input type="hidden" name="amount" value="">
+          <input type="hidden" name="currency_code" value="USD">
+          <input type="hidden" name="lc" value="US">
+          
+          <input type="hidden" name="baseamt" value="7.00">
+          <input type="hidden" name="basedes" value="Flat Lens">
+          <input type="hidden" name="bn" value="phil@bclaserworks.com">
+		  <input type="hidden" name="handling_cart" value="3">
+
+          <br>
+          Color:
+          <select onChange="imgchg('lensImg1', this.options[this.selectedIndex].value);
+                            ReadForm (this.form, false);">
+              <option value="Smoke">Smoke 
+              <option value="DarkSmoke">Dark Smoke 
+              <option value="Bronze">Bronze 
+              <option value="Red">Red 
+              <option value="Green">Green 
+          </select>
+          <br>
+          Quantity:
+          <input type=text name='quantity' size='3' value="1" 
+              onchange = "ReadForm (this.form,false);">
+          <br>
+          Border: (adds $8.00)
+          <select onchange =" ReadForm (this.form, false);">
+              <option value="Border:None">None </option>
+              <option value="Border:Empeg Only +3.00">Empeg Only </option>
+              <option value="Border:Dancerz +8.00">Dancerz </option>
+              <option value="Border:DJ +8.00">DJ</option>
+              <option value="Border:Skullz +8.00">Skullz </option>
+              <option value="Border:Starz +8.00">Starz </option>
+              <option value="Border:Stick +8.00">Stick </option>
+          </select>
+          <br>
+          <input type=checkbox name="engrave_name" 
+                 onclick = "ReadForm (this.form, false);">
+          Name (adds $3.00):
+          <input type="text" name="engraved_name" size=12 value="" 
+                 onkeyup = "ReadForm (this.form, false);">
+          <br>
+          Amount: <input type="text" name="tot" size="8" value="$7.00">
+          <br>
+          <input type="image" src="empeg/images/buy.gif" name="submit" border="0" alt="Buy">
+        </form>
+-->
+<!-- ******************* Lens Set Order *********************** -->
+        <HR>
+        <p style="font-weight:bold">
+        5 Color Lens Set<br>
+        Price: $30.00</p>
+<!--
+        <form target="paypal" method="POST" 
+           action="https://www.paypal.com/cgi-bin/webscr" >
+         <input type="hidden" name="cmd" value="_cart">
+         <input type="hidden" name="business" value="phil@bclaserworks.com">
+         <input type="hidden" name="item_name" value="Empeg Lens Set (Smoke, Dark Smoke, Bronze, Red, Green)">
+         <input type="hidden" name="item_number" value="LensSet">
+         <input type="hidden" name="amount" value="30.00">
+         <input type="hidden" name="undefined_quantity" value="1">
+         <input type="hidden" name="currency_code" value="USD">
+         <input type="hidden" name="bn" value="phil@bclaserworks.com">
+         <input type="hidden" name="os0" value="Smoke, Dark Smoke, Bronze, Red, Green">
+         <input type="hidden" name=" no_note" value="0">
+         <input type="hidden" name="os1" value="">
+         <input type="hidden" name="on0" value="Colors">
+	     <input type="hidden" name="handling_cart" value="3">
+         <p>
+         Just need more stuff? Troubled by the myriad of choices? Holding out 
+         for a bargain? Wait no longer. Order all five lenses for $30.
+         <img src="empeg/prodimages/lens_set.gif" width="250" height="63">	
+         <input type='hidden' name='on02' value='Color'>
+         <b>Quantity:</b>
+         <select name='quantity' size='1'>
+             <option selected value="1">1 
+             <option value="2">2 
+             <option value="3">3 
+             <option value="4">4 
+             <option value="5">5 
+          </select>
+          
+         <input type="hidden" name="add" value="1"> 
+         <br>
+         <input type="image" src="empeg/images/buy.gif" border="0" alt="Buy">
+        </form>
+-->
+<!-- ******************* Shipping *********************** -->
+        <HR>
+        <p style="font-size:larger: font-weight:bold">
+        Shipping and Handling<br>
+        </p>
+        There is a $3.00 Shipping and Handling charge per order. If you live outside the US,
+        I need to add a surcharge to cover the additional postage. If this applies to you, please select
+        the appropriate location and click the Add Postage button (US customers don't need to do this).
+        <BR>
+        <BR>
+        NOTE: the surcharge will appear as a line-item in your shopping cart. There will also be a
+        shipping and handling charge of $3.00 when you check out. You aren't getting charged twice:
+        Everyone pays the $3.00. Those outside the US also pay the surcharge.
+        <br>
+        <br>
+<!--
+        <form target="paypal" method="POST" 
+              action="https://www.paypal.com/cgi-bin/webscr" 
+              onSubmit="this.target = 'paypal'; ReadForm (this, true);">
+          <input type="hidden" name="cmd" value="_cart">
+          <input type="hidden" name="add" value="1"> 
+          <input type="hidden" name="business" value="phil@bclaserworks.com">
+          <input type="hidden" name="item_name" value="">
+          <input type="hidden" name="amount" value="">
+          <input type="hidden" name="currency_code" value="USD">
+          <input type="hidden" name="lc" value="US">
+          
+          <input type="hidden" name="baseamt" value="0.00">
+          <input type="hidden" name="basedes" value="Postage surcharge">
+          <input type="hidden" name="bn" value="phil@bclaserworks.com">
+          <input type="hidden" name='quantity' value="1">
+          <input type="hidden" name="engrave_name" value="">
+          <input type="hidden" name="engraved_name" value="">
+		  <input type="hidden" name="handling_cart" value="3">
+
+          <select onChange= ReadForm (this.form, false);">
+              <option value="US">US 
+              <option value="Canada +2.00">Canada +2.00
+              <option value="Mexico +2.00">Mexico +2.00 
+              <option value="Europe +3.50">Europe +3.50 
+          </select>
+          <br>
+          <br>
+          <input type="submit" value="add postage">
+        </form>
+-->
+
+</div>
+<!-- ******************* Page Footer *********************** -->
+<!--
+      <form name="_xclick" target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+        <div align="center">
+          <input type="hidden" name="cmd" value="_cart">
+          <input type="hidden" name="business" value="phil@bclaserworks.com">
+          <input name="submit" type="image" src="empeg/images/checkout.gif" alt="Checkout with PayPal!" border="0">
+          <input type="hidden" name="display" value="1">
+        </div>
+      </form>
+-->
+<p style="font-size:larger; font-weight:bold">
+NOTE: we are no longer taking lens orders directly from the web site. If you see something your 
+really have to have, contact us through the contact page and we'll see what we can do for you.
+<!-- **************** FOOTER ************************ -->
+</tr>
+</table>
+<div align="center">
+<img src="graphics/idea.gif" alt="helping others design and develop their ideas">
+<p> 
+<a href="cutting.html">Cutting</a> 
+|
+<a href="engrave.html"> Engraving</a> 
+|
+<a href="marking.html">Laser Marking </a>
+|
+<a href="payment.html">Payment</a> 
+|
+<a href="contact.html">Contact</a>
+|
+<a href="index.html">Home</a> 
+<br>
+
+Copyright &copy;2005-2008 BC LaserWorks<br>
+</div>
+<!-- **************** FOOTER END ************************ -->
+
+</body>
+</html>

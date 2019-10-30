@@ -1,0 +1,11 @@
+BODY    { background-image: url(graphics/pulleyback.jpg); background-color: #FFFFFF; 
+          color: #660066;<font-size=12pt; font-family:Verdana, Arial, Helvetica, sans-serif; }
+.menu   {background-color:#2a1770; background-image:none; color:#FFFFFF}
+A       {color=#660000 }
+A.menubar  {color=#800000; border-style: solid; border-color:#FFFFFF; border-width:thin }
+.text   {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	
+	letter-spacing: 1px;
+}

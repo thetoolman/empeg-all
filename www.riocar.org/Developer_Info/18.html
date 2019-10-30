@@ -1,0 +1,226 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>rio car dot org</title>
+	<base href="">
+	<link rel="StyleSheet" href="../themes/Default/style/style.css" type="text/css">
+</head>
+
+<body background="../themes/RioCar2/images/outer_bg.gif" bgcolor="#FFFFFF" text="#000000" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0" link="#00093C" vlink="#00093C" alink="#0000FF">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#000D52" style="border-collapse: collapse" bordercolor="#111111" background="../themes/RioCar2/images/header_bg.gif">
+<tr>
+<td><img border="0" src="../themes/RioCar2/images/logo.gif" width="270" height="90" Alt="Welcome to "></td>
+<td align="right"><img border="0" src="../themes/RioCar2/images/header_mk2fade.gif" hspace="5" width="264" height="90"></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#666666" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111">
+<tr>
+<td><font color="#FFFFFF">&nbsp;<b><font size="2" face="Verdana">Welcome to riocar.org!</font></b></font></td>
+<td align="right"><font color="#FFFFFF"><font face="Verdana" size="2"><b>Friday, August 6th</b></font>&nbsp;</font></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#000000" cellpadding="0">
+<tr>
+<td width="100%">
+<img border="0" src="../themes/RioCar2/images/clear.gif" width="1" height="1"></td>
+</tr>
+</table>
+<TABLE><TR><TD VALIGN="TOP"><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td><table width="100%" border="0" cellspacing="1" cellpadding="3"><tr><td bgcolor="666699" ><font class="contentheader" color=ffffff>Main Menu</font></td></tr><tr><td bgcolor="ffffff"><font class="content"><font class="content">
+<strong><big>&middot;</big></strong>&nbsp;Web Links<br>
+<strong><big>&middot;</big></strong>&nbsp;Downloads<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="http://empegbbs.com">BBS/Forums</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../lens.html">Lens Compare</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Boot Logos<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Button_Guide.html">Button Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Developer_Info.html">Developer Info</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Drive_Upgrade.html">Drive Upgrade</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../FAQ.html">FAQ</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Geek_Guide.html">Geek Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Photo Gallery<br>
+</font></font></td></tr></table></td></tr></table><br><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td></td></tr></table><br><img src="../images/pix.gif" border="0" width="150" height="1"></td><td>&nbsp;&nbsp;</td><td width="100%" valign="top"><table width="100%" border="0" cellspacing="1" cellpadding="0" bgcolor="#000000"><tr><td>
+<table width="100%" border="0" cellspacing="1" cellpadding="8" bgcolor="#ffffff"><tr><td>
+<center><font class="content"><b>rio car dot org Developer Information</b></font></center><br><br><a name="top"></a><br>Category: <a href="../Developer_Info.html">Main</a> -> The Development Environment<br><br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td colspan="2"><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="18.html#53">Setting Up a Cross-Compiler</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="18.html#54">Compiling on Win32</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="18.html#58">Compiling on Solaris 8</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="18.html#55">Flashing a Kernel via Ethernet</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="18.html#52">Debian Distro for Dummies</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="18.html#56">A Few Words About the Empeg Linux Environment</a><BR></td></tr></table>
+    <br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td><a name="53"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Setting Up a Cross-Compiler</b><BR>&nbsp;(Entry last updated on January 12th, 2002)<p align="justify"><p>In order to get started compiling your own kernels or developing your own applications, you'll probably need to set up an ARM Linux toolchain.  It is certainly possible to set up a development environment directly on your Empeg, much in the same way it's possible to dig out of prison with a soup spoon.  However, the preferred method of most developers who value their time is to set up a cross-compiler on a Linux PC.
+
+<p>Those who have an i386 Linux box can save themselves the trouble of building a toolchain from scratch by downloading this <a href="http://empeg-hijack.sourceforge.net/armtools-empeg.tar.bz2">precompiled toolchain</a> built by Mark Lord.  Simply extract the toolchain to a path such as <code>/usr/local/arm</code> and put the <code>bin</code> subdirectory into your path.
+
+<p>For those who are running on another platform, or want to customize their toolchain in any way, Mark has also provided a <a href="http://empeg-hijack.sourceforge.net/armtools-empeg-skeleton.tar.gz">starter kit</a> for building your own toolchain from the freely available GNU packages.
+
+<p>Now that you've got a cross-compiler set up, you're ready to write the next killer app for the Empeg!
+
+<p><ADDRESS class="author">Toolchains provided by <A href="mailto:mailto:mlord@pobox.com">Mark Lord</A></ADDRESS></p><a href="18.html#top">Back to Top</a><HR></td></tr><tr><td><a name="54"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Compiling on Win32</b><BR>&nbsp;(Entry last updated on January 14th, 2002)<p align="justify"><p>Utilizing <a href="http://www.cygwin.com/">CygWin</a> and <a href="../upload/empegbbs/armtools.tar.gz">the contents of this archive</a> one can theoretically get applications and kernels to compile on the Win32 platform.
+
+<p><pre><i>I did get it working once, but there was 
+some faffing about with CRLF's (use TextPad to get
+rid of them). 
+
+See attached Makefile. 
+
+Peter 
+</i></pre>
+
+The archive contains some diffs against gcc and a Makefile which should get you going.
+
+<p><ADDRESS class="author">Contributed by 
+<A href="mailto:peter@empeg.com">Peter Hartley</A></ADDRESS>
+</p><a href="18.html#top">Back to Top</a><HR></td></tr><tr><td><a name="58"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Compiling on Solaris 8</b><BR>&nbsp;(Entry last updated on January 29th, 2002)<p align="justify"><p>For the <i>hordes</i> of you that are clamoring to cross-compile empeg binaries on your Sun machines, a <a href="http://www.beaglebros.com/empeg/">Sparc Solaris 8 package</a> has been made available. 
+
+<p><ADDRESS class="author">Cross-compiler package provided by <A href="mailto:mailto:wfaulk@beaglebros.com">Bitt Faulk</A></ADDRESS></p><a href="18.html#top">Back to Top</a><HR></td></tr><tr><td><a name="55"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Flashing a Kernel via Ethernet</b><BR>&nbsp;(Entry last updated on January 14th, 2002)<p align="justify"><p>By default, the only way to flash a kernel onto your Empeg is via the serial cable using the <code><a href="http://www.empeg.com/downloads/download.c">download.c</a></code> program.  However, recent updates and some creative hacking have brought about the ability to flash kernels over Ethernet, which will save us all a lot of time.
+
+<p>You need an ftp daemon installed, but by default the <a href="http://empeg-hijack.sourceforge.net/">Hijack kernels</a> have an ftpd in the kernel.  How convenient!
+
+<p>Follow these instructions to get Ethernet flashing enabled on your player.
+
+<br>
+<br>(1) Prepare the player:  this needs to be done just once:
+<br>-- install the developer software image
+<br>-- install a Hijack kernel (v119+ recommended) the "hard way", and reboot.
+<br>-- login over the serial port (hit 'q').
+<br>-- type this command:<b>rw && mknod /dev/flash_kernel b 60 8 && ro && sync && exit</b>
+<br>
+<br>(2) Once you have done the prep work (once ever per Empeg unit.. dunno if upgrades will wipe it out or not), you can flash new (Hijack!) kernels at will using FTP:
+<br>
+<br>-- ftp empeg
+<br>-- put zImage /dev/kernel_flash
+<br>-- quit
+<br>
+<br>(3) wait 10 seconds (the flash write may happen asynchronously).
+<br>
+<br>(4) reboot the empeg from the Hijack menu, or by cycling the power.
+
+<p>For those who would like to automate the process, <a href="../upload/empegbbs/empflash.sh">this shell script</a> will upload the kernel to your Empeg, then download it and compare them to make sure the kernel was written properly.  If something goes wrong, just try again.  You'll probably have to edit at least the $IPADDRESS variable in the script.
+
+<p>Now just think of all the coding you can get done in the time saved by flashing over Ethernet instead of serial!
+
+<p><ADDRESS class="author">Contributed by 
+<A href="mailto:mlord@pobox.com">Mark Lord</A></ADDRESS>
+</p><a href="18.html#top">Back to Top</a><HR></td></tr><tr><td><a name="52"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Debian Distro for Dummies</b><BR>&nbsp;(Entry last updated on January 14th, 2002)<p align="justify"><br>  FYI, here's a (reasonably detailed, IMHO) note on how to get a full-blown Debian distribution working on the Empeg, without (greatly) messing with the player itself.
+<br>
+<br>As many might agree, it's easiest (and clean) to host the entire file-system on an NFS server, which the Empeg can mount and chroot into. I use a Red Hat Linux 7.2 "box" (a Sony VAIO) as the NFS server.  The entire procedure is fairly simple, as described below, and can be extrapolated to a local disk install as well.
+<br>
+<br>Please note that the word "download" wherever used is tantamount to "get your hands on by hook or by crook". Moreover, the character '#' has been used to mean the root shell prompt, as well as a comment character in this description.
+<br>
+<br><b> DISCLAIMER: PLEASE USE AT YOUR OWN RISK. NO LIABILITIES WHATSOEVER ARE ASSUMED ON MY PART AND I SHALL NOT BE HELD RESPONSIBLE FOR ANY DAMAGE OR LOSS(ES) CAUSED TO YOU IF YOU CHOOSE TO FOLLOW INSTRUCTIONS DESCRIBED HERE. </b>
+<br>
+<br>Let us assume that you would be downloading the Debian ARM distribution from <a target="_blank" href=http://ftp://ftp.debian.org> ftp.debian.org </a>. Here are the steps:
+<br>
+<br><b> 0. The NFS Server </b>
+<br>
+<br>Designate a directory, say, "/export/debian", on the NFS server.  This directory will be exported read-write, with no root squashing, to the Empeg. Security issues are NOT addressed here! For example, on a typical Linux box, the /etc/exports will look like:
+<br>
+<br><pre>        /export/debian    empeg.somedomain(rw,no_root_squash) </pre>
+<br>"empeg.somedomain" should be replaced by the IP address or host name of the Empeg on your network.
+<br>
+<br>Please remember to make sure that NFS is working properly before proceeding. Laws of paranoia and Heisenberg's principle dictate that the NFS server be restarted, and any firewalling be appropriately taken into account.
+<br>
+<br><b> 1. Downloading the Debian base file-system and packages </b>
+<br>
+<br>Next, we need to download the base file-system, which is a ~15.5 MB compressed tar-ball. The location is
+<br>
+<br><pre>        /debian/dists/potato/main/disks-arm/2.2.25-2001-06-10/base2_2.tgz </pre>
+<br>on <a target="_blank" href=http://ftp://ftp.debian.org> ftp.debian.org </a>.
+<br>
+<br>Unpack this archive in /export/debian, preserving permissions.
+<br>
+<br><pre>        # tar -C /export/empeg -xpzvf <some path>/base2_2.tgz </pre>
+<br>Make a directory /export/debian/packages, where you can (should) download Debian packages that you intend to install for use on the Empeg. Look under
+<br>
+<br><pre>        /debian/dists/potato/main/binary-arm/ </pre>
+<br>on <a target="_blank" href=http://ftp://ftp.debian.org> ftp.debian.org </a> for packages too numerous to mention here. You might want to download the following file and figure out which package you need (you can see package dependencies too):
+<br>
+<br><pre>        /debian/dists/potato/main/binary-arm/Packages.gz </pre>
+<br>Needless to say, the telnet daemon and the ftp daemon would be nice to download. All packages you download should be kept in /export/debian/packages.
+<br>
+<br><b> 2. Onto the Empeg </b>
+<br>
+<br><ul type="square"><br>
+<li> Through a serial connection to the Empeg, drop to the shell (type 'q').
+<br>
+<li> Mount the root file-system read-write.
+<br>
+<br><pre>        # rw </pre>
+<li> Create a directory /mnt/debian, where we shall be NFS mounting the above mentioned file-system.
+<br>
+<br><pre>        # mkdir -p /mnt/debian </pre>
+<li> Mount the NFS file-system. Assuming your NFS server is called linux.somedomain, you need to do the following:
+<br>
+<br><pre>        # mount -t nfs -o rw,nolock linux.somedomain:/export/debian /mnt/debian </pre>
+<li> Type `ls /mnt/debian' to make sure that the NFS mount worked.
+<br>
+<li> Mount the proc file-system on /mnt/debian/proc
+<br>
+<br><pre>        # mount -t proc proc /mnt/debian/proc </pre>
+<li> Type `ls /mnt/debian/proc' to make sure that the mount worked.
+<br>
+<li> Since the base file-system we created above does NOT have Empeg specific devices in /dev, we do the following:
+<br>
+<br><pre>        # cd /dev </pre>
+<br><pre>        # tar -cpvf /mnt/debian/tmp/devices.tar . </pre></ul>
+<br><b> 3. chroot </b>
+<br>
+<br><ul type="square"><br>
+<li> The Empeg does not have the chroot command to begin with, but it should be present at this point in /mnt/debian/usr/sbin. We can create a simple script called "/sbin/debian" this way:
+<br>
+<br><pre>
+<br>        cat > /sbin/debian
+<br>        #! /bin/sh
+<br>        # -- begin --
+<br>        HOME=/root
+<br>        export HOME
+<br>        echo "empeg" > /proc/sys/kernel/hostname
+<br>
+<br>        # You might or might not want to put this here.
+<br>        # mount -t proc proc /mnt/debian/proc
+<br>
+<br>        /mnt/debian/usr/sbin/chroot /mnt/debian /bin/sh -l
+<br>        # -- end --
+<br>        ^D
+<br></pre>
+<li> We run the above script, which will (hopefully) put us into a nice ARM Linux environment. If the script does not work for some reason, try a simple chroot:
+<br>
+<br><pre>        # /mnt/debian/usr/sbin/chroot /mnt/debian /bin/sh -l </pre>
+<li> Unpack /tmp/devices.tar, preserving permissions:
+<br>
+<br>
+<br><pre>        # tar -C /dev -xpvf /tmp/debian.tar </pre>
+<li> It's a good idea to add a user at this point, and also set the root password (note that this will be done in the chroot'ed environment).
+<br>
+<br>
+<li> At this point the system should appear to be fully functional. More packages can be installed by using "dpkg".  (Remember that we have debian packages downloaded in what now appears as /packages). If you choose to install telnetd and ftpd, you would need to run /usr/sbin/inetd (unless you install versions of these daemons which are not "controlled" by inetd).
+<br>
+<br>
+<li> Also, please note that an out of the box Apache will NOT run with an out of the box Empeg kernel (including the development version) because Apache wants System V IPC, which is not compiled in (and loadable module support is not enabled). However, this can be remedied.
+<br>
+<br>
+<li> Finally, the system is "ready" (whatever that means). You can tweak it, for example, make /sbin/debian do more stuff, like running `inetd' or `login', and so on. You can "arrange" for rc scripts to be run in the chroot'ed environment if needed.
+</ul>
+
+<p><ADDRESS class="author">Contributed by 
+<A href="mailto:amit_s@acm.org">Amit Singh</A></ADDRESS></p><a href="18.html#top">Back to Top</a><HR></td></tr><tr><td><a name="56"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>A Few Words About the Empeg Linux Environment</b><BR>&nbsp;(Entry last updated on January 14th, 2002)<p align="justify"><div align="left">Just a few words about working in shell mode (i.e. after exiting the player using "q" and using the serial console). There are some commands on the empeg that are not available on standard linux boxes, and some things to keep in mind while working on the empeg itself:</P>
+<P>First, there are the commands to remount the partitions in read/write mode (while the player usually keeps them in read/only mode). <CODE>rw</CODE> remounts the root device (/dev/hda5 or /dev/root) in read/write mode, <CODE>rwm</CODE> does the same thing for the music partition(s) (/dev/hda4 and /dev/hdb4 on the MkII, /dev/hda4 and /dev/hdc4 on the MkI). The opposite commands work a little different. While <CODE>rom</CODE> does what everyone might expect (remount the music partition(s) read/only), <CODE>ro</CODE> does a little more than expected: It also remounts the music partition(s) read/only. So while there is no single command to remount all partitions read/write, there is one to remount all read/only.</P>
+<P>The other thing to keep in mind is that the empeg is really tight on memory. Many programs should not have a problem with it, as the MkII - for example - has about 6-7MB of free RAM while the player is not running, this is going to be a problem when you use 3rd party software that runs in the background while the player is working (e.g. displayserver or my stupidftp-package) or when doing an fsck on a big drive. Both problems are solvable though: </P>
+<P>If using 3rd party software that stays in memory while the player is running, you might want to use the ReserveCache directive in config.ini (as described above) to reduce the memory consumption of the player. This is not necessary (on the MkII) for my stupid-ftpd-package, but I didn't check wether displayserver might need it. It is needed if both programs are run.</P>
+<P>If using memory consuming software while the player is not running (such as an fsck on large discs or using the debian root environment and/or compiling on the empeg), you might need to add swap to be able to run it. The player does a <CODE>swapon /swapfile</CODE> before running fsck, and does a <CODE>swapoff /swapfile</CODE> after it is finished. I tend to name the swap partition directly and to turn off all swap, using <CODE>swapon /dev/hda6</CODE> (/swapfile is a link to /dev/hda6) and <CODE>swapoff -a</CODE> respectively.</div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>) </ADDRESS>
+</p><a href="18.html#top">Back to Top</a><HR></td></tr></table><br><br><div align="center"><b>[ <a href="../Developer_Info.html">Back to the index</a> ]</b></div></td></tr></table></td></tr></table>
+</td></tr></table>
+    <center><font class=tiny>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#666666" height="20">
+  <tr>
+    <td width="100%" align="center">
+    <font color="#ffffff" face="Verdana" size="2"><b>Copyright &copy; 2001-2018  riocar.org<BR>
+
+    </b>All logos and trademarks on this site are property of their respective owners. The comments are property of their posters.</font></td>
+  </tr>
+</table>
+
+    </font></center>
+
+    
+    </body>
+
+    </html>

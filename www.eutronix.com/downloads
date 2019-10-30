@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>Downloads</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="text.css" type="text/css">
+<link rel="shortcut icon" type="image/x-icon" href="http://www.eutronix.com/media/favicon.ico"></head>
+
+<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<table width="562" border="1" bordercolor="#CCCCCC">
+  <tr>
+    <td>
+      <table width="560" border="0" align="left" cellspacing="0">
+        <tr> 
+          <td bgcolor="#CCCCCC" class="black" width="76">Date</td>
+          <td bgcolor="#CCCCCC" class="unnamed1" width="219">Notes</td>
+          <td bgcolor="#6699CC" class="black" width="177">File</td>
+          <td bgcolor="#6699CC" class="black" width="70">Size (KB)</td>
+        </tr>
+        <tr>
+          <td class="black" valign="top" width="76" align="center">6-27-07</td>
+          <td class="unnamed1" width="219">
+            <p>Download the display extender kit manual here. </p>
+            <p class="Red">Right-click the link at right to save to disk.</p>
+          </td>
+          <td class="unnamed1" valign="top" width="177"><a href="http://www.eutronix.com/media/xtdr.pdf">xtdr.pdf</a></td>
+          <td class="unnamed1" valign="top" width="70">1,268 KB</td>
+        </tr>
+        <tr> 
+          <td class="black" valign="top" width="76" bgcolor="#C7CDD8" align="center"> 
+            <div align="center">1-18-07</div>
+          </td>
+          <td class="unnamed1" width="219" bgcolor="#C7CDD8"> 
+            <p>As a service to Empeg owners wishing to add memory to their players, 
+              here is a manual showing them how to do it! </p>
+            <p class="Red">Right-click the link at right to save to disk.</p>
+          </td>
+          <td class="unnamed1" valign="top" width="177" bgcolor="#C7CDD8"><a href="http://www.eutronix.com/media/memory_manual.pdf">memory_manual.pdf</a></td>
+          <td class="unnamed1" valign="top" width="70" bgcolor="#C7CDD8">1,324 
+            KB</td>
+        </tr>
+        <tr> 
+          <td class="black" valign="top" width="76" align="center">10-13-05</td>
+          <td class="Red" width="219"> 
+            <p class="unnamed1">Download the illumination kit manual here. Be 
+              patient; it is large!</p>
+            <p class="Red">Right-click the link at right to save to disk.</p>
+          </td>
+          <td class="unnamed1" valign="top" width="177"><a href="http://www.eutronix.com/media/ill_kit_manual.pdf">ill_kit_manual.pdf</a></td>
+          <td class="unnamed1" valign="top" width="70">4,348 KB</td>
+        </tr>
+        <tr> 
+          <td class="black" width="76" valign="top" bgcolor="#C7CDD8" align="center">11-04-02</td>
+          <td class="unnamed1" width="219" bgcolor="#C7CDD8"> 
+            <p>Download the sound card manual here. Be patient; it is large!</p>
+            <p class="Red">Right-click the link at right to save to disk.</p>
+          </td>
+          <td class="unnamed1" valign="top" width="177" bgcolor="#C7CDD8"><a href="http://www.eutronix.com/media/dig-cxxxx_manual.pdf">dig-cxxxx_manual.pdf</a></td>
+          <td class="unnamed1" valign="top" width="70" bgcolor="#C7CDD8">2,454 
+            KB</td>
+        </tr>
+        <tr> 
+          <td class="black" valign="top" width="76" align="center">9-12-02</td>
+          <td class="unnamed1" width="219"> 
+            <p>This is the sound card kit assembly manual.</p>
+            <p class="Red">Right-click the link at right to save to disk.</p>
+          </td>
+          <td class="unnamed1" valign="top" width="177"><a href="http://www.eutronix.com/media/dig-cxxxx_kit_assembly_manual.pdf">dig-cxxxx_kit_assembly_manual.pdf</a></td>
+          <td class="unnamed1" valign="top" width="70">356 KB</td>
+        </tr>
+        <tr> 
+          <td class="black" valign="top" width="76" bgcolor="#C7CDD8" align="center">8-14-02</td>
+          <td class="Red" width="219" bgcolor="#C7CDD8"> 
+            <p class="unnamed1">Download the install template for the sound card 
+              here. </p>
+            <p>Right-click the link at right to save to disk.</p>
+          </td>
+          <td class="unnamed1" valign="top" width="177" bgcolor="#C7CDD8"><a href="http://www.eutronix.com/media/template.tif">template.tif</a></td>
+          <td class="unnamed1" valign="top" width="70" bgcolor="#C7CDD8">298 KB</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

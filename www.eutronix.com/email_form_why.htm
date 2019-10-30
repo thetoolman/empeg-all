@@ -1,0 +1,178 @@
+<html>
+<head>
+<title>eutronix.com - Questions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<script language="JavaScript">
+var nReload = 5;
+<!--
+
+function NewVerifyImage()
+{
+    if (nReload <= 2)
+        if (nReload <= 0)
+        {
+            alert("Sorry, too many reloads.");
+            return;
+        }
+        else
+            alert("Only " + nReload + " more reloads are allowed");
+    nReload--;
+
+        //
+        // This code now works in both IE and FireFox
+        //
+    var         e_img;
+
+    e_img = document.getElementById("vimg");
+    if (e_img)
+                //
+                // FireFox attempts to "optimize" by not reloading
+                // the image if the URL value doesn't actually change.
+                // So, we make it change by adding a different
+                // count parameter for each reload.
+                //
+        e_img.setAttribute("src",e_img.src+'?count='+nReload);
+}
+
+function MM_findObj(n, d) { //v4.0
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && document.getElementById) x=document.getElementById(n); return x;
+}
+
+function MM_validateForm() { //v4.0
+  var i,p,q,nm,test,num,min,max,errors='',args=MM_validateForm.arguments;
+  for (i=0; i<(args.length-2); i+=3) { test=args[i+2]; val=MM_findObj(args[i]);
+    if (val) { nm=val.name; if ((val=val.value)!="") {
+      if (test.indexOf('isEmail')!=-1) { p=val.indexOf('@');
+        if (p<1 || p==(val.length-1)) errors+='- '+nm+' must contain an e-mail address.\n';
+      } else if (test!='R') {
+        if (isNaN(val)) errors+='- '+nm+' must contain a number.\n';
+        if (test.indexOf('inRange') != -1) { p=test.indexOf(':');
+          min=test.substring(8,p); max=test.substring(p+1);
+          if (val<min || max<val) errors+='- '+nm+' must contain a number between '+min+' and '+max+'.\n';
+    } } } else if (test.charAt(0) == 'R') errors += '- '+nm+' is required.\n'; }
+  } if (errors) alert('The following error(s) occurred:\n'+errors);
+  document.MM_returnValue = (errors == '');
+}
+//-->
+</script>
+<style type="text/css">
+<!--
+.text_body_black {  font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000; line-height: 11pt}
+.text_body_black_italic { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #000000 ; font-style: italic}
+.text_body_red { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #CC0000; font-weight: normal; font-style: normal}
+.format_list {  font-family: Arial, Helvetica, sans-serif; font-size: 14px; border: #006699; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+.text_body_bold_red { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-transform: none; color: #CC0000 }
+.text_body_blue { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #0066FF}
+.title_font_white_small { font-family: Verdana; font-size: 14px; line-height: normal; font-weight: bold; color: #FFFFFF }
+.text_body_bold_green { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-transform: uppercase; color: #009900}
+.text_body_black_medium { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000 }
+.text_body_black_medium_bold { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000 ; font-weight: bold}
+-->
+.text_body_black_bold { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #000000; line-height: 12pt ; font-weight: bold}
+.text_body_blue_small { font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #0000CC }
+.text_body_blck_small { font-family: Arial, Helvetica, sans-serif; font-size: 7px; color: #000000}
+.text_body_red_small { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #CC0000; font-weight: normal; font-style: normal }
+-->
+</style>
+<link rel="shortcut icon" type="image/x-icon" href="http://www.eutronix.com/media/favicon.ico"></head>
+
+<body bgcolor="#FFFFFF" topmargin="0" marginheight="0">
+<span class="text_body_red_small"></span> <span class="text_body_blck_small"></span> 
+<span class="text_body_black_small"></span> <span class="text_body_black_small"></span> 
+<span class="text_body_blue_smallCopy"></span> <span class="text_body_black_bold"></span> 
+<span class="text_body_black_medium"></span> <span class="title_font_white_small"></span> 
+<span class="text_body_black_sub"></span> <span class="text_body_blue"></span> 
+<span class="text_body_bold_black"></span> <span class="text_body_black_italic"></span> 
+<span class="text_body_black"></span> 
+<table width="730" border="0" cellspacing="0" cellpadding="0" align="center">
+			<tr> 
+    <td>&nbsp;</td>
+    <td><img src="eutronix_title.gif" width="730" height="86" usemap="#Map" border="0" alt="Welcome to eutronix.com" align="middle"> 
+      <form method="post" action="http://www.eutronix.com/ourformscript.php" name="email_form.htm">
+      </form></td>
+    <td>&nbsp;</td>
+  </tr>
+			<td height="38">&nbsp;</td>
+			<td height="53" rowspan="3">
+				
+      <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr>
+          <td class="text_body_bold_red" height="25">&nbsp;</td>
+        </tr>
+        <tr> 
+          <td class="text_body_bold_red">Why are we asking you to enter the text 
+            from an image?</td>
+        </tr>
+        <tr> 
+          <td height="0" class="text_body_black_medium">&nbsp;</td>
+        </tr>
+        <tr> 
+          <td class="text_body_black">
+            <p>Due to the high volume of spam a form like this can generate, we 
+              have opted to install this image verification system. </p>
+            <p>By implementing this system, our servers can better differentiate 
+              between human users and automated software used to spam us.</p>
+            <p> Entering the text you see in the image will help us to save considerable 
+              time reading our e-mails and ultimately replying to your inquiries 
+              much more quickly.</p>
+          </td>
+        </tr>
+        <tr> 
+          <td>&nbsp;</td>
+        </tr>
+      </table>
+			</td>
+			<td height="38">&nbsp;</td>
+			</tr>
+			<tr> 
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td height="20">&nbsp;</td>
+      <td height="20">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td height="20">&nbsp;</td>
+      <td class="text_body_black_small"> 
+        <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr> 
+            
+          <td>&nbsp; </td>
+          </tr>
+        </table>
+      </td>
+      <td height="20">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td height="20">&nbsp;</td>
+      
+    <td class="text_body_red" height="400">&nbsp;</td>
+      <td height="20">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>&nbsp;</td>
+      <td align="right" class="text_body_black_small"> 
+        <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr align="right"> 
+            <td class="text_body_black_small"> 
+              <hr>
+            </td>
+          </tr>
+          <tr align="right"> 
+            <td class="text_body_black">Copyright Eutronix 2003-2007, all rights 
+              reserved.</td>
+          </tr>
+        </table>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  
+</table>
+<span class="text_body_blck_small"></span>
+</body>
+</html>

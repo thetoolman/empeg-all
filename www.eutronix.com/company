@@ -1,0 +1,201 @@
+<html>
+<head>
+<title>Eutronix.com - About the Company</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+.text_body_black {  font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000; line-height: 11pt}
+.text_body_black_italic { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #000000 ; font-style: italic}
+.text_body_red { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #CC0000; font-weight: normal; font-style: normal}
+.format_list {  font-family: Arial, Helvetica, sans-serif; font-size: 14px; border: #006699; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+.text_body_bold_red { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-transform: none; color: #CC0000 }
+.text_body_blue { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #0066FF}
+.title_font_white_small { font-family: Verdana; font-size: 14px; line-height: normal; font-weight: bold; color: #FFFFFF }
+.text_body_bold_green { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-transform: uppercase; color: #009900}
+.text_body_black_medium { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000 }
+.text_body_black_medium_bold { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000 ; font-weight: bold}
+-->
+.text_body_black_bold { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #000000; line-height: 12pt ; font-weight: bold}
+.text_body_blue_small { font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #0000CC }
+.text_body_blck_small { font-family: Arial, Helvetica, sans-serif; font-size: 7px; color: #000000}
+-->
+</style>
+<script language="JavaScript">
+<!--
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_findObj(n, d) { //v4.0
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && document.getElementById) x=document.getElementById(n); return x;
+}
+
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+//-->
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" topmargin="0" marginheight="0" onLoad="MM_preloadImages('../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Products.gif','../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Order.gif','../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Contact_Us.gif','../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Company.gif','Buttons/Products.gif','Buttons/Company.gif','Buttons/Contact_Us.gif','Buttons/Order.gif','Buttons/Services.gif')">
+<span class="text_body_blck_small"></span> <span class="text_body_black_small"></span> 
+<span class="text_body_black_small"></span> <span class="text_body_blue_smallCopy"></span> 
+<span class="text_body_black_bold"></span> <span class="text_body_black_medium"></span> 
+<span class="title_font_white_small"></span> <span class="text_body_black_sub"></span> 
+<span class="text_body_blue"></span> <span class="text_body_bold_black"></span> 
+<span class="text_body_black_italic"></span> <span class="text_body_black"></span> 
+<table width="730" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr> 
+    <td>&nbsp;</td>
+    <td><img src="eutronix_title.gif" width="730" height="86" usemap="#Map" border="0" alt="Welcome to Eutronix.com" align="middle"> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <form action="http://www.eutronix.com/cgi-bin/submit_data.cgi" method="POST">
+    <input type="hidden" name="data_action" value="Insert">
+    <input type="hidden" name="setup" value="Sales">
+    <tr> 
+      <td height="38">&nbsp;</td>
+      <td height="53" rowspan="2">
+        <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr> 
+            <td width="133" align="center"><img src="Buttons/Company.gif" width="130" height="36" alt="Company"></td>
+            <td width="10">&nbsp;</td>
+            <td width="133" align="center"><a href="http://www.eutronix.com/products" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Products','','Buttons/Products.gif',1)"><img name="Products" border="0" src="Buttons/Products_clear.gif" width="130" height="36"></a></td>
+            <td width="10">&nbsp;</td>
+            <td align="center"><a href="http://www.eutronix.com/services" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Services','','Buttons/Services.gif',1)"><img name="Services" border="0" src="Buttons/Services_clear.gif" width="130" height="36"></a></td>
+            <td width="10">&nbsp;</td>
+            <td align="center"><a href="http://www.eutronix.com/order" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Order','','Buttons/Order.gif',1)"><img name="Order" border="0" src="Buttons/Order_clear.gif" width="130" height="36"></a></td>
+          </tr>
+          <tr> 
+            <td colspan="7">&nbsp;</td>
+          </tr>
+        </table>
+      </td>
+      <td height="38">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td height="20">&nbsp;</td>
+      <td class="text_body_black_small"> 
+        <table width="560" border="0" cellspacing="0" cellpadding="0" align="center" height="22">
+          <tr> 
+            <td height="3" colspan="4"><img src="what_we_do.gif" width="560" height="40" alt="What We Do"></td>
+          </tr>
+          <tr> 
+            <td height="0" colspan="4">&nbsp;</td>
+          </tr>
+          <tr> 
+            <td height="0" colspan="4" class="text_body_black"> 
+              <p class="text_body_black">Founded in Mid-2002, Eutronix Design 
+                Group LLC is a small, &quot;Two Man&quot; operation located in 
+                Mandeville, Louisiana USA that is focused on bringing unique digital 
+                electronics and services of the highest quality to serve discriminating 
+                electronics enthusiasts from across the globe. </p>
+              <p>Because of our small size, we are able to respond very quickly 
+                to technological developments, market forces, and ultimately customer 
+                needs. Count on us to bring only the finest in products, world-class 
+                service and the attention you deserve.</p>
+              <p>All products are competently assembled with pride in the USA 
+                using only the finest components, which although more expensive, 
+                result in a more reliable and sonically superior product to you, 
+                our customer. </p>
+            </td>
+          </tr>
+          <tr> 
+            <td height="15" colspan="4">&nbsp;</td>
+          </tr>
+          <tr> 
+            <td height="15" colspan="4"><img src="who_we_are.gif" width="560" height="40"></td>
+          </tr>
+        </table>
+      </td>
+      <td height="20">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td height="20">&nbsp;</td>
+      <td class="text_body_black_small"> 
+        <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr> 
+            <td width="265" height="0">&nbsp;</td>
+            <td rowspan="5" height="17"><img src="white_pix.gif" width="1" height="120"></td>
+            <td rowspan="5"><img src="light_gray_pix.gif" width="2" height="110" align="left"></td>
+            <td rowspan="5" width="17">&nbsp;</td>
+            <td rowspan="5" height="17"><img src="white_pix.gif" width="1" height="120"></td>
+            <td width="266" height="0">&nbsp;</td>
+          </tr>
+          <tr> 
+            <td width="265" height="17" valign="top"><span class="text_body_red">STUART 
+              EUANS <span class="text_body_black">-</span></span> <span class="text_body_black_italic">President/Lead 
+              Engineer</span></td>
+            <td width="266" class="text_body_black_italic" height="17" valign="top"><span class="text_body_red">DAVID 
+              EUANS<span class="text_body_black"> -</span></span><span class="text_body_black"> 
+              </span>Assistant Engineer</td>
+          </tr>
+          <tr> 
+            <td width="265" class="text_body_black" valign="middle" bgcolor="#FFFFFF"><img src="white_pix.gif" width="265" height="6"></td>
+            <td width="266" class="text_body_black" valign="top"><img src="white_pix.gif" width="265" height="6"></td>
+          </tr>
+          <tr> 
+            <td width="265" class="text_body_black" valign="top">He is responsible 
+              for research and development, mechanical and electronic engineering, 
+              printed circuit board design, operations management, Webmaster, 
+              inventory procurement, marketing, order fulfillment, and customer 
+              support. </td>
+            <td width="266" class="text_body_black" valign="top">He handles such 
+              tasks as CGI and device programming, and financing. </td>
+          </tr>
+          <tr> 
+            <td width="265">&nbsp;</td>
+            <td width="266">&nbsp;</td>
+          </tr>
+        </table>
+      </td>
+      <td height="20">&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>&nbsp;</td>
+      <td align="right" class="text_body_black_small"> 
+        <table width="730" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr align="right"> 
+            <td class="text_body_black_small" colspan="2"> 
+              <hr width="730">
+            </td>
+          </tr>
+          <tr align="right"> 
+            <td class="text_body_blue_small" align="left" width="274"><a href="http://www.eutronix.com/terms_and_conditions.htm"><span class="text_body_black">Terms 
+              and Conditions</span></a><span class="text_body_black"><img src="white_pix.gif" width="25" height="5"> 
+              <a href="http://www.eutronix.com/email_form.htm" class="text_body_black_medium">Contact 
+              Us</a></span></td>
+            <td class="text_body_black" align="right" width="286">Copyright Eutronix 
+              2003, all rights reserved</td>
+          </tr>
+          <tr align="right"> 
+            <td class="text_body_blue_small" align="left" width="274" height="15">&nbsp;</td>
+            <td class="text_body_black_medium" align="right" width="286" height="15">&nbsp;</td>
+          </tr>
+        </table>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  </form>
+</table>
+<map name="Map"> 
+  <area shape="rect" coords="16,8,262,64" href="http://www.eutronix.com" alt="Home" title="Home">
+</map>
+</body>
+</html>

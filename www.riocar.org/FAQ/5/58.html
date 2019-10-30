@@ -1,0 +1,94 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>rio car dot org</title>
+	<base href="">
+	<link rel="StyleSheet" href="../../themes/Default/style/style.css" type="text/css">
+</head>
+
+<body background="../../themes/RioCar2/images/outer_bg.gif" bgcolor="#FFFFFF" text="#000000" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0" link="#00093C" vlink="#00093C" alink="#0000FF">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#000D52" style="border-collapse: collapse" bordercolor="#111111" background="../../themes/RioCar2/images/header_bg.gif">
+<tr>
+<td><img border="0" src="../../themes/RioCar2/images/logo.gif" width="270" height="90" Alt="Welcome to "></td>
+<td align="right"><img border="0" src="../../themes/RioCar2/images/header_mk2fade.gif" hspace="5" width="264" height="90"></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#666666" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111">
+<tr>
+<td><font color="#FFFFFF">&nbsp;<b><font size="2" face="Verdana">Welcome to riocar.org!</font></b></font></td>
+<td align="right"><font color="#FFFFFF"><font face="Verdana" size="2"><b>Friday, August 6th</b></font>&nbsp;</font></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#000000" cellpadding="0">
+<tr>
+<td width="100%">
+<img border="0" src="../../themes/RioCar2/images/clear.gif" width="1" height="1"></td>
+</tr>
+</table>
+<TABLE><TR><TD VALIGN="TOP"><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td><table width="100%" border="0" cellspacing="1" cellpadding="3"><tr><td bgcolor="666699" ><font class="contentheader" color=ffffff>Main Menu</font></td></tr><tr><td bgcolor="ffffff"><font class="content"><font class="content">
+<strong><big>&middot;</big></strong>&nbsp;Web Links<br>
+<strong><big>&middot;</big></strong>&nbsp;Downloads<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="http://empegbbs.com">BBS/Forums</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../../lens.html">Lens Compare</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Boot Logos<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../../Button_Guide.html">Button Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../../Developer_Info.html">Developer Info</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../../Drive_Upgrade.html">Drive Upgrade</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../../FAQ.html">FAQ</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../../Geek_Guide.html">Geek Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Photo Gallery<br>
+</font></font></td></tr></table></td></tr></table><br><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td></td></tr></table><br><img src="../../images/pix.gif" border="0" width="150" height="1"></td><td>&nbsp;&nbsp;</td><td width="100%" valign="top"><table width="100%" border="0" cellspacing="1" cellpadding="0" bgcolor="#000000"><tr><td>
+<table width="100%" border="0" cellspacing="1" cellpadding="8" bgcolor="#ffffff"><tr><td>
+<center><IMG SRC="../../images/faqtux.gif"><BR><font class="content"><b>rio car dot org FAQ (Frequently Asked Questions)</b></font></center><br><br><a name="top"></a><br>Category: <a href="../../index.html">Main</a> -> MP3 creation and playback questions<br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr><td bgcolor="#cccccc"><font class="option"><b>Search the FAQ</b></font></td></tr><tr><td><iframe src="https://duckduckgo.com/search.html?site=riocar.org&prefill=Search with DuckDuckGo" style="overflow:hidden;margin:0;padding:0;width:408px;height:40px;" frameborder="0"></iframe></td></tr></table><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr><td><a name="53"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="53.html#53">What is the best way to create MP3s?</A></b>&nbsp;<tr><td><a name="55"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="55.html#55">How should I name my MP3 files and ID3 tags?</A></b>&nbsp;<tr><td><a name="56"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="56.html#56">What tools can I use to diagnose and repair problems with my MP3 files?</A></b>&nbsp;<tr><td><a name="75"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="75.html#75">Can I increase the quality of an MP3 by decoding and re-encoding it?</A></b>&nbsp;<tr><td><a name="57"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="57.html#57">How does the player handle gapless playback?</A></b>&nbsp;<tr><td><a name="58"></a><HR><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>How can I create files that will play back gaplessly on the player?</b><BR>&nbsp;(Entry last updated on August 21st, 2002)<p align="justify">There are a few ways to go about this, and none of them are perfect.<BR><BR>
+
+Recent versions of the LAME and BladeEnc encoders have options for encoding your MP3s gaplessly. Reportedly, there is still a very tiny, almost imperceptible blip between some tracks when doing this.<br><br>
+
+According to those who have experimented with the "nogap" parameter in LAME, it only works if you do the following:<br>
+
+<UL>
+
+<LI>You must have all of the wave files pre-ripped on your hard disk, then put them all on the same command line to LAME. You cannot do them individually, they must be done as a group. This prevents you from being able to do it with most of the automated ripping packages since they do the rip/encodes one at a time. An example of a proper command line would be:<br><br>
+
+<b>LAME --nogap track01.wav track02.wav track03.wav</b></LI><BR><BR>
+
+<LI>Because of the command-line limitations, you will probably have to hand-tag the files after the fact. The tagging should not affect gapless playback on the car player.</LI><BR><BR>
+
+<LI>LAME disables VBR headers when it encodes with the nogap parameter. It seems to do this on purpose, perhaps because VBR headers cause problems with gapless playback on certain players. Those who have tried adding the VBR headers back in with an after-the-fact VBR fixing tool have reported that it does cause a glitch to appear between tracks on playback. However, it was recently reported that that the problem might have simply been due to a bug in VBRFix which truncates the last frame of the files it fixes. The Rio Car player should (in theory) be able to play the files gaplessly even if they have VBR headers added <i>as long as the headers were added properly</i>.</LI><BR><BR>
+
+<LI>Because adding VBR headers might possibly cause a problem, but they are required if you want to be able to FF/REW properly in a VBR file, then you might choose to just not even use VBR at all. It's probably easier to encode to a fixed (CBR) bit rate for the albums you want gapless. To achieve the same quality as VBR in a CBR file, you should use a high bit rate such as 160, 192, or higher. This means that the popular parameter "alt preset standard" cannot be used, although "alt preset cbr 192" would be just fine.</LI>
+</UL>
+
+Whatever you do, it's important that you read the documentation for your encoder very closely to make sure you are using the correct command line parameters.<BR><BR>
+
+Here are some other ways to create gapless MP3 files:<BR><BR>
+
+<UL><LI>Rip your CD as one huge single track (usually done by selecting only the last track then editing the track start time in the ripper software). Encode it and listen to it this way, as one huge track. This will always work perfectly every time, but is very unwieldy.</LI><BR><BR>
+
+<LI>Rip your CD as one huge single track, encode it as one huge MP3, then hand-split the MP3 into individual tracks. Split it cleanly at frame boundaries. The GapKiller utility (available from the <a href="http://riocar.org/download.php.html">Download section</a> of this site) has a feature to help you do this.<BR><BR>
+
+This method isn't perfect, because MP3 frames are not fully independent of one another. If a file is split at a frame boundary, some of the data from the previous file is not carried over when the next file starts playing. This creates a tiny "blip" at the transition point between two songs. It's much less annoying than an actual gap of silence, though.<br><br>
+
+This also causes a problem with VBR headers, which causes the split files to display incorrect seek times. So you might wish to only use this method on CBR files.</LI><BR><BR>
+
+<LI>Rip and encode your CD normally, as individual tracks. Then hand-trim frames off of the beginning and end of adjacent file pairs. This method is tricky, because you must use trial-and-error. You're trimming some valid audio data as well as trimming silence, and it will take several tries before you can make the transition sound smooth. The GapKiller utility (available from the <a href="http://riocar.org/download.php.html">Download section</a> of this site) can help you do this by making this trial-and-error previewing as painless as possible.<BR><BR>
+
+This last technique seems to work quite well, although it's still not 100 percent perfect. There are some song pairs which simply refuse to trim into a smooth set. But you can certainly make every song pair listenable, and you can get about 95 percent of them sounding great.</LI></UL></p><HR></td></tr><tr><td><a name="42"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="42.html#42">Why do all my songs play at different volumes?</A></b>&nbsp;<tr><td><a name="43"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="43.html#43">If I normalize my MP3s, will they sound like they are at the same volume?</A></b>&nbsp;<tr><td><a name="44"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="44.html#44">Can I use software to apply a "relative volume" offset to each track so they can sound equal?</A></b>&nbsp;<tr><td><a name="45"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b><A HREF="45.html#45">So how do I do dynamic range compression at playback time?</A></b>&nbsp;</table><br><br><div align="center"><b>[ <a href="../../index.html">Back to FAQ Index</a> ]</b></div></td></tr></table></td></tr></table>
+</td></tr></table>
+    <center><font class=tiny>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#666666" height="20">
+  <tr>
+    <td width="100%" align="center">
+    <font color="#ffffff" face="Verdana" size="2"><b>Copyright &copy; 2001-2018  riocar.org<BR>
+
+    </b>All logos and trademarks on this site are property of their respective owners. The comments are property of their posters.</font></td>
+  </tr>
+</table>
+
+    </font></center>
+
+    
+    </body>
+
+    </html>

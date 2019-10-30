@@ -1,0 +1,780 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>rio car dot org</title>
+	<base href="">
+	<link rel="StyleSheet" href="../themes/Default/style/style.css" type="text/css">
+</head>
+
+<body background="../themes/RioCar2/images/outer_bg.gif" bgcolor="#FFFFFF" text="#000000" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0" link="#00093C" vlink="#00093C" alink="#0000FF">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#000D52" style="border-collapse: collapse" bordercolor="#111111" background="../themes/RioCar2/images/header_bg.gif">
+<tr>
+<td><img border="0" src="../themes/RioCar2/images/logo.gif" width="270" height="90" Alt="Welcome to "></td>
+<td align="right"><img border="0" src="../themes/RioCar2/images/header_mk2fade.gif" hspace="5" width="264" height="90"></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#666666" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111">
+<tr>
+<td><font color="#FFFFFF">&nbsp;<b><font size="2" face="Verdana">Welcome to riocar.org!</font></b></font></td>
+<td align="right"><font color="#FFFFFF"><font face="Verdana" size="2"><b>Friday, August 6th</b></font>&nbsp;</font></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#000000" cellpadding="0">
+<tr>
+<td width="100%">
+<img border="0" src="../themes/RioCar2/images/clear.gif" width="1" height="1"></td>
+</tr>
+</table>
+<TABLE><TR><TD VALIGN="TOP"><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td><table width="100%" border="0" cellspacing="1" cellpadding="3"><tr><td bgcolor="666699" ><font class="contentheader" color=ffffff>Main Menu</font></td></tr><tr><td bgcolor="ffffff"><font class="content"><font class="content">
+<strong><big>&middot;</big></strong>&nbsp;Web Links<br>
+<strong><big>&middot;</big></strong>&nbsp;Downloads<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="http://empegbbs.com">BBS/Forums</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../lens.html">Lens Compare</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Boot Logos<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Button_Guide.html">Button Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Developer_Info.html">Developer Info</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Drive_Upgrade.html">Drive Upgrade</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../FAQ.html">FAQ</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Geek_Guide.html">Geek Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Photo Gallery<br>
+</font></font></td></tr></table></td></tr></table><br><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td></td></tr></table><br><img src="../images/pix.gif" border="0" width="150" height="1"></td><td>&nbsp;&nbsp;</td><td width="100%" valign="top"><table width="100%" border="0" cellspacing="1" cellpadding="0" bgcolor="#000000"><tr><td>
+<table width="100%" border="0" cellspacing="1" cellpadding="8" bgcolor="#ffffff"><tr><td>
+<center><font class="content"><b>rio car dot org Developer Information</b></font></center><br><br><a name="top"></a><br>Category: <a href="../Developer_Info.html">Main</a> -> The Empeg Player App<br><br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td colspan="2"><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="9.html#25">Serial Port Commands</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="9.html#26">Player Config Options in config.ini</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="9.html#27">Player Command Line Arguments</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="9.html#28">Player Return Codes</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="9.html#29">FID files (Where The Music Lives)</a><BR></td></tr></table>
+    <br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td><a name="25"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Serial Port Commands</b><BR>&nbsp;(Entry last updated on December 10th, 2002)<p align="justify"><div align="left"><p>These are the basic commands that can be sent through the serial port (might work with the USB port but haven't tested it) to control your empeg.</p></div>
+<table border="1">
+  <tr>
+    <td>[</td>
+    <td>Switch to empeg channel</td>
+  </tr>
+  <tr>
+	<td>(space)</td>
+    <td>Play </td>
+  </tr>
+  <tr>
+	<td>W</td>
+    <td>pause </td>
+  </tr>
+  <tr>
+	<td>p</td>
+    <td>Previous Song </td>
+  </tr>
+  <tr>
+	<td>n</td>
+    <td>Next Song</td>
+  </tr>
+  <tr>
+	<td>F</td>
+    <td>Fast forward </td>
+  </tr>
+  <tr>
+	<td>B</td>
+    <td>Rewind</td>
+  </tr>
+  <tr>
+    <td>]</td>
+    <td>Switch to radio</td>
+  </tr>
+  <tr>
+	<td>1-9</td>
+    <td>FM Preset</td>
+  </tr>
+  <tr>
+  	<td>.</td>
+    <td>FM Down</td>
+  </tr>
+  <tr>
+	<td>;</td>
+    <td>FM UP</td>
+  </tr>
+  <tr>
+	<td>`</td>
+    <td>Radio preset store </td>
+  </tr>
+  <tr>
+	<td>O</td>
+    <td>FM preset</td>
+  </tr>
+  <tr>
+	<td>=</td>
+    <td>AUX Input </td>
+  </tr>
+  <tr>
+	<td>+</td>
+    <td>Volume + </td>
+  </tr>
+  <tr>
+	<td>-</td>
+    <td>Volume - </td>
+  </tr>
+  <tr>
+	<td>x</td>
+    <td>Volume + </td>
+  </tr>
+  <tr>
+	<td>z</td>
+    <td>Volume - </td>
+  </tr>
+  <tr>
+	<td>K</td>
+    <td>Loudness down </td>
+  </tr>
+  <tr>
+	<td>L</td>
+    <td>Loudness up </td>
+  </tr>
+  <tr>
+	<td>s</td>
+    <td>Full Screen On/Off (CD-MD CH button) </td>
+  </tr>
+  <tr>
+	<td>v</td>
+    <td>Next Visual</td>
+  </tr>
+  <tr>
+    <td>q</td>
+    <td>Drop to Shell</td>
+  </tr>
+  <tr>
+    <td>r</td>
+    <td>Restarts Player</td>
+  </tr>
+  <tr>
+	<td></td>
+    <td>Sleep On/Off </td>
+  </tr>
+  <tr>
+	<td>f</td>
+    <td>Seek?</td>
+  </tr>
+  <tr>
+	<td>b</td>
+    <td>Seek?</td>
+  </tr>
+  <tr>
+    <td>m</td>
+    <td>enter menu / select item</td>
+  </tr>
+  <tr>
+    <td>n</td>
+    <td>right in menu</td>
+  </tr>
+  <tr>
+    <td>p</td>
+    <td>left in menu</td>
+  </tr>
+  <tr>
+    <td>*</td>
+    <td>go back up one level</td>
+  </tr>
+  <tr>
+    <td>enter</td>
+    <td>confirm character(s) entered so far</td>
+  </tr>
+  <tr>
+    <td>#<n></td>
+    <td>Play FID <n> (given in hexadecimal representation, e.g. "#100" for the entire player)</td>
+  </tr>
+  <tr>
+    <td>#<n>+</td>
+    <td>Append FID <n> (given in hexadecimal representation, e.g. "#100" for the entire player) - 2.0Beta 13 and above</td>
+  </tr>
+  <tr>
+    <td>#<n>-</td>
+    <td> Enqueue FID <n> (given in hexadecimal representation, e.g. "#100" for the entire player) - 2.0Beta 13 and above</td>
+  </tr>
+  <tr>
+    <td>#<n>!</td>
+    <td>Insert FID <n> (given in hexadecimal representation, e.g. "#100" for the entire player) - 2.0Beta 13 and above</td>
+  </tr>
+
+</table>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>)  - Updates from 2.0 Beta 13 release notes, thanks to Mark Cushman for pointing them out - Tom </address>
+</p><a href="9.html#top">Back to Top</a><HR></td></tr><tr><td><a name="26"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Player Config Options in config.ini</b><BR>&nbsp;(Entry last updated on April 30th, 2008)<p align="justify"><div align="left">The config.ini file consists of some separate sections that each might contain one or more options.  The basic format of the file is:</div>
+<div align="left"><PRE>
+[section1]
+option1=value
+
+[section2]
+option2=value
+option3=value
+...
+</pre></div>
+<div align="left">The following directives may be placed into the empeg player's 
+  configuration file, /empeg/var/config.ini. The "Ver" column contains 
+  the software version(s) this works on, I skipped denoting entries that were 
+  available in (non public) 1.1 alphas), I also skipped pre 1.0 versions.</div>
+<table width="95%" border="1">
+  <tr> 
+    <td valign="top">Ver</td>
+    <td valign="top">Section</td>
+    <td valign="top">Option</td>
+    <td valign="top">Description</td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">Startup</td>
+    <td valign="top">ReserveCache=n</td>
+    <td valign="top">n = number of chunks to reduce the caching area by Each chunk 
+      is 64kBytes. The player usually reserves 
+      180 chunks (MkII developer image v1.03, likely different for V2/V3, 
+      and might be different on the MkI or MkIIa) for file caching, and reduces 
+      this amount by the value of <code>ReserveCache</code>. If <code>ReserveCache</code> 
+      is present, the player reports the size of its file cache upon startup. 
+      There has been info on a "ReduceCache" setting floating around. There isn't 
+      any mentioning of such a setting in the player (according to Roger Lipscombe, 
+      it isn't even mentioned in the source, so it probably never existed).</td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">controls</td>
+    <td valign="top">stalk_side=x</td>
+    <td valign="top">x = "left" or "right" (without the quotes) defines the way 
+      in which the (Sony) stalk interface is mounted. The stalk interface is connected 
+      to the empeg through the tuner module.</td>
+  </tr>
+  <tr> 
+    <td valign="top" rowspan="2">1/2</td>
+    <td valign="top" rowspan="2">Options</td>
+    <td valign="top">name=x</td>
+    <td valign="top">set the name of the empeg/rio-car device to "x"</td>
+  </tr>
+  <tr>
+    <td valign="top">spindown=x</td>
+    <td valign="top">A value of 1 (default) tells the player software to spin the disc(s) down whenever possible. A value of 0 disables this. Note that this only controls what the player app does. A HiJack kernel has its own spindown feature which can be disabled with "spindown_seconds=0" in the <a href="../FAQ/11/182.html#182">HiJack section of config.ini</a>.
+  </tr>
+  <tr> 
+    <td rowspan="3" valign="top">1/2</td>
+    <td rowspan="3" valign="top">User Info</td>
+    <td valign="top">Email=x</td>
+    <td valign="top">sets the owner's email address (as displayed in the "about" 
+      screen)</td>
+  </tr>
+  <tr> 
+    <td valign="top">Phone=x</td>
+    <td valign="top">sets the owner's phone number</td>
+  </tr>
+  <tr> 
+    <td valign="top">Name=x</td>
+    <td valign="top">sets the owner's name</td>
+  </tr>
+  <tr> 
+    <td rowspan="4" valign="top">1/2</td>
+    <td rowspan="4" valign="top">Network</td>
+    <td valign="top">DHCP=x</td>
+    <td valign="top">if 1 ignores all other entries in this section and uses a 
+      DHCP server instead. if 0 uses the configuration from the following entries:</td>
+  </tr>
+  <tr> 
+    <td valign="top">Gateway=a.b.c.d</td>
+    <td valign="top">sets the default gateway to a.b.c.d (standard decimal representation 
+      of the gateways IP address)</td>
+  </tr>
+  <tr> 
+    <td valign="top">Netmask=a.b.c.d</td>
+    <td valign="top">sets the netmask for the empeg's ethernet interface</td>
+  </tr>
+  <tr> 
+    <td valign="top">IPAddress=a.b.c.d</td>
+    <td valign="top">sets the local IP address of the empeg's ethernet port</td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">sense</td>
+    <td valign="top">mute=x</td>
+    <td valign="top">sets the telephone mute mode:<br>
+      0 mute when input is 0V<br>
+      x mute when input is 12V<br>
+      y never mute<br>
+    </td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">power</td>
+    <td valign="top">off_timeout=x</td>
+    <td valign="top">sets the timeout for going from sleep mode to off when in 
+      car. Value is given in 10th of a second</td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">tuner</td>
+    <td valign="top">region=x</td>
+    <td valign="top">x = "europe" or "america"(?)</td>
+  </tr>
+  <tr> 
+    <td rowspan="2" valign="top">1/2</td>
+    <td rowspan="2" valign="top">output</td>
+    <td valign="top">timecodes=x</td>
+    <td valign="top"> 
+        0 Timecodes & FID numbers are <b>not</b> displayed.<BR>
+        1 prints Timecodes & FID numbers to serial port.<BR>
+      <B>NOTE</b>: timecodes=x will probably be dropped in a future software release.</td>
+  </tr>
+  <tr> 
+    <td valign="top">notify=x</td>
+    <td valign="top"> 
+        0 does not output song / artist / etc. on the serial port.<BR>
+        1 puts song / artist / genre / etc. on the serial port.
+    </td>
+  </tr>
+  <tr> 
+    <td rowspan="2" valign="top">1/2</td>
+    <td rowspan="2" valign="top">display</td>
+    <td valign="top">caching=x</td>
+    <td valign="top"> 
+        0 Disable disk activity icon.<BR>
+        1 Enable disk activity icon.
+  </tr>
+  <tr> 
+    <td valign="top">visual_names=x</td>
+    <td valign="top"> 
+        0 Don't display visual names when cycling through them using the remote<BR>
+        1 Display visual names when switching them using the remote
+    </td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">synchronize</td>
+    <td valign="top">seq_num=x</td>
+    <td valign="top">Thanks to <A href="http://empegbbs.com/php/showthreaded.php?Cat=&Board=hackers_prog&Number=34535&page=0&view=collapsed&sb=5&o=365&vc=1" target="_top">roger's 
+      post</a>, the functionality of this settings is now known:<br>
+      Basically, it keeps a count of how many times you've synchronised. This 
+      much is correct. It's used to ensure that you don't get caught out in this 
+      scenario: 
+      <ol>
+        <li> Connect to empeg at home. Make some changes. Don't sync. Leave emplode 
+          open. </li>
+        <li> Go to work. </li>
+        <li> Connect to empeg at work. Make some changes. Sync. Close emplode. 
+        </li>
+        <li> Go home. </li>
+        <li> Attempt to sync. </li>
+      </ol>
+      I hope anyone can see what this means: <br>
+      <B>DO NOT CHANGE THIS UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING.</b> Well, 
+      I wouldn't advise anyone to try the above szenario anyway. </td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">serial</td>
+    <td valign="top">car_rate=n</td>
+    <td valign="top">Set serial port speed while docked to <em>n</em>.</td>
+  </tr>
+  <tr> 
+    <td valign="top">1/2</td>
+    <td valign="top">menu</td>
+    <td valign="top">Quit=x</td>
+    <td valign="top"> 
+        0 Disables an entry in the menu that allows termination of the player executable (and thereby a drop to shell on serial port)<BR>
+        1 Enables that entry
+      </ol>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">2</td>
+    <td valign="top">custom</td>
+    <td valign="top">shuffle[0-9]=<menuname>[,{-}<parameter>=<factor>[...]]</td>
+    <td valign="top">Define custom shuffle modes, this is a more complex issue, 
+      see below.</td>
+  </tr>
+</table>
+<div align="left">Custom shuffle modes can be defined in the "custom" 
+section of config.ini. Each shuffle mode is defined by a line that
+starts with the tag "shuffle", followed by a number, 
+followed by the equal sign, followed by a menu name, then a comma
+seperated list of parameters and their associated factor. The 
+parameters listed will each be multiplied by their associated 
+factor and then summed up. The songs in the playlist are then 
+sorted by their associated summed parameter*factor product, 
+starting with the highest sum. The default shuffle modes are 
+defined by the following lines:
+<PRE>   Random,RANDOM=1 
+   Least often played,PLAYS=1,RANDOM=2 
+   Least recently played,TIME=32000,RANDOM=2000 
+   By year,-YEAR=32768,RANDOM=1
+</pre>
+<p>The following parameters are available: <br>
+</p></div>
+<table width="95%" border="1">
+  <tr valign="top"> 
+    <td>Parameter name</td>
+    <td>Explanation and range info</td>
+  </tr>
+  <tr valign="top"> 
+    <td>RANDOM</td>
+    <td>a random number in the range of 0-32000</td>
+  </tr>
+  <tr valign="top"> 
+    <td>PLAYS</td>
+    <td>the play count of the song (ranging from 0 up)</td>
+  </tr>
+  <tr valign="top"> 
+    <td>TIME</td>
+    <td>(only on MkII): A measure from 0-32000 for how long it's been since the 
+      song was last played. The higher the number, the more recently the song 
+      was played. Note: The Least recently played, built-in random mode obviously 
+      only works on MkII players.</td>
+  </tr>
+  <tr valign="top"> 
+    <td>YEAR</td>
+    <td>The year tag of the song (usually 1900 up to the currentyear).</td>
+  </tr>
+  <tr valign="top"> 
+    <td>MTIME</td>
+    <td>modification time (Unix filesystem info on when the file was last modified). 
+      I guess that this is also scaled to the 0-32000 range.</td>
+  </tr>
+  <tr valign="top"> 
+    <td>CTIME</td>
+    <td>creation time (denotes the time of creation of a file), the same guess 
+      applies here.</td>
+  </tr>
+  <tr valign="top"> 
+    <td>SKIPS</td>
+    <td>number of times a song was skipped. NOTE: as of software 2.0beta3, this 
+      parameter exists, but is not yet actually updated by the player software, 
+      so currently, it is always 0.</td>
+  </tr>
+</table>
+<div align="left"><br>
+  If a parameter name is preceeded by a minus sign ("-"), the factor 
+  is actually substracted from the other factors. Let's have a look at the default 
+  random modes:<br>
+  <PRE>Random,RANDOM=1</pre>
+  Not much to say, the "RANDOM" mode is well, random (only).<BR>
+  <pre>Least often played,PLAYS=1,RANDOM=2 </pre>
+  Hmm, this is actually: PLAYS*1+RANDOM*2 which I don't really understand. PLAYS 
+  is the number of times a song was played, so it is (at least currently) a rather 
+  low number, I would guess in the range of 0-100, while RANDOM is in the range 
+  of 0-32000 and is also multiplied by 2, so the Least often played random mode 
+  will basically be random, and only sort the least often played songs to the 
+  front in a minimal way. I would personally increase the factor for plays to 
+  at least 1000. <BR>
+  <pre>Least recently played,TIME=32000,RANDOM=2000 </pre>
+  Well, this could be simplified to "TIME=16,RANDOM=1". Or more mathmatically: 
+  TIME*16+RANDOM*1. This is more logical to me. TIME is favoured over RANDOM by 
+  a factor of 16, so the songs that where played recently get a high order number, 
+  and will only be scrambled randomly just a little. <BR>
+  <pre>By year,-YEAR=32768,RANDOM=1</pre>
+  This resolves to YEAR*(-32768)+RANDOM*1, so with the range of the RANDOM parameter 
+  (0-32000), this actually sorts the playlist by the YEAR tag (more recent songs 
+  first), randomizing only the songs of each year seperately. </div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>) </address></p><a href="9.html#top">Back to Top</a><HR></td></tr><tr><td><a name="27"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Player Command Line Arguments</b><BR>&nbsp;(Entry last updated on January 8th, 2002)<p align="justify"><div align="left"><pre><font color="#000099">./player -i </font></pre></div>
+<div align="left"><p>This will start the player with any empty (current) playlist. The player itself says "-i" is maiking it ignore emergency persist data.</p></div>
+<div align="left"><PRE><FONT color="000099">./player -u</FONT></PRE></div>
+<div align="left"><p>This will start the player with the USB server enabled (whatever that means).</p></div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>) </ADDRESS>
+</p><a href="9.html#top">Back to Top</a><HR></td></tr><tr><td><a name="28"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Player Return Codes</b><BR>&nbsp;(Entry last updated on January 8th, 2002)<p align="justify"><div align="left">The player seems to return 0 if exited using the menu or "q" command on the serial interface. It seems to return 42 if exited during synchronization (after the file system check).</div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>) </ADDRESS>
+</p><a href="9.html#top">Back to Top</a><HR></td></tr><tr><td><a name="29"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>FID files (Where The Music Lives)</b><BR>&nbsp;(Entry last updated on January 8th, 2002)<p align="justify"><div align="left">On the Empeg, your music files and metadata are stored in files commonly called FIDs.
+FIDs are made of a 28 bit wide object number  plus a 4 bit wide type descriptor:</p>
+<pre><font color="#000099"><objectnumber><type descriptor></font></pre>
+The filenames in /drive[01]/fids/ are hexadecimal representations of the respective FID, with leading zeroes being stripped. Currently only two type descriptors are defined:<br>
+*0 is the actual object data - in the case of a playlist, this is 4 bytes per playlist entry which is simply the fids of the items it contains.<br>
+The *1 files are the tag files, which are plain text and have fields, eg:
+<pre><font color="#000099">type=tune
+length=xxxxx
+title=Country House
+artist=Blur
+genre=Indie
+year=1997</font></pre>
+(length refers to the length of the *0 file).
+<p>User tags currently can't be added with the software  but are stored and preserved by downloaders (pc & linux).
+</p>
+<p>There is something special about some of the FIDs though:</p>
+ 
+<div align="center"><table width="95%" border="1" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><b>FID</b></td>
+    <td><b>Name(s) from fids.h</b></td>
+    <td><B>cat</B></td>
+    <td><b>meaning</b></td>
+  </tr>
+  <tr>
+    <td>0</td>
+    <td>FID_VERSION</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">contains the player softwares version </td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>FID_OWNER, FID_ID</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">contains the owner information</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>FID_TAGINDEX</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">should be /drive0/var/tags</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>FID_STATICDATABASE</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">should be /drive0/var/database</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>FID_DYNAMICDATABASE</td>
+    <td bgcolor="#FF0000">o</td>
+    <td bgcolor="#FF0000">I have no idea</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>FID_PLAYLISTDATABASE</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">should be /drive0/var/playlists</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>FID_CONFIGFILE</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">should be /drive0/var/config.ini</td>
+  </tr>
+  <tr>
+    <td>0x100</td>
+    <td>FID_ROOTPLAYLIST</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">root of playlist tree</td>
+  </tr>
+  <tr>
+    <td>0x110</td>
+    <td>FID_LOSTANDFOUND</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">the unconnected items playlist</td>
+  </tr>
+  <tr>
+    <td>0x120</td>
+    <td>FID_FIRSTNORMAL</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">the first custom playlist or the first song (depending on the upload order)</td>
+  </tr>
+</table></div>
+<p>where yellow represents educated guesses (cat = "e"), red represents open questions (cat = "o") and green is indicating verified information (cat = "v").</p>
+<p>The tag files (/drive[01]/fids/*1) currently include the following tags (color codes and categories as above):</p>
+<div align="center"><table width="95%" border="1" cellspacing="0" cellpadding="2">
+  <tr valign="top"> 
+    <td><b>tag line</b></td>
+    <td><B>cat</B></td>
+    <td><b>meaning</b></td>
+  </tr>
+  <tr valign="top"> 
+    <td>artist=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Artist of that track</td>
+  </tr>
+  <tr valign="top"> 
+    <td>source=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Source of that track or playlist (name of the album 
+      usually)</td>
+  </tr>
+  <tr valign="top"> 
+    <td>title=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Title of that track or playlist</td>
+  </tr>
+  <tr valign="top"> 
+    <td>tracknr=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Track number (if track is part of an album)</td>
+  </tr>
+  <tr valign="top"> 
+    <td>type=</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">either "tune" or "playlist"</td>
+  </tr>
+  <tr valign="top"> 
+    <td>year=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Year of release of that track</td>
+  </tr>
+  <tr valign="top"> 
+    <td>genre=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Genre of track</td>
+  </tr>
+  <tr valign="top"> 
+    <td>duration=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">Duration of track milliseconds</td>
+  </tr>
+  <tr valign="top"> 
+    <td>codec=</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">Codec for this track, currently only "mp3" 
+      is supported, this will change with software v2.*</td>
+  </tr>
+  <tr valign="top"> 
+    <td>bitrate=<indicator><speed></td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">the (average) bitrate of that track (in kbit/s). <indicator> 
+      is actually two indicators: "f" for fixed speed or "v" 
+      for variable speed (bitrate) followed by "s" for stereo and "m" 
+      for mono tracks.</td>
+  </tr>
+  <tr valign="top"> 
+    <td>samplerate=</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">The sample rate of the (uncompressed) soundfile, usually 
+      44100 (the sample rate of a standard music CD)</td>
+  </tr>
+  <tr valign="top"> 
+    <td>length=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">length of track in bytes (filesize of *0 file)</td>
+  </tr>
+  <tr valign="top"> 
+    <td>offset=</td>
+    <td bgcolor="#FFFF00">e</td>
+    <td bgcolor="#FFFF00">start of real music data in the file (or length of id3 
+      tag infos at start of file)</td>
+  </tr>
+  <tr valign="top"> 
+    <td>pickpercent=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">pick x percent of the playlist's content at random on 
+      each pass.</td>
+  </tr>
+  <tr valign="top"> 
+    <td>pickn=</td>
+    <td bgcolor="#66FF00">v</td>
+    <td bgcolor="#66FF00">pick x entries from the playlist at random on each pass</td>
+  </tr>
+  <tr valign="top"> 
+    <td>options=x</td>
+    <td bgcolor="#FFFF00">e/v</td>
+    <td bgcolor="#FFFF00"> 
+      <p>x is a hex value with the following bits having known functionality. 
+        Any functionality besides bits 0x08, 0x10 and 0x20 are currently unknown, 
+        but the emptool sources give away some hints on upcoming functionality:</p>
+      <table cellpadding="2" border="1" bgcolor="#CCCCCC">
+        <TR> 
+          <TD valign="top" bgcolor="#FFFF00">Bits</TD>
+          <td valign="top" bgcolor="#FFFF00">Meaning</td>
+          <TD valign="top" bgcolor="#FFFF00">cat</TD>
+        </TR>
+        <TR bgcolor="#FFFF00"> 
+          <TD valign="top">0x02</TD>
+          <td valign="top">treat entire playlist as one song</td>
+          <TD valign="top">e</TD>
+        </TR>
+        <TR bgcolor="#FFFF00"> 
+          <TD valign="top">0x04</TD>
+          <td valign="top">play playlist without gaps</td>
+          <TD valign="top">e</TD>
+        </TR>
+        <TR bgcolor="#66FF00"> 
+          <TD valign="top">0x08</TD>
+          <td valign="top">always randomize playlist</td>
+          <TD valign="top">v</TD>
+        </TR>
+        <TR bgcolor="#66FF00"> 
+          <TD valign="top">0x10</TD>
+          <td valign="top">auto repeat playlist</td>
+          <TD valign="top">v</TD>
+        </TR>
+        <TR bgcolor="#66FF00"> 
+          <TD valign="top">0x20</TD>
+          <td valign="top">ignore playlist as child (don't play this list as part 
+            of its parent playlist)</td>
+          <TD valign="top">v</TD>
+        </TR>
+      </TABLE>
+    </td>
+  </tr>
+</table></div>
+<p>Also, there are some special FIDs one should know about:</p>
+<div align="center"><table width="95%" border="1">
+  <tr> 
+    <td>FID</td>
+    <td>Type</td>
+    <td>Description</td>
+  </tr>
+  <tr> 
+    <td>0</td>
+    <td>virtual</td>
+    <td>Version information about the player</td>
+  </tr>
+  <tr> 
+    <td>1</td>
+    <td>virtual</td>
+    <td>Owner information</td>
+  </tr>
+  <tr> 
+    <td>2</td>
+    <td>virtual</td>
+    <td>Tag index (sorry, don't know what this means)</td>
+  </tr>
+  <tr> 
+    <td>3</td>
+    <td>virtual</td>
+    <td>Static database (not sure on this)</td>
+  </tr>
+  <tr> 
+    <td>4</td>
+    <td>virtual</td>
+    <td>Dynamic database (not sure on this either)</td>
+  </tr>
+  <tr> 
+    <td>5</td>
+    <td>virtual</td>
+    <td>Playlist database (same applies to this)</td>
+  </tr>
+  <tr> 
+    <td>6</td>
+    <td>virtual</td>
+    <td>config file (I guess this means the config.ini file)</td>
+  </tr>
+  <tr> 
+    <td>100</td>
+    <td>real</td>
+    <td>Root playlist</td>
+  </tr>
+  <tr> 
+    <td>110</td>
+    <td>real</td>
+    <td>Lost and found (unconnected items in emplode)</td>
+  </tr>
+  <tr>
+    <td>120</td>
+    <td>real</td>
+    <td>lowest FID for uploaded songs/playlists</td>
+  </tr>
+</table></div>
+<p>Where the "virtual" type means that they don't exist in /drive[01]/fids 
+  as files, while the "real" type exists there. Also, for the "real" 
+  type, the corresponding tag files (last character of the filename is 1, like 
+  101 for the root playlists tag file) exist as well.</p>
+</div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>) </ADDRESS>
+</p><a href="9.html#top">Back to Top</a><HR></td></tr></table><br><br><div align="center"><b>[ <a href="../Developer_Info.html">Back to the index</a> ]</b></div></td></tr></table></td></tr></table>
+</td></tr></table>
+    <center><font class=tiny>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#666666" height="20">
+  <tr>
+    <td width="100%" align="center">
+    <font color="#ffffff" face="Verdana" size="2"><b>Copyright &copy; 2001-2018  riocar.org<BR>
+
+    </b>All logos and trademarks on this site are property of their respective owners. The comments are property of their posters.</font></td>
+  </tr>
+</table>
+
+    </font></center>
+
+    
+    </body>
+
+    </html>

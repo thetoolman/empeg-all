@@ -1,0 +1,162 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>rio car dot org</title>
+	<base href="">
+	<link rel="StyleSheet" href="../themes/Default/style/style.css" type="text/css">
+</head>
+
+<body background="../themes/RioCar2/images/outer_bg.gif" bgcolor="#FFFFFF" text="#000000" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0" link="#00093C" vlink="#00093C" alink="#0000FF">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#000D52" style="border-collapse: collapse" bordercolor="#111111" background="../themes/RioCar2/images/header_bg.gif">
+<tr>
+<td><img border="0" src="../themes/RioCar2/images/logo.gif" width="270" height="90" Alt="Welcome to "></td>
+<td align="right"><img border="0" src="../themes/RioCar2/images/header_mk2fade.gif" hspace="5" width="264" height="90"></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#666666" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111">
+<tr>
+<td><font color="#FFFFFF">&nbsp;<b><font size="2" face="Verdana">Welcome to riocar.org!</font></b></font></td>
+<td align="right"><font color="#FFFFFF"><font face="Verdana" size="2"><b>Friday, August 6th</b></font>&nbsp;</font></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#000000" cellpadding="0">
+<tr>
+<td width="100%">
+<img border="0" src="../themes/RioCar2/images/clear.gif" width="1" height="1"></td>
+</tr>
+</table>
+<TABLE><TR><TD VALIGN="TOP"><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td><table width="100%" border="0" cellspacing="1" cellpadding="3"><tr><td bgcolor="666699" ><font class="contentheader" color=ffffff>Main Menu</font></td></tr><tr><td bgcolor="ffffff"><font class="content"><font class="content">
+<strong><big>&middot;</big></strong>&nbsp;Web Links<br>
+<strong><big>&middot;</big></strong>&nbsp;Downloads<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="http://empegbbs.com">BBS/Forums</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../lens.html">Lens Compare</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Boot Logos<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Button_Guide.html">Button Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Developer_Info.html">Developer Info</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Drive_Upgrade.html">Drive Upgrade</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../FAQ.html">FAQ</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Geek_Guide.html">Geek Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Photo Gallery<br>
+</font></font></td></tr></table></td></tr></table><br><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td></td></tr></table><br><img src="../images/pix.gif" border="0" width="150" height="1"></td><td>&nbsp;&nbsp;</td><td width="100%" valign="top"><table width="100%" border="0" cellspacing="1" cellpadding="0" bgcolor="#000000"><tr><td>
+<table width="100%" border="0" cellspacing="1" cellpadding="8" bgcolor="#ffffff"><tr><td>
+<center><font class="content"><b>rio car dot org Developer Information</b></font></center><br><br><a name="top"></a><br>Category: <a href="../Developer_Info.html">Main</a> -> Kernel Facts & Features<br><br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td colspan="2"><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="10.html#30">The <code><b>/proc</b></code> filesystem</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="10.html#47">The Empeg State Block</a><BR></td></tr></table>
+    <br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td><a name="30"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>The <code><b>/proc</b></code> filesystem</b><p align="justify"><div align="left">
+<P>On any Linux machine, the <code>/proc</code> filesystem is your friend.  Much valuable information can
+be obtained simply by poking around and looking at the informative virtual files which exist
+under <code>/proc</code>.  These can also be read by user programs to obtain various information about the
+player's devices and status.  Here is a lost of the more interesting entries in <code>/proc</code>.
+<br>
+<p>
+  <div align="center">
+    <table width="95%" border="1" align="center">
+      <tr valign="top"> 
+<td><b>File</b></td><td><b>Purpose</b></td><td><b>Comments</b></td>
+      </tr> 
+
+      <tr valign="top"> 
+<td><code>/proc/empeg_id</code></td>
+<td>Information about your Empeg's hardware</td>
+<td>Includes the hardware revision, how much RAM and flash you have, etc.  Of particular interest is the
+<code>hwrev</code> from which you can tell programatically what kind of Empeg you're running on.  The valid hwrev
+numbers to test for are:
+<pre>
+<b>4</b>   Empeg Mark I
+<b>7</b>   Empeg Mark II
+<b>9</b>   RioCar (Empeg Mark IIa)
+</pre>
+Intermediate hwrev's are Empeg prototypes.  Some <a href="http://geek.empeg.com/products/car_history.html">fun
+historical information</a> is available about those prototypes over at the <a href="http://geek.empeg.com/">
+Empeg Geek Site</a>.
+ </td>
+</tr>
+
+<tr valign="top"> 
+<td><code>/proc/empeg_power</code></td>
+<td>Power status (AC or DC, cell phone mute, lights sense, etc)</td>
+<td>
+Sample contents of empeg_power:
+<br>
+<pre>
+0 (AC Power)
+1 (Powerfail enabled)
+0 (Accessory line low)
+0 (Subsequent boot)
+1 (External mute high)
+1 (Lights sense high)
+1 (Display on)
+All flags: 0x72
+</pre>
+
+So the first character (or first line) of empeg_power can be read to determine whether the player is running on AC
+or DC power.  Similarly, status of the other lines such as the car's cell phone mute line can be obtained from
+<code>/proc/empeg_power</code>.
+</td>
+</tr>
+
+<tr valign="top"> 
+<td><code>/proc/empeg_therm</code></td>
+<td>On-board temperature sensor reading</td>
+<td>In degrees Celsius.</td>
+</tr>
+
+</table>
+</div>
+<p>
+There
+are many other files in <code>/proc</code>, poke around to find all sorts of goodies about your Empeg's hardware.
+</div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:tonycpsu[nospam]@yahoo.com">Tony Cebzanov</A></ADDRESS>
+</p><a href="10.html#top">Back to Top</a><HR></td></tr><tr><td><a name="47"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>The Empeg State Block</b><p align="justify"><DIV class="section">
+
+<P>The player opens <CODE>/dev/empeg_state</CODE> and can store up to 126
+bytes of info (well, it has a 128 byte block but there's a CRC-16 at the end).
+In case of a power fail, the kernel dumps the latest complete
+<CODE>/dev/empeg_state</CODE> 128 byte block to flash.</P>
+
+<P>On power up, the kernel finds the latest valid block in flash and makes it
+available in <CODE>/dev/empeg_state</CODE>.</P>
+
+<P>The kernel has to do it as there are, well, hard real-time constraints on
+the task - like running out of power to the CPU and flash <CODE>:)</CODE></P>
+
+<P>The following diagram shows some of the more interesting areas of the 128-byte flash save area.  It's not complete yet but it's getting there.</P>
+
+<br clear=all>
+<br>
+<img src="../upload/devpics/empeg_state.jpg">
+
+<P>The Y axis denotes the hex offset from the flash base address, the X axis denotes the bit position within that byte. Because some settings go across byte boundaries, the diagram is color-coded. </P>
+
+<P>Some details... </P>
+
+<P>The bit labelled "shuf" is always 1 when any shuffle mode is active, and there seem to be various other bits and bytes which change based on the custom shuffle modes. I couldn't get a handle on those.. But when shuffle is off, the "shuf" bit (Offset 0x0F, bit 3) is 0, when any shuffle mode is active, that bit is 1. </P>
+
+<P>Bytes 24 and 25 constitute a 16-bit sequential index into the current running order on the player. I hope to eventually use this index to grab the current FID number somehow. </P>
+
+<P>Bytes 29 and 2A constitute a 16-bit number which represents the position within the current track. This might be the number of MP3 frames, or some number of milliseconds or something like that, not sure. </P>
+
+<P>Numbers like balance and fader are 0 if they're in the center, negative if they're (right | rear), positive if they're (left, front). So if your balance setting is one "tick" to the left, the value in this byte is 0000001. If the balance is one tick to the right, it's 11111111. </P>
+<ADDRESS class="author">Contributed by Hugo Fiennes and 
+<A href="mailto:tonycpsu[nospam]@yahoo.com">Tony Cebzanov</A></ADDRESS>
+</p><a href="10.html#top">Back to Top</a><HR></td></tr></table><br><br><div align="center"><b>[ <a href="../Developer_Info.html">Back to the index</a> ]</b></div></td></tr></table></td></tr></table>
+</td></tr></table>
+    <center><font class=tiny>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#666666" height="20">
+  <tr>
+    <td width="100%" align="center">
+    <font color="#ffffff" face="Verdana" size="2"><b>Copyright &copy; 2001-2018  riocar.org<BR>
+
+    </b>All logos and trademarks on this site are property of their respective owners. The comments are property of their posters.</font></td>
+  </tr>
+</table>
+
+    </font></center>
+
+    
+    </body>
+
+    </html>

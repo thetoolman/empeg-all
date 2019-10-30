@@ -1,0 +1,632 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>rio car dot org</title>
+	<base href="">
+	<link rel="StyleSheet" href="../themes/Default/style/style.css" type="text/css">
+</head>
+
+<body background="../themes/RioCar2/images/outer_bg.gif" bgcolor="#FFFFFF" text="#000000" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0" link="#00093C" vlink="#00093C" alink="#0000FF">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#000D52" style="border-collapse: collapse" bordercolor="#111111" background="../themes/RioCar2/images/header_bg.gif">
+<tr>
+<td><img border="0" src="../themes/RioCar2/images/logo.gif" width="270" height="90" Alt="Welcome to "></td>
+<td align="right"><img border="0" src="../themes/RioCar2/images/header_mk2fade.gif" hspace="5" width="264" height="90"></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#666666" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111">
+<tr>
+<td><font color="#FFFFFF">&nbsp;<b><font size="2" face="Verdana">Welcome to riocar.org!</font></b></font></td>
+<td align="right"><font color="#FFFFFF"><font face="Verdana" size="2"><b>Friday, August 6th</b></font>&nbsp;</font></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#000000" cellpadding="0">
+<tr>
+<td width="100%">
+<img border="0" src="../themes/RioCar2/images/clear.gif" width="1" height="1"></td>
+</tr>
+</table>
+<TABLE><TR><TD VALIGN="TOP"><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td><table width="100%" border="0" cellspacing="1" cellpadding="3"><tr><td bgcolor="666699" ><font class="contentheader" color=ffffff>Main Menu</font></td></tr><tr><td bgcolor="ffffff"><font class="content"><font class="content">
+<strong><big>&middot;</big></strong>&nbsp;Web Links<br>
+<strong><big>&middot;</big></strong>&nbsp;Downloads<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="http://empegbbs.com">BBS/Forums</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../lens.html">Lens Compare</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Boot Logos<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Button_Guide.html">Button Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Developer_Info.html">Developer Info</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Drive_Upgrade.html">Drive Upgrade</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../FAQ.html">FAQ</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Geek_Guide.html">Geek Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Photo Gallery<br>
+</font></font></td></tr></table></td></tr></table><br><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td></td></tr></table><br><img src="../images/pix.gif" border="0" width="150" height="1"></td><td>&nbsp;&nbsp;</td><td width="100%" valign="top"><table width="100%" border="0" cellspacing="1" cellpadding="0" bgcolor="#000000"><tr><td>
+<table width="100%" border="0" cellspacing="1" cellpadding="8" bgcolor="#ffffff"><tr><td>
+<center><font class="content"><b>rio car dot org Developer Information</b></font></center><br><br><a name="top"></a><br>Category: <a href="../Developer_Info.html">Main</a> -> Mk2 Hardware<br><br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td colspan="2"><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="14.html#41">Mk2 & Mk2a Docking Connector Pinouts</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="14.html#42">Tuner Module's Wired Remote Interface</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="14.html#40">More Details on the Tuner Module's Wired Remote Interface</a><BR></td></tr></table>
+    <br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td><a name="41"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Mk2 & Mk2a Docking Connector Pinouts</b><BR>&nbsp;(Entry last updated on January 3rd, 2007)<p align="justify"><P> 
+<a href="../upload/faqpics/sledwiring.gif">Illustration 1</a>, <a href="../upload/faqpics/sledwiringdiagram2.jpg">Illustration 2</a>.<br><br>
+ 1 - permanent power input<BR>
+ 2 - amp. remote<BR>
+ 3 - tuner<BR>
+ 4 - tuner<BR>
+ 5 - tuner<BR>
+ 6 - tuner<BR>
+ 7 - tuner<BR>
+ 8 - serial pin 2 (RD)<BR>
+ 9 - serial pin 3 (TD)<BR>
+10 - headlights sense input / serial pin 8 (CTS)<BR>
+11 - tel. mute input / serial pin 1 (CD)<BR>
+12 - microhone sleeve<BR>
+13 - earth<BR>
+14 - ignition sense input<BR>
+15 - rear output right<BR>
+16 - rear output ground<BR>
+17 - rear output left<BR>
+18 - front output right<BR>
+19 - front output ground<BR>
+20 - front output left<BR>
+21 - aux input right<BR>
+22 - aux input ground<BR>
+23 - aux input left<BR>
+24 - microphone tip<BR>
+<P>
+The ground connections are sometimes tied together at the docking sleeve. Is there any way to indicate which ones are tied (or can you tell by looking)?
+<P>
+The ones that are tied together are pin 10 (headlight sense and serial pin 8) and pin 11 (tel mute and serial pin 1). These don't make sense at all. I also don't see any +12V power going to the serial connector. The manual says that there's 12V on serial pin 4, but there's nothing connected to mine. Am I missing something, or is my connector wired wrongly?
+<P>
+The first 1000 units have unfortunately not got power or ground on the serial connector - somehow, this escaped me when I drew the wiring diagrams.  This isn't hard to fix in your wiring for an external device you'll connect to the port, though.
+<P>
+For anyone who is interested, there are some slight differences between the first Mk2 in-car docking cables and the current ones. The main difference is that the serial cable is now a 6 wire cable instead of a 4 wire cable - it now has +12V and GND connections. The extra 2 wires are simply tapped into the blue amp. remote line (for +12V when the empeg is switched on) and the black earth line (for GND). Also the ISO and radio cables are now the same length as the serial cable - longer than before.
+<P>
+(Source from <A HREF="http://empegbbs.com/php/showflat.php?Cat=&Board=empeg_tech&Number=17119&page=&view=&sb=&o=&vc=1">here</A> and <A HREF="http://empegbbs.com/php/showthreaded.php?Cat=&Board=empeg_tech&Number=36342&page=&view=&sb=&o=">here</A> on the BBS.)
+
+<ADDRESS class="author">Contributed by 
+Borislav Deianov, Hugo Fiennes, and Derek Ward</A></ADDRESS>
+
+</p><a href="14.html#top">Back to Top</a><HR></td></tr><tr><td><a name="42"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Tuner Module's Wired Remote Interface</b><p align="justify"><br>Stalk /Tuner is on /dev/ttyS0, at 19200 - the Player needs to send some command(s) to the Tuner before this becomes active, don't know what the 'enable' command is.
+<br>
+<br>Each Stalk button sends a 4 byte packet in the format as per Hugos post.
+<br>
+<br>Format is [in hex] 02 XX YY XX+YY where 02 means Stalk command I guess, XX is the Stalks 'Shift Value' either 00 for 'unshifted' buttons [i.e. Volume knob NOT pushed in] and 01 for Shifted buttons [i.e. Volume knob pushed in].
+<br>
+<br>YY is the ADC value for the button being read and it does hover around the number a little [you need to test for the ADC value being between YY +/-F where F is the Fudge factor [around 5-10 for F is I think ok to cater for most Stalk variations].
+<br>
+<br>The last byte is the Sum of XX+YY.
+<br>
+<br>The Stalk Interface sends two command packets per button, once for Key Down and once for Key Released.
+<br>It doesn't send any timing info but you could determine if its a 'long' press by timing how long the down packet arrives before the up packet.
+<br>
+<br>Key Release has FF as the YY value in all cases.
+<br>
+<br>You also get a seperate 'key' release packet whenever the shift key is released [with XX being 01 rather than 00 , but YY is still FF].
+<br>
+<br>You can grab Stalk commands from the Interface once the player has been running by stopping the player, then a 
+<br><b>od -t x1 -v -w4  (redirect stdin from /dev/ttyS0)</b>
+<br>will dump the 4 byte packets to the console as you fiddle with the Stalk buttons.
+<br>
+<br>For the record heres the dump of the packets my Stalk makes the Tuner send to the empeg
+<br>:
+<br>[with comments about each button just pressed preceding each bunch of packets]
+<br>
+<br>Note: Stalk is mounted on Steering wheel RHS on this installation [i.e. setting in emplode says RHS Stalk].
+<br>
+<br>Off Button is to the Front [facing driver] and ATT button is behind [facing the dashboard]. The 3 buttons I called Front, Rear and Underneath are facing the Driver, the Dashboard and pointing to the floor of the vehicle respectively.
+<br>
+<br>These 3 buttons are un-named by Sony as their exact Function depends on the Sony head unit the Stalk is plugs into. 
+<br>
+<br>On the Empeg these 3 buttons perform the Menu, Cancel and Shuffle on/off toggle in that order [i.e. Front button does Menu, Rear does Cancel and underneath button does Shuffle in my setup].
+<br>
+<br>Note: for LHS of Steering wheel Stalk installations -  Menu and Cancel are swapped, Off and ATT stay with the button of the same name and the meaning of Vol+/Seek+ etc is reversed [i.e. Seek+ becomes Seek- and v/v when in the LHS Stalk config].
+</p>
+
+
+
+<br>
+<br>Heres the dump of each button press then release on od format, ignore the address part at the front of each packet thats od showing the current offset in the stream [shows no packets are missing and little else :-) ]
+<br><pre>
+<br><b>Source button pressed (& released)</b>
+<br>0000000 02 00 17 17
+<br>0000004 02 00 ff ff
+<br>
+<br><b>Vol+ pressed (& released) etc</b>
+<br>0000010 02 00 85 85
+<br>0000014 02 00 ff ff
+<br>
+<br><b>Vol- Pressed</b>
+<br>0000020 02 00 6f 6f
+<br>0000024 02 00 ff ff
+<br>
+<br><b>Seek+</b>
+<br>0000030 02 00 5b 5b
+<br>0000034 02 00 ff ff
+<br>
+<br><b>Seek- [RHS stalk]</b>
+<br>0000040 02 00 49 49
+<br>0000044 02 00 ff ff
+<br>
+<br><b>Off</b>
+<br>0000050 02 00 01 01
+<br>0000054 02 00 ff ff
+<br>
+<br><b>ATT</b>
+<br>0000060 02 00 2c 2c
+<br>0000064 02 00 ff ff
+<br>
+<br><b>Front Button [menu in RHS config]</b>
+<br>0000070 02 00 3b 3b
+<br>0000074 02 00 ff ff
+<br>
+<br><b>Rear button [cancel in RHS config]</b>
+<br>0000100 02 00 9b 9b
+<br>0000104 02 00 ff ff
+<br>
+<br><b>Underneath button [Shuffle in RHS config]</b>
+<br>0000110 02 00 b0 b0
+<br>0000114 02 00 ff ff
+<br>
+<br><b>Shift pressed and released [no other buttons used]</b>
+<br>0000120 02 01 ff 00
+<br>0000124 02 00 ff ff
+<br>
+<br><b>Shift+Vol+ (i.e. shifted Vol+)</b>
+<br>0000130 02 01 ff 00
+<br>0000134 02 01 5b 5c
+<br>0000140 02 01 ff 00
+<br>0000144 02 00 ff ff
+<br>
+<br><b>Shift+Vol-</b>
+<br>0000150 02 01 ff 00
+<br>0000154 02 01 49 4a
+<br>0000160 02 01 ff 00
+<br>0000164 02 00 ff ff
+<br>
+<br><b>Shift+Off</b>
+<br>0000170 02 01 ff 00
+<br>0000174 02 01 02 03
+<br>0000200 02 01 ff 00
+<br>0000204 02 00 ff ff
+<br>
+<br><b>Shift+ATT</b>
+<br>0000210 02 01 ff 00
+<br>0000214 02 01 2b 2c
+<br>0000220 02 01 ff 00
+<br>0000224 02 00 ff ff
+<br>
+<br><b>Shift+Front button</b>
+<br>0000230 02 01 ff 00
+<br>0000234 02 01 3b 3c
+<br>0000240 02 01 ff 00
+<br>0000244 02 00 ff ff
+<br>
+<br><b>Shift+Rear Button</b>
+<br>0000250 02 01 ff 00
+<br>0000254 02 01 9b 9c
+<br>0000260 02 01 ff 00
+<br>0000264 02 00 ff ff
+<br>
+<br><b>Shift+underneath button</b>
+<br>0000270 02 01 ff 00
+<br>0000274 02 01 b0 b1
+<br>0000300 02 01 ff 00
+<br>0000304 02 00 ff ff
+<br>
+<br><b>Shift+Source Button</b>
+<br>0000310 02 01 ff 00
+<br>0000314 02 01 17 18
+<br>0000320 02 01 ff 00
+<br>0000324 02 00 ff ff
+</pre>
+</p>
+<br>Note: there is no shifted Seek+/Seek- as due to the way the Stalk is made Shifted Vol+ is the same as Shifted Seek+.
+On the Sony Stalk device when the Volume knob is pushed in [i.e. shifted], it physically engages with the inner ring next to the Volume up/down knob which has the Seek +/- buttons on it and the volume +/- button and the Seek+/- button turn as one button until the volume knob is no longer pushed in. 
+
+The Shifted Seek/Vol+ actually reports as a shifted Seek+/- button even though I call it Shift Vol+/Vol- 
+
+This design of the Sony Stalk means that there are 10 unshifted keys [count them] on the Sony Stalk, but only 8 shifted keys. 
+
+Still 18 useable keys plus a modifier [push and release shift button] makes for more potential buttons functions on the Stalk Interface than the original Kenwood remote has/had. 
+
+Believe me, the Stalk Interface is just as good as, if not *better* than the remote [even the new Rio one] and I hardly ever use the remote anymore. 
+
+There are a couple of things the Remote can do that the Stalk can't but we hope to rectify that real soon now - hence this post and the earlier one. 
+
+
+<br> Note that the Shifted buttons produce 4 packets, one for the shift, one for the Button pressed, one for the button release and one for the shift release.
+<br>
+<br>The order of these 4 packets could vary, e.g. if you did the following:
+<br>Front button press,shift press,release Front button, release shift you would get 4 packets like this:
+<br>
+<br><pre>
+<br>0000330 02 00 3b 3b
+<br>0000334 02 01 3b 3c
+<br>0000340 02 01 ff 00
+<br>0000344 02 00 ff ff
+<br></pre>
+<br>
+
+</p><a href="14.html#top">Back to Top</a><HR></td></tr><tr><td><a name="40"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>More Details on the Tuner Module's Wired Remote Interface</b><BR>&nbsp;(Entry last updated on July 14th, 2005)<p align="justify"><div align="left">
+  <P>The wired remote interface is being introduced with the MkII tuner module 
+    that started shipping in August/September 2001. The wired remote itself is 
+    basically an array of resistors with certain (different) values that are linked 
+    to each button press. The tuner module interfaces to this remote by applying 
+    5V through a 22kOhm resistor to its tip and reading the actual voltage that 
+    could be measured at the tip. Here is a basic diagram how it works:</P>
+  <div align="center"><img src="http://www.incase.de/pics/empeg/tuner%20stalk%20interface.gif" alt="stalk interface circuit diagram" width="263" height="73"></div>
+  
+<P>And here is a schematic of the innards of an RM-X2S wired remote:</P>
+
+<img src="../upload/faqpics/rmx2s.gif" width="741" height="147" alt="RM-X2S Remote Schematic"><br>
+  
+  <P>While this seems to be pretty basic, this is usually working quite well. 
+    However, some people had problems with their in-car remotes that where using 
+    an additional adapter to make them compatible with the Sony interface (e.g. 
+    GM remotes with a GM-to-Sony adapter connected to the tuner module which itself 
+    interfaces with the empeg). The tuner module reads the voltage at the "ADC 
+    input" marked point and reports it to the empeg once it gets a stable read. 
+    It sends a 4 byte data packet to the empeg's first serial port (/dev/ttyS0, 
+    the port that is accessible through the 9pin-port on the back of the empeg 
+    is /dev/ttyS1) that looks like this:</P>
+  <div align="center">
+    <table width="95%" border="1" align="center">
+      <tr valign="top"> 
+        <td> 
+          <div align="center">Data byte</div>
+        </td>
+        <td> 
+          <div align="center">value</div>
+        </td>
+        <td> 
+          <div align="center">description</div>
+        </td>
+      </tr>
+      <tr valign="top"> 
+        <td>1</td>
+        <td>0x02</td>
+        <td>indicator for a stalk interface command</td>
+      </tr>
+      <tr valign="top"> 
+        <td>2</td>
+        <td>0x00 or 0x01</td>
+        <td>0x00 indicates no use of the shift modifier<br>
+          0x01 indicates shift used</td>
+      </tr>
+      <tr valign="top"> 
+        <td>3</td>
+        <td>ADC value</td>
+        <td>Vadc*255/5 with Vadc being the actual voltage at the ADC input point</td>
+      </tr>
+      <tr valign="top"> 
+        <td>4</td>
+        <td>checksum</td>
+        <td>the sum of Bytes 2 and 3</td>
+      </tr>
+    </table>
+  </div>
+  <P>Here is a table with the expected values for the different buttons. The 1.03 
+    software uses a tolerance level of 2 while the upcoming 1.04 software and 
+    the 2.0 software are less demanding and use a tolerance level of at least 
+    6. So 1.03 accepts values 0x14-0x18 for source, while 1.04 would accept 0x10 
+    to 0x1C.</P>
+    
+  <table width="95%" border="1" align="center">
+    <tr> 
+        <td>Value</td>
+        <td>1.03 range</td>
+        <td>1.04/2.0 range</td>
+        <td>Button</td>
+      </tr>
+      <tr> 
+        <td>0x3A</td>
+        <td>0x38-0x3C</td>
+        <td>0x34-0x40</td>
+        <td>back/front</td>
+      </tr>
+      <tr> 
+        <td>0xAF</td>
+        <td>0xAD-0xB1</td>
+        <td>0xA0-0xB5</td>
+        <td>middle</td>
+      </tr>
+      <tr> 
+        <td>0x9A</td>
+        <td>0x98-0x9C</td>
+        <td>0x94-0xA0</td>
+        <td>front/back</td>
+      </tr>
+      <tr> 
+        <td>0x2A</td>
+        <td>0x28-0x2C</td>
+        <td>0x24-0x30</td>
+        <td>attenuate</td>
+      </tr>
+      <tr> 
+        <td>0x5A</td>
+        <td>0x58-0x5C</td>
+        <td>0x54-0x60</td>
+        <td>back track</td>
+      </tr>
+      <tr> 
+        <td>0x48</td>
+        <td>0x46-0x4A</td>
+        <td>0x42-0x4E</td>
+        <td>forward track</td>
+      </tr>
+      <tr> 
+        <td>0x16</td>
+        <td>0x14-0x18</td>
+        <td>0x10-0x1C</td>
+        <td>source</td>
+      </tr>
+      <tr> 
+        <td>0x84</td>
+        <td>0x82-0x86</td>
+        <td>0x7E-0x8A</td>
+        <td>vol back (preset back with shift on)</td>
+      </tr>
+      <tr> 
+        <td>0x6e</td>
+        <td>0x6C-0x70</td>
+        <td>0x68-0x74</td>
+        <td>vol forward (preset forward with shift on)</td>
+      </tr>
+    </table>
+  <BR>
+  <P>Or, sorted by readback values:</P>
+  <div align="center">
+    <table width="95%" border="1" align="center">
+      <tr> 
+        <td>Value</td>
+        <td>1.03 range</td>
+        <td>1.04/2.0 range</td>
+        <td>Button</td>
+      </tr>
+      <tr> 
+        <td>0x16</td>
+        <td>0x14-0x18</td>
+        <td>0x10-0x1C</td>
+        <td>source</td>
+      </tr>
+      <tr> 
+        <td>0x2A</td>
+        <td>0x28-0x2C</td>
+        <td>0x24-0x30</td>
+        <td>attenuate</td>
+      </tr>
+      <tr> 
+        <td>0x3A</td>
+        <td>0x38-0x3C</td>
+        <td>0x34-0x40</td>
+        <td>back/front</td>
+      </tr>
+      <tr> 
+        <td>0x48</td>
+        <td>0x46-0x4A</td>
+        <td>0x42-0x4E</td>
+        <td>forward track</td>
+      </tr>
+      <tr> 
+        <td>0x5A</td>
+        <td>0x58-0x5C</td>
+        <td>0x54-0x60</td>
+        <td>back track</td>
+      </tr>
+      <tr> 
+        <td>0x6e</td>
+        <td>0x6C-0x70</td>
+        <td>0x68-0x74</td>
+        <td>vol forward (preset forward with shift on)</td>
+      </tr>
+      <tr> 
+        <td>0x84</td>
+        <td>0x82-0x86</td>
+        <td>0x7E-0x8A</td>
+        <td>vol back (preset back with shift on)</td>
+      </tr>
+      <tr> 
+        <td>0x9A</td>
+        <td>0x98-0x9C</td>
+        <td>0x94-0xA0</td>
+        <td>front/back</td>
+      </tr>
+      <tr> 
+        <td>0xAF</td>
+        <td>0xAD-0xB1</td>
+        <td>0xA0-0xB5</td>
+        <td>middle</td>
+      </tr>
+    </table>
+  </div>
+  <P>You can read these values by issueing the following commands while in the 
+    shell (with the player not running):</P>
+  <PRE><font color="#000099">stty -echo raw 19200 < /dev/ttyS0
+od -txC -v -w4 /dev/ttyS0 </font></PRE>
+  <table width="95%" border="1" align="center">
+    <tr> 
+      <td colspan="2" height="19">command byte</td>
+      <td rowspan="2">optimal R</td>
+      <td rowspan="2">minimal R</td>
+      <td height="19" rowspan="2">maximal R</td>
+      <td height="19" rowspan="2">button</td>
+    </tr>
+    <tr> 
+      <td>hex</td>
+      <td>dec</td>
+    </tr>
+    <tr> 
+      <td>3a</td>
+      <td>58</td>
+      <td>6477</td>
+      <td>5635</td>
+      <td>7372</td>
+      <td>back/front</td>
+    </tr>
+    <tr> 
+      <td>af</td>
+      <td>175</td>
+      <td>48125</td>
+      <td>43233</td>
+      <td>53811</td>
+      <td>middle</td>
+    </tr>
+    <tr> 
+      <td>9a</td>
+      <td>154</td>
+      <td>33545</td>
+      <td>30430</td>
+      <td>37053</td>
+      <td>front/back</td>
+    </tr>
+    <tr> 
+      <td>2a</td>
+      <td>42</td>
+      <td>4338</td>
+      <td>3616</td>
+      <td>5101</td>
+      <td>att</td>
+    </tr>
+    <tr> 
+      <td>5a</td>
+      <td>90</td>
+      <td>12000</td>
+      <td>10807</td>
+      <td>13283</td>
+      <td>back track</td>
+    </tr>
+    <tr> 
+      <td>48</td>
+      <td>72</td>
+      <td>8656</td>
+      <td>7683</td>
+      <td>9695</td>
+      <td>fwd track</td>
+    </tr>
+    <tr> 
+      <td>16</td>
+      <td>22</td>
+      <td>2077</td>
+      <td>1473</td>
+      <td>2714</td>
+      <td>source</td>
+    </tr>
+    <tr> 
+      <td>84</td>
+      <td>132</td>
+      <td>23610</td>
+      <td>21488</td>
+      <td>25949</td>
+      <td>vol back</td>
+    </tr>
+    <tr> 
+      <td>6e</td>
+      <td>110</td>
+      <td>16690</td>
+      <td>15152</td>
+      <td>18360</td>
+      <td>vol fwd</td>
+    </tr>
+  </table>
+  <p><br>
+    The minimal/maximal figures are for 2.* software, 1.* is more restrictive. 
+  </p>
+  <p>Using standard resistor values to get as near as possible to the optimal 
+    values, you can use the following circuits:</p>
+  <p> Series 
+  <table border=1 width="95%" align="center">
+    <tr> 
+      <td>function</td>
+      <td>ideal</td>
+      <td>resistors</td>
+      <td>actual</td>
+    </tr>
+    <tr> 
+      <td>vol+</td>
+      <td>16690</td>
+      <td>12K + 4K7</td>
+      <td>16700</td>
+    </tr>
+    <tr> 
+      <td>vol-</td>
+      <td>23610</td>
+      <td>18K + 5K6</td>
+      <td>23600</td>
+    </tr>
+    <tr> 
+      <td>track+</td>
+      <td>8656</td>
+      <td>8K2 + 470</td>
+      <td>8670</td>
+    </tr>
+    <tr> 
+      <td>track-</td>
+      <td>12000</td>
+      <td>12K</td>
+      <td>12000</td>
+    </tr>
+    <tr> 
+      <td>front/back</td>
+      <td>33545</td>
+      <td>33K + 560</td>
+      <td>33560</td>
+    </tr>
+    <tr> 
+      <td>middle</td>
+      <td>48125</td>
+      <td>47K + 1K2</td>
+      <td>48200</td>
+    </tr>
+  </table>
+   <BR>
+  Parallel 
+  <table border=1 width="95%" align="center">
+    <tr> 
+      <td>function</td>
+      <td>ideal</td>
+      <td>resistors</td>
+      <td>actual</td>
+    </tr>
+    <tr> 
+      <td>source</td>
+      <td>2077</td>
+      <td>5K6, 3K3</td>
+      <td>2076</td>
+    </tr>
+    <tr> 
+      <td>att</td>
+      <td>4338</td>
+      <td>56K, 4K7</td>
+      <td>4336</td>
+    </tr>
+    <tr> 
+      <td>back/front</td>
+      <td>6477</td>
+      <td>18K, 10K</td>
+      <td>6429</td>
+    </tr>
+  </table>
+  <p>The plug itself is simply a standard 3.5mm stereo plug with the following 
+    connections:</p>
+  <p>Tip ("right"): resistor sense<br>
+    middle sleeve ("left"): shift sense<br>
+    ring ("common"): ground.</p>
+  <p>Pretty simple interface, right?</p>
+</div>
+<br>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sven@incase.de">Sven Müller</a> (<a href="http://www.incase.de/">www.incase.de</a>) </ADDRESS>
+</p><a href="14.html#top">Back to Top</a><HR></td></tr></table><br><br><div align="center"><b>[ <a href="../Developer_Info.html">Back to the index</a> ]</b></div></td></tr></table></td></tr></table>
+</td></tr></table>
+    <center><font class=tiny>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#666666" height="20">
+  <tr>
+    <td width="100%" align="center">
+    <font color="#ffffff" face="Verdana" size="2"><b>Copyright &copy; 2001-2018  riocar.org<BR>
+
+    </b>All logos and trademarks on this site are property of their respective owners. The comments are property of their posters.</font></td>
+  </tr>
+</table>
+
+    </font></center>
+
+    
+    </body>
+
+    </html>

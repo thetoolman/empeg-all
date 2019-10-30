@@ -1,0 +1,1198 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>rio car dot org</title>
+	<base href="">
+	<link rel="StyleSheet" href="../themes/Default/style/style.css" type="text/css">
+</head>
+
+<body background="../themes/RioCar2/images/outer_bg.gif" bgcolor="#FFFFFF" text="#000000" topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0" link="#00093C" vlink="#00093C" alink="#0000FF">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#000D52" style="border-collapse: collapse" bordercolor="#111111" background="../themes/RioCar2/images/header_bg.gif">
+<tr>
+<td><img border="0" src="../themes/RioCar2/images/logo.gif" width="270" height="90" Alt="Welcome to "></td>
+<td align="right"><img border="0" src="../themes/RioCar2/images/header_mk2fade.gif" hspace="5" width="264" height="90"></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#666666" cellpadding="0" style="border-collapse: collapse" bordercolor="#111111">
+<tr>
+<td><font color="#FFFFFF">&nbsp;<b><font size="2" face="Verdana">Welcome to riocar.org!</font></b></font></td>
+<td align="right"><font color="#FFFFFF"><font face="Verdana" size="2"><b>Friday, August 6th</b></font>&nbsp;</font></td>
+</tr>
+</table>
+<table border="0" cellspacing="0" width="100%" bgcolor="#000000" cellpadding="0">
+<tr>
+<td width="100%">
+<img border="0" src="../themes/RioCar2/images/clear.gif" width="1" height="1"></td>
+</tr>
+</table>
+<TABLE><TR><TD VALIGN="TOP"><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td><table width="100%" border="0" cellspacing="1" cellpadding="3"><tr><td bgcolor="666699" ><font class="contentheader" color=ffffff>Main Menu</font></td></tr><tr><td bgcolor="ffffff"><font class="content"><font class="content">
+<strong><big>&middot;</big></strong>&nbsp;Web Links<br>
+<strong><big>&middot;</big></strong>&nbsp;Downloads<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="http://empegbbs.com">BBS/Forums</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../lens.html">Lens Compare</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Boot Logos<br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Button_Guide.html">Button Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Developer_Info.html">Developer Info</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Drive_Upgrade.html">Drive Upgrade</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../FAQ.html">FAQ</a><br>
+<strong><big>&middot;</big></strong>&nbsp;<a href="../Geek_Guide.html">Geek Guide</a><br>
+<strong><big>&middot;</big></strong>&nbsp;Photo Gallery<br>
+</font></font></td></tr></table></td></tr></table><br><table border="0" cellspacing="0" cellpadding="0" width="150" bgcolor="000000"><tr><td></td></tr></table><br><img src="../images/pix.gif" border="0" width="150" height="1"></td><td>&nbsp;&nbsp;</td><td width="100%" valign="top"><table width="100%" border="0" cellspacing="1" cellpadding="0" bgcolor="#000000"><tr><td>
+<table width="100%" border="0" cellspacing="1" cellpadding="8" bgcolor="#ffffff"><tr><td>
+<center><font class="content"><b>rio car dot org Developer Information</b></font></center><br><br><a name="top"></a><br>Category: <a href="../Developer_Info.html">Main</a> -> Device Input/Output<br><br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td colspan="2"><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#31">Display Output (todo: split into sections)</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#32">Audio Output</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#33">Beeps</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#34">Mixer Calls</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#35">IR Input</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#36">IrDA Input/Output</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#37">Serial Input/Output (todo: move 230k / UART stuff to another section)</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#44">Audio Overlay</a><BR><strong><big>&middot;</big></strong>&nbsp;&nbsp;&nbsp;<a href="11.html#57">IrDA Made Easy</a><BR></td></tr></table>
+    <br><table width="100%" cellpadding="4" cellspacing="0" border="0"><tr bgcolor="#cccccc"><td colspan="2"><font class="option"><b>&nbsp;</b></font></td></tr><tr><td><a name="31"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Display Output (todo: split into sections)</b><p align="justify"><DIV class="section">
+
+<H2>Accessing the Display</H2>
+
+<P>The display is accessed through <CODE>/dev/display</CODE>. You can <CODE>mmap()</CODE> 2048 bytes from this device and read from or write to it.</P>
+
+<P>The display is 128x32, 2bpp. The memory layout is fairly straight-forward:
+32 rows of 64 bytes each, where rows are laid left-to-right, top-to-bottom,
+and each byte contains two 4-bit pixel values. The architecture is
+little-endian, so bits 0-3 correspond to the "left" pixel, and bits 4-7 are
+the "right" pixel. Since the display only supports 2bpp, only pixel values 0-3
+are meaningful; the two highest bits are currently ignored. Value 0 is off; 1
+is dim; 2 is medium; 3 is full brightness.</P>
+
+<P>Changes you make to the display will not become active until you call
+<CODE>ioctl(fd, _IO('d', 0))</CODE>.</P>
+
+<P>It is further possible to buffer and synchronize screen updates with the
+audio DMA, but documentation of this feature is not yet available.</P>
+
+<P>The entire display can be turned on and off with <CODE>ioctl(fd,
+_IOW('d', 1, int), state)</CODE> where <CODE>state</CODE> is <CODE>1</CODE>
+(on) or <CODE>0</CODE> (off). When the display is off, the front LED is
+enabled.</P>
+
+<P>The LED can also be controlled, but no specification is available at this
+time.</P>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:rob+empeg@mars.org">Rob Leslie</A></ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2>Example</H2>
+
+<P>Here is a sample program which reads 2048 bytes from standard input, dumps
+them onto the display, and turns it on (in case it was off):</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/display/dblit.c">dblit.c</A></PRE>
+<HR>
+<PRE>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+
+# include <unistd.h>
+# include <sys/mman.h>
+
+# include <sys/ioctl.h>
+
+# define BLIT(fd)        ioctl((fd), _IO('d', 0))
+# define DISPLAY(fd, x)  ioctl((fd), _IOW('d', 1, int), (x))
+
+int main(int argc, char *argv[])
+{
+  int fd;
+  caddr_t dmap;
+
+  fd = open("/dev/display", O_RDWR);
+  if (fd == -1)
+    return 1;
+
+  dmap = mmap(0, 2048, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if (dmap == (caddr_t) -1)
+    return 2;
+
+  if (read(STDIN_FILENO, dmap, 2048) == -1)
+    return -1;
+
+  BLIT(fd);
+  DISPLAY(fd, 1);
+
+  if (munmap(dmap, 2048) == -1 ||
+      close(fd) == -1)
+    return 3;
+
+  return 0;
+}
+</PRE>
+</DIV>
+
+<P>If you don't have a suitable bitmap image handy to test, try feeding in
+<CODE>/dev/urandom</CODE> or <CODE>/dev/zero</CODE>. A similar program can be
+written to copy the display to standard output.</P>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:rob+empeg@mars.org">Rob Leslie</A></ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2>Image Conversion</H2>
+
+<P>The above sample program just blits from stdin to display in the display's
+raw format, which is 4-bits per pixel (little-endian).</P>
+
+<P>I took the same code and added 8-bit -> 4-bit conversion to it, so that
+you can load raw files with the example below. But if you consider programming
+anything in larger scale, I would suggest to write a proper image reader.</P>
+
+<P>So, to get your image to the display:</P>
+
+<div align="left"><OL>
+<LI>compile the program below</LI>
+<LI>make your image 128x32 sized (image can use all 256 grayscales)</LI>
+<LI>after your image is ready, go to Image/Mode/Grayscale in Photoshop</LI>
+<LI>go to File/Save As, choose the .RAW format</LI>
+<LI>use the default options, header being 0 sized</LI>
+<LI>transfer the image to empeg (file size should be 4096 bytes)</LI>
+<LI>run <CODE class="input">blitraw < pic.raw</CODE> on your empeg, if you
+named the program as <CODE>blitraw</CODE> and image as
+<CODE>pic.raw</CODE></LI>
+</OL></div>
+
+<P>This is the easiest way to get your own image to the empeg's display but
+also the most unsophisticated way to do it. It relies that the raw image file
+has no palette and that 0 means black and 255 white, on color indices. And it
+only works with 128x32 images.</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/display/blitraw.c">blitraw.c</A></PRE>
+<HR>
+<PRE>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+
+#define BLIT(fd)	ioctl((fd), _IO('d', 0))
+#define DISPLAY(fd, x)	ioctl((fd), _IOW('d', 1, int), (x))
+
+int main(int argc, char *argv[])
+{
+	int fd;
+	caddr_t dmap;
+	int i = 0, j = 0;
+	char cBuffer[ 4096 ];
+	char cLeft = 0, cRight = 0;
+
+	fd = open("/dev/display", O_RDWR);
+	if(fd == -1)
+		return 1;
+
+	dmap = mmap(0, 2048, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (dmap == (caddr_t) -1)
+		return 2;
+
+	if( read( STDIN_FILENO, cBuffer, 4096 ) == -1 )
+		return -1;
+
+	// shuffle bits
+	for( i = 0; i < 4096; i+=2, ++j )
+	{
+		cLeft = cBuffer[ i ] >> 6;
+		cRight = cBuffer[ i+1 ] >> 6;
+		dmap[ j ] = (cRight << 4) | cLeft;
+	}
+
+	BLIT(fd);
+	DISPLAY(fd, 1);
+
+	if (munmap(dmap, 2048) == -1 || close(fd) == -1)
+		return 3;
+
+	return 0;
+}
+</PRE>
+</DIV>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:kim@remedy.fi">Kim Salo</A></ADDRESS>
+
+</DIV>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="32"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Audio Output</b><p align="justify"><DIV class="section">
+
+<H2><A name="/dev/audio">/dev/audio</A></H2>
+
+<P><CODE>/dev/audio</CODE> is vaguely
+<A href="http://www.opensound.com/pguide/index.html">standard</A>, except that
+it <EM>requires</EM> fills of DMA buffer size (4608 bytes) and is locked at
+44.1khz stereo. The buffer fill bit is a bug, but it's likely to stay locked
+at that rate - we can't actually change the rate (the player does
+interpolation & flash stuff for lower bitrates).</P>
+
+<P>The mixer calls are pretty standard I believe, though there are lots of
+other bits for controlling the DSP - many of which we simply can't document as
+we're under NDA with the docs on the DSP.</P>
+
+<ADDRESS class="author">Contributed by Hugo Fiennes</ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2><A name="example">Example</A></H2>
+
+<P>Here is a program which reads pairs of signed 16-bit little-endian PCM
+samples from standard input and plays them at 44.1kHz stereo using
+<CODE>/dev/audio</CODE>. It takes care always to write 4608 bytes at a
+time.</P>
+
+<P>Some of the <CODE>ioctl()</CODE>s probably aren't strictly necessary on the
+empeg but they illustrate the API.</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/audio/pcmplay.c">pcmplay.c</A></PRE>
+<HR>
+<PRE>
+
+# include <stdio.h>
+# include <string.h>
+# include <errno.h>
+# include <fcntl.h>
+# include <unistd.h>
+
+# include <sys/ioctl.h>
+# include <sys/soundcard.h>
+
+# define AUDIO_DEVICE	"/dev/audio"
+# define AUDIO_FILLSZ	4608
+
+static
+int output(int fd, void const *buf, unsigned int len)
+{
+  char const *ptr = buf;
+  int wrote;
+
+  while (len) {
+    wrote = write(fd, ptr, len);
+    if (wrote == -1) {
+      if (errno == EINTR)
+	continue;
+      else
+	return -1;
+    }
+
+    ptr += wrote;
+    len -= wrote;
+  }
+
+  return 0;
+}
+
+static
+int audio_buffer(int fd, void const *buf, unsigned int len)
+{
+  char const *ptr = buf;
+  static char hold[AUDIO_FILLSZ];
+  static unsigned int held;
+  unsigned int left, grab;
+
+  if (len == 0) {
+    if (held) {
+      memset(&hold[held], 0, &hold[AUDIO_FILLSZ] - &hold[held]);
+      held = 0;
+
+      return output(fd, hold, AUDIO_FILLSZ);
+    }
+
+    return 0;
+  }
+
+  if (held == 0 && len == AUDIO_FILLSZ)
+    return output(fd, ptr, len);
+
+  left = AUDIO_FILLSZ - held;
+
+  while (len) {
+    grab = len < left ? len : left;
+
+    memcpy(&hold[held], ptr, grab);
+    held += grab;
+    left -= grab;
+
+    ptr  += grab;
+    len  -= grab;
+
+    if (left == 0) {
+      if (output(fd, hold, AUDIO_FILLSZ) == -1)
+	return -1;
+
+      held = 0;
+      left = AUDIO_FILLSZ;
+    }
+  }
+
+  return 0;
+}
+
+# define audio_flush(fd)  audio_buffer((fd), 0, 0)
+
+static
+int audio_init(int fd)
+{
+  int format, stereo, speed;
+
+  format = AFMT_S16_LE;
+  if (ioctl(fd, SNDCTL_DSP_SETFMT, &format) == -1) {
+    perror("ioctl(SNDCTL_DSP_SETFMT)");
+    return -1;
+  }
+  if (format != AFMT_S16_LE) {
+    fprintf(stderr, "AFMT_S16_LE not available
+");
+    return -1;
+  }
+
+  stereo = 1;
+  if (ioctl(fd, SNDCTL_DSP_STEREO, &stereo) == -1) {
+    perror("ioctl(SNDCTL_DSP_STEREO)");
+    return -1;
+  }
+  if (!stereo) {
+    fprintf(stderr, "stereo selection failed
+");
+    return -1;
+  }
+
+  speed = 44100;
+  if (ioctl(fd, SNDCTL_DSP_SPEED, &speed) == -1) {
+    perror("ioctl(SNDCTL_DSP_SPEED)");
+    return -1;
+  }
+  if (speed != 44100) {
+    fprintf(stderr, "sample speed 44100 not available (closest %u)
+", speed);
+    return -1;
+  }
+
+  return 0;
+}
+
+int main(int argc, char *argv[])
+{
+  static char buffer[AUDIO_FILLSZ];
+  int fd;
+  unsigned int len;
+
+  fd = open(AUDIO_DEVICE, O_WRONLY);
+  if (fd == -1) {
+    perror(AUDIO_DEVICE);
+    return 1;
+  }
+
+  if (audio_init(fd) == -1) {
+    close(fd);
+    return 2;
+  }
+
+  while ((len = fread(buffer, 4, AUDIO_FILLSZ / 4, stdin))) {
+    if (audio_buffer(fd, buffer, 4 * len) == -1) {
+      perror("write");
+      return 3;
+    }
+  }
+
+  if (ferror(stdin)) {
+    perror("read");
+    return 4;
+  }
+
+  if (audio_flush(fd) == -1) {
+    perror("write");
+    return 3;
+  }
+
+  if (close(fd) == -1) {
+    perror("close");
+    return 5;
+  }
+
+  return 0;
+}
+</PRE>
+</DIV>
+
+<P>You will need a source of PCM data to try this program. If you have a
+44.1kHz stereo WAV file, you can usually generate an appropriate PCM file by
+stripping away the 44-byte RIFF header:</P>
+
+<PRE class="input" align="left">
+dd if=<CODE>$file</CODE>.wav of=<CODE>$file</CODE>.pcm ibs=44 skip=1
+</PRE>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:rob+empeg@mars.org">Rob Leslie</A></ADDRESS>
+
+</DIV>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="33"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Beeps</b><p align="justify"><DIV class="section">
+
+<H2>Making Beeps</H2>
+
+<P>Here's some code to make the empeg beep. I've had to butcher it a little
+but it should still compile... <CODE>:-)</CODE></P>
+
+<P>Pitch is in MIDI notes (thanks to John) - he informs me that 60 is probably
+middle A - he may have the scale wrong.</P>
+
+<P>Duration is in milliseconds. It is asynchronous but closing the device
+kills off any pending notes (I think).</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/dsp/beep.c">beep.c</A></PRE>
+<HR>
+<PRE>
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <math.h>
+
+#define EMPEG_DSP_MAGIC 'a'
+#define EMPEG_DSP_BEEP _IOW(EMPEG_DSP_MAGIC, 0, int)
+
+int main(int ac, char *av[])
+{
+ int fd;
+ int pitch = 60;
+ int duration = 500;
+ int args[2];
+
+ fd = open("/dev/dsp", O_RDONLY);
+
+ if (ac == 3)
+ {
+  pitch = atoi(av[1]);
+  duration = atoi(av[2]);
+ }
+
+ if (fd < 0)
+ {
+  perror("Couldn't open dsp.
+");
+  return 1;
+ }
+
+ args[0] = pitch;
+ args[1] = duration;
+
+ if (ioctl(fd, EMPEG_DSP_BEEP, args) < 0)
+     perror("ioctl.
+");
+
+ usleep(duration * 1000 + 125000);
+
+ close(fd);
+
+ return 0;
+}
+</PRE>
+</DIV>
+
+</DIV>
+
+<ADDRESS class="author">Contributed by Mike Crowe</ADDRESS>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="34"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Mixer Calls</b><p align="justify"><DIV class="section">
+
+<H2><A name="mute">(Un)Muting the Audio</A></H2>
+
+<P>Here's some untested code that might prove useful.</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/mixer/mute.c">mute.c</A></PRE>
+<HR>
+<PRE>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/soundcard.h>
+#include <errno.h>
+#include <string.h>
+
+#define EMPEG_MIXER_READ_FLAGS _IOR('m', 1, int)
+#define EMPEG_MIXER_WRITE_FLAGS _IOW('m', 1, int)
+#define EMPEG_MIXER_FLAG_MUTE (1<<0)
+
+int main(int ac, char *av[])
+{
+    int mute = -1;
+    int flags = 0;
+    int fd = -1;
+    
+    while (*++av)
+    {
+	if(av[0][0] == '-')
+	{
+	    switch(av[0][1])
+	    {
+	    case 'm':
+		mute = 1;
+		break;
+	    case 'u':
+		mute = 0;
+		break;
+	    default:
+		fprintf(stderr, "Usage: mute [-u|-m]
+");
+		return 1;
+	    }
+	}
+	else
+	{
+	    fprintf(stderr, "Usage: mute [-u|-m]
+");
+	    return 1;
+	}
+    }
+
+    fd = open("/dev/mixer", O_RDONLY);
+    if (fd < 0)
+    {
+	fprintf(stderr, "Couldn't open /dev/mixer
+");
+	return 2;
+    }
+
+    if (mute >= 0)
+    {
+	if (mute)
+	    flags |= EMPEG_MIXER_FLAG_MUTE;
+	if (ioctl(fd, EMPEG_MIXER_WRITE_FLAGS, &flags) < 0)
+	    printf("Write mute ioctl failed: %s (%d)
+", strerror(errno), errno);
+    }
+
+    if (ioctl(fd, EMPEG_MIXER_READ_FLAGS, &flags) < 0)
+	printf("Read mute ioctl failed: %s (%d)
+", strerror(errno), errno);
+		
+
+    if (flags & EMPEG_MIXER_FLAG_MUTE)
+	printf("Output is currently muted.
+");
+    else
+	printf("Output is currently unmuted.
+");
+
+    return 0;
+}
+</PRE>
+</DIV>
+
+<ADDRESS class="author">Contributed by Mike Crowe</ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2><A name="source">Setting the Input Source</A></H2>
+
+<P>The following code will view or change the input source (PCM, radio,
+or line.)</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/mixer/mixersrc.c">mixersrc.c</A></PRE>
+<HR>
+<PRE>
+
+# include <stdio.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <sys/ioctl.h>
+# include <sys/soundcard.h>
+
+# define DEV_MIXER  "/dev/mixer"
+
+/* The following definitions are from include/asm-arm/arch-sa1100/empeg.h
+   in the beta9b kernel source */
+
+# define EMPEG_MIXER_MAGIC 'm'
+
+# define EMPEG_MIXER_READ_SOURCE _IOR(EMPEG_MIXER_MAGIC, 0, int)
+# define EMPEG_MIXER_WRITE_SOURCE _IOW(EMPEG_MIXER_MAGIC, 0, int)
+
+int main(int argc, char *argv[])
+{
+  int fd, opt, source = 0;
+  char *source_str;
+
+  while ((opt = getopt(argc, argv, "prl")) != -1) {
+    switch (opt) {
+    case 'p':
+      source = SOUND_MASK_PCM;
+      break;
+
+    case 'r':
+      source = SOUND_MASK_RADIO;
+      break;
+
+    case 'l':
+      source = SOUND_MASK_LINE;
+      break;
+
+    default:
+      fprintf(stderr, "Usage: %s [-p|-r|-l]
+", argv[0]);
+      return 1;
+    }
+  }
+
+  fd = open(DEV_MIXER, O_RDONLY);
+  if (fd == -1) {
+    perror(DEV_MIXER);
+    return 2;
+  }
+
+  if (source) {
+    if (ioctl(fd, EMPEG_MIXER_WRITE_SOURCE, &source) == -1) {
+      perror("ioctl(EMPEG_MIXER_WRITE_SOURCE)");
+      return 3;
+    }
+  }
+
+  if (ioctl(fd, EMPEG_MIXER_READ_SOURCE, &source) == -1) {
+    perror("ioctl(EMPEG_MIXER_READ_SOURCE)");
+    return 4;
+  }
+
+  if (source & SOUND_MASK_PCM)
+    source_str = "PCM";
+  else if (source & SOUND_MASK_RADIO)
+    source_str = "radio";
+  else if (source & SOUND_MASK_LINE)
+    source_str = "line";
+  else
+    source_str = "unknown";
+
+  printf("%s source selected
+", source_str);
+
+  if (close(fd) == -1) {
+    perror("close");
+    return 5;
+  }
+
+  return 0;
+}
+</PRE>
+</DIV>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:rob+empeg@mars.org">Rob Leslie</A></ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2><A name="sam">Soft Audio Mute</A></H2>
+
+<P>An additional mute setting known as the Soft Audio Mute (SAM) can be
+toggled with the following code.</P>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/mixer/sam.c">sam.c</A></PRE>
+<HR>
+<PRE>
+
+# include <stdio.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <sys/ioctl.h>
+# include <sys/soundcard.h>
+
+# define DEV_MIXER  "/dev/mixer"
+
+/* The following definitions are from include/asm-arm/arch-sa1100/empeg.h
+   in the beta10a kernel source */
+
+# define EMPEG_MIXER_MAGIC 'm'
+
+# define EMPEG_MIXER_SET_SAM _IOW(EMPEG_MIXER_MAGIC, 15, int)
+
+int main(int argc, char *argv[])
+{
+  int fd, opt, sam = -1;
+
+  while ((opt = getopt(argc, argv, "mu")) != -1) {
+    switch (opt) {
+    case 'm':
+      sam = 1;
+      break;
+
+    case 'u':
+      sam = 0;
+      break;
+
+    default:
+      return 1;
+    }
+  }
+
+  if (sam == -1) {
+    fprintf(stderr, "Usage: %s {-u|-m}
+", argv[0]);
+    return 1;
+  }
+
+  fd = open(DEV_MIXER, O_RDONLY);
+  if (fd == -1) {
+    perror(DEV_MIXER);
+    return 2;
+  }
+
+  if (ioctl(fd, EMPEG_MIXER_SET_SAM, &sam) == -1) {
+    perror("ioctl(EMPEG_MIXER_SET_SAM)");
+    return 3;
+  }
+
+  printf("Soft Audio Mute %s
+", sam ? "enabled" : "disabled");
+
+  if (close(fd) == -1) {
+    perror("close");
+    return 5;
+  }
+
+  return 0;
+}
+</PRE>
+</DIV>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:rob+empeg@mars.org">Rob Leslie</A></ADDRESS>
+
+</DIV>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="35"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>IR Input</b><p align="justify"><DIV class="section">
+
+<H2>Intercepting the IR device</H2>
+
+<P>I've just written a little piece of code to intercept the IR device before
+and make beeps.</P>
+
+<P>This should be run before the player; one way to do this is to rename
+<CODE>/sbin/init</CODE> to <CODE>/sbin/init.empeg</CODE> and replace the
+original with something like this:</P>
+
+<div align="left"><PRE>
+#!/bin/bash
+#
+/bin/intercept&
+exec /sbin/init.empeg
+</PRE></div>
+
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/ir/ir.h">ir.h</A></PRE>
+<HR>
+<PRE>
+/*
+ * ir.h
+ *
+ * /dev/ir codes from the empeg
+ *
+ * the top 16 bits of each code should be zero
+ */
+
+/*
+ * Front panel buttons
+ */
+
+#define IR_TOP_BUTTON_PRESSED		0x00000000
+#define IR_TOP_BUTTON_RELEASED		0x00000001
+#define IR_RIGHT_BUTTON_PRESSED		0x00000002
+#define IR_RIGHT_BUTTON_RELEASED	0x00000003
+#define IR_LEFT_BUTTON_PRESSED		0x00000004
+#define IR_LEFT_BUTTON_RELEASED		0x00000005
+#define IR_BOTTOM_BUTTON_PRESSED	0x00000006
+#define IR_BOTTOM_BUTTON_RELEASED	0x00000007
+
+/*
+ * Kenwood RCA-R6A remote
+ */
+
+#define IR_0		0x0000B900
+#define IR_1		0x0000B901
+#define IR_2		0x0000B902
+#define IR_3		0x0000B903
+#define IR_4		0x0000B904
+#define IR_5		0x0000B905
+#define IR_6		0x0000B906
+#define IR_7		0x0000B907
+#define IR_8		0x0000B908
+#define IR_9		0x0000B909
+#define IR_TRACK_MINUS	0x0000B90A
+#define IR_TRACK_PLUS	0x0000B90B
+#define IR_AM		0x0000B90C
+#define IR_FM		0x0000B90D
+#define IR_PROG		0x0000B90E
+#define IR_DIRECT	0x0000B90F
+#define IR_VOL_PLUS	0x0000B914
+#define IR_VOL_MINUS	0x0000B915
+#define IR_STAR		0x0000B91B
+#define IR_TUNER	0x0000B91C
+#define IR_TAPE		0x0000B91D
+#define IR_CD		0x0000B91E
+#define IR_CDMDCH	0x0000B91F
+#define IR_DNPP		0x0000B95E
+</PRE>
+</DIV>
+<DIV class="source" align="left"><PRE><A href="http://riocar.org/files/sample/ir/intercept.c">intercept.c</A></PRE>
+<HR>
+<PRE>
+/*
+ * Intercept.c
+ * 
+ * To use this code you need to rename /dev/ir to
+ * /dev/ir_real, mkfifo /dev/ir and put intercept
+ * into the startup by moving /sbin/init to /sbin/init.empeg
+ * and creating a script called init to call intercept
+ * first and then the real init.
+ *
+ * It will then intercept IR codes and do a beep
+ * before passing them onto the player. I have noticed that
+ * the beep sometimes lags the press, I suspect the intercept
+ * process is being swapped out by the caching facility.
+ *
+ * Thanks to Mike Crowe @empeg for the dsp ioctl
+ *
+ * Obviously I take no responsibilty for this mess ;-)
+ *
+ * Steve Boyle  sysboy@hotmail.com
+ *
+ */
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <math.h>
+
+#include "ir.h"
+#define REAL_IR_DEV "/dev/ir_real"
+#define IR_DEV "/dev/ir"
+#define DSP_DEV "/dev/dsp"
+#define EMPEG_DSP_MAGIC 'a'
+#define EMPEG_DSP_BEEP _IOW(EMPEG_DSP_MAGIC, 0, int)
+
+
+main(argc,argv)
+int argc;
+char *argv[];
+{
+int irfd;
+int irrealfd;
+ssize_t rts;
+long ircode;
+int dspfd;
+int pitch = 80;
+int duration = 25;
+int args[2];
+
+
+ args[0] = pitch;
+ args[1] = duration;
+
+ irrealfd = open(REAL_IR_DEV, O_RDONLY&O_NDELAY&O_NONBLOCK);
+
+ if ( irrealfd == -1 ) {
+    perror("Opening real IR device.");
+    exit(1);
+ }
+
+ irfd = open(IR_DEV, O_WRONLY);
+
+ if ( irfd == -1 ) { 
+    perror("Opening phony IR device.");
+    close(irrealfd);
+    exit(1);
+ } 
+
+ dspfd = open(DSP_DEV, O_RDONLY);
+
+ if ( dspfd == -1 ) { 
+    perror("Opening DSP device.");
+    close(irrealfd);
+    close(irfd);
+    exit(1);
+ } 
+ 
+ for (;;) {
+
+  rts = read(irrealfd, (char *) &ircode, 4);
+  if (rts == -1 ) { 
+    perror("Reading from real IR device.");
+    close(irfd);
+    close(irrealfd);
+    exit(1);
+  }
+
+  if (rts == 0 ) {
+    perror("Finished reading from real IR device.");
+    close(irfd);
+    close(irrealfd);
+    exit(0);
+  }
+
+  switch (ircode) {
+ 
+    case IR_TOP_BUTTON_RELEASED:
+    case IR_RIGHT_BUTTON_RELEASED:
+    case IR_LEFT_BUTTON_RELEASED:
+    case IR_BOTTOM_BUTTON_RELEASED:
+                                     break; /* do nothing for releases */
+    default:
+       if (ioctl(dspfd, EMPEG_DSP_BEEP, args) < 0) {
+          perror("ioctl.
+");
+          close(irfd);
+          close(irrealfd);
+          close(dspfd);
+          exit(1);
+       }
+  }
+
+
+  rts = write(irfd, (char *) &ircode, 4);
+  if (rts == -1 ) {
+    perror("Writing to phony IR device.");
+    close(irfd);
+    close(irrealfd);
+    exit(1);
+  }
+
+ }
+
+}
+</PRE>
+</DIV>
+
+</DIV>
+
+<ADDRESS class="author">Contributed by 
+<A href="mailto:sysboy@hotmail.com">Steve Boyle</A></ADDRESS>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="36"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>IrDA Input/Output</b><p align="justify"><DIV class="section">
+
+<P>We've not done a lot of playing ourselves, but generally: get the IR utils
+package and at the very least compile up <CODE>irattach</CODE>: you will need
+a kernel with IrDA support (the PPP 2.2.12 kernel
+<A href="http://www2.empeg.com/upgrades/tools/pppkernel7.upgrade">here</A>
+will do nicely). The IrDA is <CODE>/dev/ttyS2</CODE>, so you need to do:</P>
+
+<PRE class="input">
+irattach /dev/ttyS2
+</PRE>
+
+<P>You can then enable IrDA discovery by doing:</P>
+
+<PRE class="input">
+echo 1 >/proc/sys/net/irda/discovery
+</PRE>
+
+<P>...and at this point if I wave my Palm V in front of the empeg the Palm
+decides something is trying to talk to it and if you <CODE class="input">cat
+/proc/net/irda/discovery</CODE> (no <CODE>sys</CODE>!) then it tells me the
+name of my Palm.</P>
+
+<P>I've not gone further than this yet as it proved the IrDA was doing
+stuff. The irtutils archive has various IrOBEX stuff for talking to Palms.</P>
+
+</DIV>
+
+<ADDRESS class="author">Contributed by Hugo Fiennes</ADDRESS>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="37"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Serial Input/Output (todo: move 230k / UART stuff to another section)</b><p align="justify"><DIV class="section">
+
+<H2>Technical Details</H2>
+
+<P>The serial port is DTE, just like a normal PC. The supplied lead is a null
+modem one.</P>
+
+<P>The harness is identical to the internal port (but with only
+TX/RX/GND/power supply on DTR, pin 4) but a female as opposed to a male.</P>
+
+<P>The port's speed defaults to 115200bps but can be run at lower speeds or as
+fast as 230400bps. Note that RTS/CTS (though connected to lines on the SA)
+isn't implemented at driver level.</P>
+
+<ADDRESS class="author">Contributed by Hugo Fiennes</ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2>Dropping to the Shell</H2>
+
+<P>To get into the shell you need to have the developer image installed on
+your empeg. These instructions are for beta6 and most likely won't work with
+beta5. You can get the image from the
+<A href="http://www2.empeg.com/upgrades/">Empeg Upgrade</A> site.</P>
+
+<P>Once you've installed the image use a comm program to access your serial
+port (see chart below.) Parameters for the serial port are 115200,8,N,1
+<STRONG>no handshaking</STRONG>. Plug in your empeg player (if not already
+done.) Wait until you get music to make sure the player is started. Now type
+<CODE class="input">q</CODE> and then <ENTER>. The prompt should come
+up.</P>
+
+<TABLE border=1>
+  <TR>
+    <TH><SPAN class="THvariable">OS</SPAN></TH>
+    <TH><SPAN class="THvariable">Application</SPAN></TH>
+    <TH><SPAN class="THvariable">Port</SPAN></TH>
+    <TH><SPAN class="THvariable">Notes</SPAN></TH>
+  </TR>
+  <TR>
+    <TD>FreeBSD</TD>
+    <TD rowspan=2><A href="http://www.pp.clinet.fi/~walker/minicom.html">minicom</A></TD>
+    <TD><CODE>/dev/cuaa*</CODE></TD>
+    <TD rowspan=2>It may be necessary to run
+    <CODE class="input">minicom -o</CODE> to avoid sending your modem init
+    string.</TD>
+  </TR>
+  <TR>
+    <TD>Linux</TD>
+    <TD><CODE>/dev/ttyS*</CODE></TD>
+  </TR>
+  <TR>
+    <TD>Win98</TD>
+    <TD><A href="http://hp.vector.co.jp/authors/VA002416/teraterm.html">Tera
+    Term</A></TD>
+    <TD><CODE>COM*</CODE></TD>
+    <TD></TD>
+  </TR>
+  <TR>
+    <TD>Palm</TD>
+    <TD><A href="http://www.hausofmaus.com/simplet.htm">SimpleTerm</A></TD>
+    <TD><CODE>/dev/ttyS*</CODE></TD>
+    <TD>You'll have to set terminal speed to 19200:<BR>
+    <CODE class="input">stty -F /dev/ttyS</CODE><CODE>*</CODE><CODE
+    class="input"> 19200</CODE></TD>
+  </TR>
+</TABLE>
+
+<P class="white">Note: replace <CODE>*</CODE> with appropriate device number
+for your system.</P>
+
+<ADDRESS class="author">Contributed by gandolf</ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2>Maximum Serial Port Speed</H2>
+
+<P>230400 works for us - Mike used to run with a 230400bps serial card to
+minimise zmodem times <CODE>:)</CODE></P>
+
+<P>Bear in mind that standard PC serials do not run 230,400 - even though
+windows offers you the option. The standard 1.8432Mhz serial clock with a x1
+divisor gives max 115,200bps: you need at least a 3.6864Mhz serial clock into
+your 16c[56789]50 to get 230400bps.</P>
+
+<ADDRESS class="author">Contributed by Hugo Fiennes</ADDRESS>
+
+</DIV>
+
+<DIV class="section">
+
+<H2>Running at 230K</H2>
+
+<P>A patch for various Unix and Windows systems to support chips that emulate
+a 16550 but can actually run at > 115K is
+<A href="http://www.os.rim.or.jp/~gigo/over115K/index_e.html">here</A>.</P>
+
+<P>The Linux patch has moved. I've tested it on Linux 2.2 but unfortunately it
+doesn't recognise my chip. The Linux patch is
+<A href="http://www7.pos.to/~gonda/linux/serial-e.html">here</A>.</P>
+
+<P>According to Rogier Wolff: you can replace the 1.8x MHz crystal with a 14.x
+MHz so that the 14MHz crystal frequency will be multiplied by 7.something to
+get the 100MHz system clock. And it will be divided by 8 to get the base-clock
+for the SMC chip which has the dual 16550s on many ISA buses.</P>
+
+<ADDRESS class="author">Contributed by Paul Ashton</ADDRESS>
+
+</DIV>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="44"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>Audio Overlay</b><p align="justify">Kim Salo created a patch to the empeg 2.0b3 kernel that allows to do just that. This is what he says about that patch:<hr>
+<br>The patch file has been created against the v2.00-beta3 version of the kernel.  The patching should go as follows:
+<br>
+<br><i>% cd kernel/arch/arm/special
+<br>% patch < audio_overlay.patch</i>
+<br>
+<br>It modifies the <i>empeg_audio3</i> and <i>empeg_mixer</i> files.  The changes won't affect existing applications, therefore the player and other applications should run as before.
+<br>
+<br>Using the audio overlay system is very simple.  When you open the /dev/audio device in your code, you need to specify the O_SYNC flag to determine that you want to overlay audio with the player application.
+<br>
+<br>For example:
+<br><i>int handle = open( "/dev/audio", O_WRONLY | O_SYNC );</i>
+<br>
+<br>That's all.  Now, every time you write something to the <i>handle</i>, it will automatically fade the volumes and mix the audio.
+<hr>The patch is available for download at <a href="../files/kernel/audio_overlay-patch.zip">/files/kernel/audio_overlay-patch.zip</a> or via his BBS post at <a href="http://empegbbs.com/php/showthreaded.php?Cat=&Board=hackers_prog&Number=46906&page=0&view=collapsed&sb=5&o=365&vc=1">http://empegbbs.com/php/showthreaded.php?Cat=&Board=hackers_prog&Number=46906&page=0&view=collapsed&sb=5&o=365&vc=1</A></p><a href="11.html#top">Back to Top</a><HR></td></tr><tr><td><a name="57"></a><strong><big>&middot;</big></strong>&nbsp;&nbsp;<b>IrDA Made Easy</b><BR>&nbsp;(Entry last updated on January 19th, 2002)<p align="justify"><br><h2>TCP/IP over Infra-red on the Empeg</h2>
+<br>When you think about it, there are so many strings attached to infra-red data transfer. It must be short range, must be line-of-sight, and so on. However, there are numerous benefits as well: it is reasonably high speed (up to 4 Mbps for what is called <i>fast</i> infra-red), it is cordless, it is not <i>exactly</i> limited to line of sight, there is a plethora of devices that support IR out there, and so on. Oh, and it is cool in general. With an increasing number of computers (particularly laptops) including infra-red ports today, support for <a href="http://www.irda.org">IrDA</a> has been gaining momentum. In particular, <a href="http://irda.sourceforge.net">open source IrDA support for Linux</a> is eminently usable already. The IrDA stack is depicted diagrammatically <a href="http://philomaths.tripod.com/empeg/irda.html">here</a>.
+<br><h3>Making two Linuces talk TCP/IP over IR</h3>
+<br><b>Linux 1: Sony VAIO</b>
+<br>I have a <a href="http://www.vaio.net">Sony VAIO</a> PCG-Z505 JE laptop, on which IrDA works well. The IrDA specific contents of my /etc/modules.conf are as follows (please note that your configuration will very likely differ):
+<br><table><tr><td>Sony VAIO PCG-Z505 JE (Linux 2.4.9, irda-utils-0.9.14) </td></tr>
+<br><tr><td><pre>
+<br>pre-install nsc-ircc setserial /dev/ttyS2 port 0 irq0 
+<br>alias irda0 nsc-ircc 
+<br>options nsc-ircc io=0x3e8 dma=0 irq=10 dongle_id=0x09 
+<br>alias tty-ldisc-11 irtty 
+<br>alias char-major-161 ircomm-tty 
+<br>alias char-major-10-187 irnet  
+<br></pre></td></tr></table>
+<br><b>Linux 2: The Empeg</b>
+<br>I am running the Debian potato distribution on the Empeg, as described in <a href="http://philomaths.tripod.com/empeg/debian.html">this HOWTO</a>. In order to use IrDA as we are going to, the following are required on the Empeg:
+<br><ul>
+<br> <li>A development kernel with IrDA and PPP support. I compiled my own kernel (unchanged 2.2.14 sources as provided by Rio), but I believe any appropriate kernel will do. 
+<br> <li>The PPP package (ppp_2.3.11-1.4.deb currently for Debian-potato). 
+<br> <li>The irda-tools package (irda-tools_0.9.5-2.deb currently). 
+<br> <li>The irda-common package (irda-common_0.9.5-2.deb currently). 
+<br></ul>
+<br>It is easiest to use SIR to get started with IrDA (which I reckon is the only way that will work on the Empeg because of its IR hardware). We shall use PPP over SIR to get TCP/IP working. Communication speed will be limited to 115200 bps. The following steps should allow you to get a minimal connection working, which you can tailor to suit your needs thereafter:
+<br><ul>
+<br><li> Let us treat the "other" (Linux 1) machine as a PPP server. It is assumed that your IR hardware is identified by the kernel and is working. The system service "irda" must also be started (in other words, an "irattach" must be performed, like "irattach /dev/ttyS2 -s 1" - please refer to IR  documentation). Moreover, the relevant devices must exist (/dev/ircomm0, ...) 
+<br> <li>Start up irda on Linux 1, if it is not already started. 
+<br> <li>Execute "echo 1 > /proc/sys/net/irda/discovery" on Linux 1. 
+<br> <li>Execute "pppd /dev/ircomm0 115200 noauth x.x.x.x:y.y.y.y" on Linux 1, where x.x.x.x and y.y.y.y are two appropriate IP addresses to be used for the Point-to-Point link that would be established (hopefully!) 
+<br> <li>Make sure that a ppp device comes up. It is useful to have a "tail -f" running on /var/log/messages all this while as a debugging aid. 
+<br> <li>Drop to the shell on the Empeg (either through a serial connection, or by logging in if your Empeg is configured for remote logins). 
+<br> <li>Make sure the appropriate ir devices (/dev/ircomm0, ...) exist in /dev. If they don't, you need to create them. One way is to do a "tar -cpf" on Linux 1 and "tar -xpf" it on the Empeg. 
+<br> <li>Run "irattach /dev/ttyS2 -s 1" on the Empeg. If things are fine, the irda0 device should come up. 
+<br> <li>Execute "pppd /dev/ircomm0" on the Empeg. 
+<br> <li>Count from 1 to 5. Do an "ifconfig -a" on the Empeg. If all went well, you should see the Point-to-Point link established and the IP addresses assigned. 
+<br> <li>If everything is working, you can disconnect the Ethernet cable (if connected) and enjoy talking to the Empeg only over IR. 
+<br> <li>Note that if the player software is restarted at this point, it should (can be made to) bind to the appropriate port (I think it is 8300) and listen on the newly found address. In other words, emplode/emptool should work over IR. [<b>NB</b>: I am yet to verify this.] 
+<br></ul>
+<br>Please note that IrComm is not the only way to connect the Empeg to an IR-enabled computer, but it is the simplest. IrLAN in ad-hoc mode might be  another option.
+<br><p>
+<ADDRESS class="author">Contributed by 
+<A href="mailto:amit_s@acm.org">Amit Singh</A></ADDRESS>
+</p><a href="11.html#top">Back to Top</a><HR></td></tr></table><br><br><div align="center"><b>[ <a href="../Developer_Info.html">Back to the index</a> ]</b></div></td></tr></table></td></tr></table>
+</td></tr></table>
+    <center><font class=tiny>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#666666" height="20">
+  <tr>
+    <td width="100%" align="center">
+    <font color="#ffffff" face="Verdana" size="2"><b>Copyright &copy; 2001-2018  riocar.org<BR>
+
+    </b>All logos and trademarks on this site are property of their respective owners. The comments are property of their posters.</font></td>
+  </tr>
+</table>
+
+    </font></center>
+
+    
+    </body>
+
+    </html>
