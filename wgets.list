@@ -1,0 +1,68 @@
+wget -r http://www.empeg.com/
+wget -r http://www.eutronix.com/
+wget -r http://empeg-hijack.sourceforge.net/
+wget -r http://www.jempeg.org/
+wget http://www.jempeg.org/docs/plugin.html
+
+wget -r --no-parent -e robots=off http://rtr.ca/bigdisk/
+wget -r --no-parent -e robots=off http://rtr.ca/dock/
+
+for i in {1..64}; do wget --max-redirect=3 --trust-server-names "http://riocar.org/download.php?op=getit&lid=$i"; done
+
+
+
+
+
+
+http://web.archive.org/web/20060709174256/http://www.oro.net/~tfabris/logoedit.htm
+
+# macgeek.dyndns.org/empeg/ext3/
+http://web.archive.org/web/20030119074304/http://macgeek.dyndns.org/empeg/ext3/
+https://archive.is/o/yObHj/web.archive.org/web/20030119074304/http://macgeek.dyndns.org/empeg/ext3/e2fsck.gz
+https://archive.is/o/yObHj/web.archive.org/web/20030119074304/http://macgeek.dyndns.org/empeg/ext3/tune2fs.gz
+
+#emphatic 
+http://web.archive.org/web/20090220115551/http://empeg.tonyc.org/
+
+
+        // Empeg's lenses...
+
+wget www.riocar.org/lens/green_indoor.jpg
+wget www.riocar.org/lens/green_ambient.jpg
+wget www.riocar.org/lens/green_fullsun.jpg
+wget www.riocar.org/lens/blue_indoor.jpg
+wget www.riocar.org/lens/blue_ambient.jpg
+wget www.riocar.org/lens/blue_fullsun.jpg
+wget www.riocar.org/lens/amber_indoor.jpg
+wget www.riocar.org/lens/amber_ambient.jpg
+wget www.riocar.org/lens/amber_fullsun.jpg
+wget www.riocar.org/lens/red_indoor.jpg
+wget www.riocar.org/lens/red_ambient.jpg
+wget www.riocar.org/lens/red_fullsun.jpg
+wget www.riocar.org/lens/clear_indoor.jpg
+wget www.riocar.org/lens/clear_ambient.jpg
+wget www.riocar.org/lens/clear_fullsun.jpg
+wget www.riocar.org/lens/smoke_indoor.jpg
+wget www.riocar.org/lens/smoke_ambient.jpg
+wget www.riocar.org/lens/smoke_fullsun.jpg
+wget www.riocar.org/lens/deepblue_indoor.jpg
+wget www.riocar.org/lens/deepblue_ambient.jpg
+wget www.riocar.org/lens/deepblue_fullsun.jpg
+wget www.riocar.org/lens/lightblue_indoor.jpg
+wget www.riocar.org/lens/lightblue_ambient.jpg
+wget www.riocar.org/lens/lightblue_fullsun.jpg
+wget www.riocar.org/lens/deepred_indoor.jpg
+wget www.riocar.org/lens/deepred_ambient.jpg
+wget www.riocar.org/lens/deepred_fullsun.jpg
+wget www.riocar.org/lens/neonred_indoor.jpg
+wget www.riocar.org/lens/neonred_ambient.jpg
+wget www.riocar.org/lens/neonred_fullsun.jpg
+wget www.riocar.org/lens/deepgreen_indoor.jpg
+wget www.riocar.org/lens/deepgreen_ambient.jpg
+wget www.riocar.org/lens/deepgreen_fullsun.jpg
+wget www.riocar.org/lens/neongreen_indoor.jpg
+wget www.riocar.org/lens/neongreen_ambient.jpg
+wget www.riocar.org/lens/neongreen_fullsun.jpg
+wget www.riocar.org/lens/orange_indoor.jpg
+wget www.riocar.org/lens/orange_ambient.jpg
+wget www.riocar.org/lens/orange_fullsun.jpg

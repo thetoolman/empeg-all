@@ -1,0 +1,287 @@
+<html>
+<head>
+<title>eutronix.com - Board Installation Services</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+.text_body_black {  font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000; line-height: 11pt}
+.text_body_black_italic { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #000000 ; font-style: italic}
+.text_body_red { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #CC0000; font-weight: bold; font-style: normal}
+.format_list {  font-family: Arial, Helvetica, sans-serif; font-size: 14px; border: #006699; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+.text_body_bold_red { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-transform: uppercase; color: #CC0000 }
+.text_body_blue { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #0066FF}
+.title_font_white_small { font-family: Verdana; font-size: 11px; line-height: normal; font-weight: bold; color: #FFFFFF }
+.text_body_bold_green { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-transform: uppercase; color: #009900}
+.text_body_black_medium { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000 }
+.text_body_black_medium_bold { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000 ; font-weight: bold}
+-->
+.text_body_black_bold { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #000000; line-height: 12pt ; font-weight: bold}
+.text_body_blue_small { font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #0066FF}
+.text_body_blck_small { font-family: Arial, Helvetica, sans-serif; font-size: 7px; color: #000000}
+.text_body_black_bold_small { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000000; line-height: 11pt; font-weight: bold }
+.text_body_bold_green_small { font-family: Arial, Helvetica, sans-serif; font-size: 9px; font-weight: bold; text-transform: uppercase; color: #009900 }
+-->
+</style>
+<script language="JavaScript">
+<!--
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+
+function MM_findObj(n, d) { //v4.0
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && document.getElementById) x=document.getElementById(n); return x;
+}
+
+function MM_openBrWindow(theURL,winName,features) { //v2.0
+  window.open(theURL,winName,features);
+}
+//-->
+</script>
+<link rel="shortcut icon" type="image/x-icon" href="http://www.eutronix.com/media/favicon.ico"></head>
+<body bgcolor="#FFFFFF" topmargin="0" marginheight="0" onLoad="MM_preloadImages('../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Products.gif','../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Order.gif','../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Contact_Us.gif','../../Applications%20(Mac%20OS%209)/Dreamweaver%203/Sites/Company.gif','Buttons/Products.gif','Buttons/Order.gif','Buttons/Contact_Us.gif','Buttons/Company.gif','Buttons/Services.gif')" link="#0000CC">
+<table width="730" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr> 
+    <td>&nbsp;</td>
+    <td><img src="eutronix_title.gif" width="730" height="86" usemap="#Map" border="0" alt="Welcome to eutronix.com" align="middle"> 
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="38">&nbsp;</td>
+    <td height="38"> 
+      <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr> 
+          <td align="center"><a href="http://www.eutronix.com/company" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Company','','Buttons/Company.gif',1)"><img name="Company" border="0" src="Buttons/Company_clear.gif" width="130" height="36" alt="Company"></a></td>
+          <td width="10">&nbsp;</td>
+          <td align="center"><a href="http://www.eutronix.com/products" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Products','','Buttons/Products.gif',1)"><img name="Products" border="0" src="Buttons/Products_clear.gif" width="130" height="36"></a></td>
+          <td width="10">&nbsp;</td>
+          <td align="center"><a href="http://www.eutronix.com/services"><img src="Buttons/Services.gif" width="130" height="36" alt="Services" border="0"></a></td>
+          <td width="10">&nbsp;</td>
+          <td align="center"><a href="http://www.eutronix.com/order" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Order','','Buttons/Order.gif',1)"><img name="Order" border="0" src="Buttons/Order_clear.gif" width="130" height="36"></a></td>
+        </tr>
+        <tr> 
+          <td colspan="7">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+    <td height="38">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td rowspan="8" height="14" valign="top"> 
+      <table width="560" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr> 
+          <td class="text_body_black" height="100" valign="top"> 
+            <table width="100%" border="0" cellspacing="0" cellpadding="5">
+              <tr> 
+                <td class="text_body_black_medium" colspan="2"><img src="installations.gif" width="560" height="40"></td>
+              </tr>
+              <tr> 
+                <td class="text_body_red" colspan="2">The Service</td>
+              </tr>
+              <tr> 
+                <td class="text_body_black_medium" colspan="2">Want a digital 
+                  out board for the ultimate in sound quality, but don't have 
+                  the necessary electronics or metalworking skills? Fear not! 
+                  Who better to install the equipment than the designers themselves? 
+                  We can put our <span class="text_body_black_medium_bold">40+ 
+                  years of electronics and metalworking experience</span> to work 
+                  installing the board for you. Your player will be returned to 
+                  you quickly, with a turnaround of 1 week or less.</td>
+              </tr>
+              <tr> 
+                <td class="text_body_black_medium" colspan="2"><img src="white_pix.gif" width="5" height="10"></td>
+              </tr>
+              <tr> 
+                <td class="text_body_red" colspan="2">How it Works</td>
+              </tr>
+              <tr> 
+                <td class="text_body_black_medium" colspan="2"> 
+                  <p>First we professionally solder the wiring harness to the 
+                    signal pads on the player circuit board. The wiring is tested 
+                    for signal integrity and then the player is completely disassembled 
+                    in preparation for hole fabrication.</p>
+                  <p>We then use a custom precision die unit in conjunction with 
+                    a 2-ton arbor press to create the holes for the digital output 
+                    terminals. Some of the equipment we use:</p>
+                </td>
+              </tr>
+              <tr> 
+                <td class="text_body_black_medium" align="center" valign="bottom" width="50%"><img src="die_thb.jpg" width="150" height="136" alt="Die" border="1" onClick="MM_openBrWindow('http://www.eutronix.com/media/die_lrg.jpg','','scrollbars=yes,width=550,height=480')"></td>
+                <td class="text_body_black_medium" align="center" width="50%"><img src="press_thb.jpg" width="128" height="250" border="1" alt="Press" onClick="MM_openBrWindow('http://www.eutronix.com/media/press_lrg.jpg','','scrollbars=yes,width=425,height=815')"></td>
+              </tr>
+              <tr> 
+                <td class="text_body_black_medium" align="left" valign="bottom" width="50%">Die 
+                  Cutters and Associated Guides provided by Dave Balkun of Okay 
+                  Industries (Click to enlarge)</td>
+                <td class="text_body_black_medium" align="center" valign="top" width="50%">2-Ton 
+                  Arbor Press (Click to enlarge)</td>
+              </tr>
+              <tr> 
+                <td class="text_body_black_medium" align="center" valign="bottom" width="50%">&nbsp;</td>
+                <td class="text_body_black_medium" align="center" width="50%">&nbsp;</td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2">Following 
+                  that, we reassemble the player, piece by piece, permanently 
+                  install the digital out board and connectors, thoroughly test 
+                  everything, and return the player to you.</td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2"><img src="white_pix.gif" width="5" height="10"></td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_red" valign="bottom" colspan="2">The Details 
+                </td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2">We 
+                  use only 63/37 solder for all electronics work. All electronics 
+                  work is done in an ESD (electrostatic discharge) safe area using 
+                  an ESD safe temperature controlled soldering iron. The casing 
+                  and all delicate components are masked off or safely stored 
+                  from harm's way. Parts and labor are covered by a 90-day limited 
+                  warranty (see <a href="http://www.eutronix.com/terms_and_conditions">Terms 
+                  and Conditions</a> for details).<span class="text_body_black_medium_bold"> 
+                  Bottom line, your player is safe with us!</span></td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2">&nbsp;</td>
+              </tr>
+              <tr align="left"> 
+                <td class="title_font_white_small" valign="bottom" colspan="2" bgcolor="#000000">Please 
+                  follow these steps to arrange for us to install your digital 
+                  out card:</td>
+              </tr>
+              <tr> 
+                <td bgcolor="#CCCCCC" colspan="2" height="100"> 
+                  <ol>
+                    <li class="text_body_black_medium">Order the desired model 
+                      of digital out board from the appropriate <a href="http://www.eutronix.com/order">order</a> 
+                      page.</li>
+                    <li class="text_body_black_medium">Order the installation 
+                      service corresponding to your model of board from the appropriate 
+                      <a href="http://www.eutronix.com/order">order</a> page. 
+                      You will be provided with our mailing address and other 
+                      contact information via e-mail.</li>
+                    <li class="text_body_black_medium">Ship your player to the 
+                      address we provided you in step 2.</li>
+                    <li class="text_body_black_medium">Wait for your player to 
+                      arrive with the digital out board of your choice professionally 
+                      installed</li>
+                    <li class="text_body_black_medium">Sit back and enjoy!</li>
+                  </ol>
+                </td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2">&nbsp;</td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_red" valign="bottom" colspan="2">What it 
+                  Costs</td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2">We 
+                  offer two installation services at two price levels.</td>
+              </tr>
+              <tr align="left"> 
+                <td class="text_body_black_medium" valign="bottom" colspan="2"> 
+                  <table width="100%" border="1" cellspacing="0" cellpadding="5" bordercolor="#000000">
+                    <tr align="left" bordercolor="#CCCCCC"> 
+                      <td class="text_body_bold_green" valign="bottom" align="center" width="50%" bgcolor="#EBEBEB">Coax 
+                        and I<font face="Verdana, Arial, Helvetica, sans-serif" size="-1" class="text_body_black"><sup class="text_body_bold_green_small">2</sup></font>S 
+                        Models </td>
+                      <td class="text_body_bold_green" valign="bottom" align="center" width="50%" bgcolor="#EBEBEB">All 
+                        Optical Models </td>
+                    </tr>
+                    <tr align="left" bordercolor="#CCCCCC"> 
+                      <td class="text_body_black_medium_bold" valign="bottom" align="center" width="50%">Price: 
+                        <span class="text_body_bold_red">$99.99</span> + shipping</td>
+                      <td class="text_body_black_medium_bold" valign="bottom" align="center" width="50%">Price: 
+                        <span class="text_body_bold_red">$124.99</span> + shipping</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="20">&nbsp;</td>
+    <td height="20">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="20">&nbsp;</td>
+    <td height="20">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="20">&nbsp;</td>
+    <td height="20">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="26">&nbsp;</td>
+    <td height="26">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="14">&nbsp;</td>
+    <td height="14">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td align="right" class="text_body_black_small"> 
+      <table width="730" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr align="right"> 
+          <td class="text_body_black_small" colspan="2"> 
+            <hr width="730">
+          </td>
+        </tr>
+        <tr align="right"> 
+          <td class="text_body_blue_small" align="left" width="274"><span class="text_body_black_medium"><a href="http://www.eutronix.com/terms_and_conditions.htm" class="text_body_black_medium">T</a></span><a href="http://www.eutronix.com/terms_and_conditions.htm" class="text_body_black_medium"><span class="text_body_black">erms 
+            and Conditions</span></a><span class="text_body_black"><img src="white_pix.gif" width="25" height="5"> 
+            <a href="http://www.eutronix.com/email_form.htm" class="text_body_black_medium">Contact 
+            Us</a></span></td>
+          <td class="text_body_black" align="right" width="286">Copyright Eutronix 
+            2003, all rights reserved.</td>
+        </tr>
+        <tr align="right"> 
+          <td class="text_body_blue_small" align="left" width="274" height="15">&nbsp;</td>
+          <td class="text_body_black_medium" align="right" width="286" height="15">&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<span class="text_body_blck_small"></span> 
+<map name="Map"> 
+  <area shape="rect" coords="16,8,262,61" href="http://www.eutronix.com" alt="Home" title="Home">
+</map>
+</body>
+</html>
