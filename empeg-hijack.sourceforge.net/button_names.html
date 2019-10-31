@@ -1,0 +1,204 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Neat Empeg Stuff: Button Names</title>
+</head>
+<body bgcolor=white>
+<A HREF=index.html><IMG SRC=up.jpg BORDER=1 align=top></A>
+<A href="http://sourceforge.net"><IMG src="http://sourceforge.net/sflogo.php?group_id=43347&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+<H2>
+Hijack v467 Button Names
+</H2>
+<pre style=\"font-family: monospace, Courier\">
+There are two primary chunks of software on the Empeg/Rio Car player.
+One is the Hijack (Linux) operating-system kernel, referred to as "Hijack".
+The other is the original application software, referred to as "the player".
+
+The Hijack kernel includes support for remapping button functions
+(the "ir_translate" feature), button macros, and PopUp menus of buttons.
+
+Originally, button codes had to be entered in hexadecimal notation
+(still valid), but eventually a "button name" dictionary was added to Hijack.
+This complete "button dictionary" is documented herein, as of Hijack v467.
+
+Below, are lists and descriptions of several categories of buttons.
+This includes "virtual" buttons which do not have any default correspondence
+to real buttons on any of the remote controls, as well as the physical
+buttons found on the Empeg/Rio front-panel, the original Kenwood remote,
+the production Rio Remote, and the Sony RM-XS4 "stalk".
+
+These names produce the exact same effect as pressing the buttons themselves.
+The exact functionality depends upon the state the player software is in.
+Some buttons are known by more than one name, indicated by "(alternate)".
+
+Although the descriptions below use a mix of upper/lower case spellings
+for the button names, Hijack ignores upper/lower case differences when
+processing its configuration info from the config.ini file.
+
+* * * * * * * * * * * *
+
+Hijack has several "virtual" ("fake") buttoncodes for its own use,
+which trigger specific features of Hijack rather than of the player.
+
+NAME		ACTION
+============	=====================================================
+PopUp0		pop-up a special button menu onto the front-panel display
+PopUp1		pop-up a user-defined button menu
+PopUp2		pop-up a user-defined button menu
+PopUp3		pop-up a user-defined button menu
+VolAdjLow	set automatic-volume-adjust to the "Low" setting
+VolAdjMed	set automatic-volume-adjust to the "Medium" setting
+VolAdjHigh	set automatic-volume-adjust to the "High" setting
+VolAdjOff	set automatic-volume-adjust to the "Off" setting
+BassAdj		activate the bass-adjustment pop-up screen
+TrebleAdj	activate the treble-adjustment pop-up screen
+KnobSeek	activate the "knob seek" pop-up: for radio tuning or track skipping
+Clock		pop-up a date/time display
+NextSrc		cycle among the MP3,TUNER(,AUX) sound inputs
+SaveSrc		remember current sound input for later recall
+SaveAux		do SaveSrc and then switch to AUX input
+RestoreSrc	return back to previously saved sound input
+AM		switch to AM radio sound input
+FM		switch to FM radio sound input
+Reboot		try to simulate switching the power off and on again
+VolAdj		activate the Automatic-Volume-Adjustment pop-up screen
+QuickTimer	activate the Countdown-Timer pop-up screen (like a "sleep timer")
+HijackMenu	pop-up the main Hijack-Menu screen
+VisualSeek	activate a pop-up screen which uses the knob to select among visuals
+Initial		??
+null		do nothing: used to insert a short delay between buttons inside a macro
+PrevVisual	Select previous player visualization-graphic in sequence
+
+* * * * * * * * * * * *
+
+This group lists the names which correspond to the buttons
+on the front-panel of the Empeg/Rio Car main unit.
+
+NAME		ACTION
+============	=====================================================
+Top		front-panel top button
+Bottom		front-paenl bottom button
+Left		front-panel left button
+Right		front-panel right button
+KnobLeft	anti-clockwise twist of front-panel knob
+KnobRight	clockwise twist of front-panel knob
+Knob		press of front-panel knob
+SeekTool	press of front-panel knob (alternate)
+
+* * * * * * * * * * * *
+
+This next group are the names which correspond to the buttons
+of a Rio Remote.
+
+NAME		ACTION
+============	=====================================================
+Power		the Source/Power button
+Source		the Source/Power button (alternate)
+One		the 1//Time button
+Time		the 1/Time button (alternate)
+Two		the 2/abc/Artist button
+Artist		the 2/abc/Artist button (alternate)
+Three		the 3/dev/Album button
+Album		the 3/dev/Album button (alternate)
+Four		the 4/ghi button
+Five		the 5/jkl/Genre button
+Genre		the 5/jkl/Genre button (alternate)
+Six		the 6/mno/Year button
+Year		the 6/mno/Year button (alternate)
+Seven		the 7/prs/Repeat button
+Repeat		the 7/prs/Repeat button (alternate)
+Eight		the 8/tuv/Swap button
+Swap		the 8/tuv/Swap button (alternate)
+Nine		the 9/wxy/Title button
+Title		the 9/wxy/Title button (alternate)
+Zero		the 0/qz/Shuffle button
+Shuffle		the 0/qz/Shuffle button (alternate)
+Tuner		the Tuner/Bank button
+SelectMode	the SelectMode button
+SelMode		the SelectMode button (alternate)
+Cancel		the Cancel/Mark button
+Mark		the Cancel/Mark button (alternate)
+Search		the Search button
+Sound		the Sound/Equalizer button
+Equalizer	the Sound/Equalizer button (alternate)
+Prev		the |<< / << button
+PrevTrack	the |<< / << button (alternate)
+Track-		the |<< / << button (alternate)
+Next		the >>| / >> button
+NextTrack	the >>| / >> button (alternate)
+Track+		the >>| / >> button (alternate)
+Menu		the Menu/OK button
+Ok		the Menu/OK button (alternate)
+VolDown		the Volume-\/ button
+Vol-		the Volume-\/ button (alternate)
+VolUp		the Volume-/\ button
+Vol+		the Volume-/\ button (alternate)
+Vol 		the Volume-/\ button (alternate)
+Info		the Info/Detail button
+Detail		the Info/Detail button (alternate)
+Visual		the Visual button
+NextVisual	the Visual button (alternate)
+Pause		the >|| / Hush button
+Play		the >|| / Hush button (alternate)
+Hush		the >|| / Hush button (alternate)
+
+* * * * * * * * * * * *
+
+This next group are the names which correspond to the buttons
+of the original Kenwood Remote.  Not all of the Kenwood buttons
+are available here by name.  For example, Hijack uses the Volume
+and Track buttons of the Rio Remote (above) instead of those
+from the Kenwood remote.  The same applies for the number pad.
+This can be fixed (in Hijack) if anybody really requires them.
+
+NAME		ACTION
+============	=====================================================
+AM-		the AM- / REW button
+FM+		the FM+ / FF button
+Direct		the DIRECT OK button
+Star		the * button
+*		the * button (alternate)
+Radio		the TUNER button
+Tape		the TAPE button
+Auxiliary	the TAPE button (alternate)
+CD		the CD button
+Player		the CD button (alternate)
+CDMDCH		the CD-MD CH button
+DNPP		the DNPP button
+
+* * * * * * * * * * * *
+
+The last group here represents the default mappings for
+the Sony RM-X4S, a wired steering-wheel remote control "stalk".
+The stalk has a special SHIFT function (think "shift key" on
+a computer keyboard), used to provide double meanings for each button.
+SHIFT is activated by pressing in on the PRESET/DISC/VOL collar,
+and then pressing any other button while SHIFT is held.
+
+NAME		ACTION
+============	=====================================================
+KOff		the OFF button  (convex circle)
+KSource		the SOURCE button (inset, on end of stalk)
+KAtt		the ATT button (concave circle, with dimple)
+KFront		no label (larger trapezoid)
+KNext		clockwise rotation of SEEK/AMS collar
+KPrev		anti-clockwise rotation of SEEK/AMS collar
+KVolUp		clockwise rotation of PRESET/DISC/VOL collar
+KVolDown	anti-clockwise rotation of PRESET/DISC/VOL collar
+KRear		no label (rear, smaller trapezoid, with dash [--])
+KBottom		no label (bottom, smooth rectangle)
+KSOff		SHIFT + the OFF button  (convex circle)
+KSSource	SHIFT + the SOURCE button (inset, on end of stalk)
+KSAtt		SHIFT + the ATT button (concave circle, with dimple)
+KSFront		SHIFT + no label (larger trapezoid)
+KSNext		SHIFT + clockwise rotation of SEEK/AMS collar
+KSPrev		SHIFT + anti-clockwise rotation of SEEK/AMS collar
+KSVolUp		SHIFT + clockwise rotation of PRESET/DISC/VOL collar
+KSVolDown	SHIFT + anti-clockwise rotation of PRESET/DISC/VOL collar
+KSRear		SHIFT + no label (rear, smaller trapezoid, with dash [--])
+KSBottom	SHIFT + no label (bottom, smooth rectangle)
+
+* * * * * * * * * * * *
+</pre>
+</body>
+</html>

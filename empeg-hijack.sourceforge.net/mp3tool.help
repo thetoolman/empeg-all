@@ -1,0 +1,18 @@
+
+mp3tool:  MP3 header manipulation utility.  Version 3.00  July/2005  Mark Lord
+This may be useful for dealing with older or buggy .mp3 software.
+Usage:    mp3tool  [options]  infile.mp3  [infile2.mp3..]
+
+Options:  --display     Display of ID3v2 tag info (default)
+          --headers     Display ID3v2 frame headers
+          --mp3hdrs     Display mp3 audio headers
+          --extract     Copy raw ID3v2 tags into .id3v2 files
+          --remove      Rewrite .mp3 files, discarding ID3v2 tags
+          --repair      Rewrite .mp3 files, repairing broken VBR headers
+          --split       Same as '--extract --remove --repair' options combined
+          --datafiles   Extract embedded text/image files from ID3v2 tags
+
+Any and all output files are written to the same directory as the original file.
+When using --remove on a file, the ID3v2 info is used to append an ID3v1 tag
+to the end of the file, if an ID3v1 tag was not already present there.
+

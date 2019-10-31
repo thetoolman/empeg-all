@@ -1,0 +1,363 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Neat Empeg Stuff: config.ini enhancements</title>
+</head>
+<body bgcolor=white>
+<A HREF=index.html><img src=up.jpg BORDER=1 align=top></A>
+<A href="http://sourceforge.net"><IMG src="http://sourceforge.net/sflogo.php?group_id=43347&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+<H2>
+IR-Translations in config.ini
+</H2>
+<h3><img src=new.jpg><a href="button_names.html">Click here for a complete list of Button Names</a></h3>
+<h3><a href=stalk.html>Click here for Sony Stalk Info!</a></h3>
+<h3>The Basics of IR Translation</h3>
+<p>
+To configure the <b>IR Translation</b> mechanism of the latest Hijack kernels,
+first use the "Button Codes Display" to see what codes your remote control
+is sending when you press the button(s) of interest.
+Then, use Emplode->Tools->Edit_config.ini
+(<a href=http://riocar.org/modules.php?op=modload&name=FAQ&file=index&myfaq=yes&id_cat=7&categories=Upgrade%2C+customization%2C+and+third-party+software+questions>read this first</a>)
+to access the player's configuration file.
+At the bottom of the file, append lines in the following format, where each instance of xxxxxxxx is replaced
+with the code your remote actually sends, and yyyyyyyy is replaced with the code you want it to send
+(any valid code sent by the standard Kenwood or Rio remotes).
+A single entry handles both the "press" and "release" codes of a button,
+so there is no need to enter both codes for a button
+(release codes always have the first bit set to "1", so the xxxxxxxx would typically have an '8' as the first digit).
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    xxxxxxxx=yyyyyyyy   ;comment
+    xxxxxxxx=yyyyyyyy   ;this is the play button
+</pre>
+Each value is specified as a hexadecimal number or <a href="button_names.html">button name</a>.
+Don't forget to do a "sync" after you finish editing.
+The new codes will take effect immediately after the sync.
+<p>
+Button macros (single button translated to a sequence of buttons) are also possible.
+These get defined by supplying multiple "new" codes on a line in config.ini, as in:
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    xxxxxxxx=vvvvvvvv                     ;this button just sends "v"
+    xxxxxxxx=yyyyyyyy,zzzzzzzz,wwwwwwww   ;this button sends "y","z", and "w"
+</pre>
+<p>
+Separate translations can be entered for <em>long</em> and/or <em>short</em> presses of the same button.
+To have a special translation for a long (one second or longer) press, include a <b>.L</b> modifier at the
+end of the "old" code, as in:
+<pre style=\"font-family: monospace, Courier\">
+    xxxxxxxx.L=vvvvvvvv  ; applies only to a long press of xxxxxxxx
+    xxxxxxxx=vvvvvvvv    ; applies to short presses of xxxxxxxx
+</pre>
+<p>
+The <b>.L</b> modifier can also be used on one or more codes to the right of the equal sign,
+indicating that a <em>long</em> press should be emulated for the indicated button(s).
+<pre style=\"font-family: monospace, Courier\">
+    xxxxxxxx.L=yyyyyyyy.L  ; convert a long press of xxxxxxxx into a long press of yyyyyyyy
+    xxxxxxxx=yyyyyyyy,vvvvvvvv.L,zzzzzzzz  ; convert any xxxxxxxx into short-y, long-v, and short-z
+</pre>
+<p>
+Translations can also be made specific to a particular input source of the player,
+by using one of <b>.T</b> (Tuner), <b>.A</b> (Aux), or <b>.M</b> (Main/mp3) as a modifier
+on the "old" code, as in:
+<pre style=\"font-family: monospace, Courier\">
+    xxxxxxxx.A=vvvvvvvv   ; applies to long/short presses when listening to the Aux source
+    xxxxxxxx.LT=vvvvvvvv  ; applies only to a long press when the Tuner is active
+    xxxxxxxx.M=vvvvvvvv   ; applies to long/short presses when Main/mp3 is active
+</pre>
+<h3>Order Is Important</h3>
+It is important to note that order is important.
+When processing button presses,
+the translator <b>searches in top-down order</b>, and stops as soon as a match is found.
+So, placing a <b>.L</b> translation <em>after</em> a <b>plain</b> translation of the same button
+will have no effect -- the <b>.L</b> will <em>never</em> match when specified in that sequence.
+<h3>Shift Lock</h3>
+The Hijack kernels also support the concept of a <em>shift lock</em> modifier, specified with <b>.S</b>.
+When used on an "old" code (left of the <b>=</b> sign), the translation only applies when the <em>shift lock</em>
+state is <em>active</em>.  The default state is <em>not active</em>, and can be toggled at will using
+translations which include a <b>.S</b> modifier on a value to the right of the <b>=</b> sign.
+<pre style=\"font-family: monospace, Courier\">
+    xxxxxxxx.S=yyyyyyyy  ; this translation applies only when the "shift lock" is active
+    xxxxxxxx=xxxxxxxx.S  ; pressing xxxxxxxx toggles the "shift lock" state, as well as sending xxxxxxxx
+    zzzzzzzz=null.S      ; pressing zzzzzzzz toggles "shift lock", and sends 0xffffff, ignored by the player
+</pre>
+As of v83, <b>.C</b> (Car) and <b>.H</b> (Home) can  be used on the left of the <b>=</b> sign
+to specify button behaviours specific to car and/or home usage.
+<h3>Menu Active/Inactive</h3>
+<p>
+There are also <b>.U</b> (menus are <em>active</em>) and <b>.N</b> (menus are <em>not</em> active) modifiers,
+which can be used on either side of the equal sign -- for best results, use them in combination to
+the right of the equal sign, rather than on the left (buggy on the left -- to be fixed someday).
+<p>
+The various modifiers can all be combined (any sequence) in ingeneous ways to produce a variety of IR behaviours.
+<p>
+<h3>
+<img src=new.jpg> 
+Initial Button Sequences</h3>
+Also available is support for <b>initial</b> sequences of button presses
+to be run as soon as the player starts up.  This is specified using <b>Initial=</b> lines,
+possibly with <b>.C</b>, <b>.H</b>, and/or input source modifiers.  For this to work,
+however, you must also have these two lines together in config.ini:
+<pre style=\"font-family: monospace, Courier\">
+    [output]
+    notify=1
+</pre>
+<h3>
+<img src=new.jpg> 
+Symbolic Button Names</h3>
+Recently (Jan'2002), support for symbolic button names has been added to Hijack.
+This means that, for buttons from the standard (RIO, Kenwood) remotes, one can now
+just use the button <b>name</b> (as printed on the remote) in place of the hex
+code for any given button.  So to have the front-panel <b>Bottom</b>
+button act just like the <b>Info</b> button on the Rio Remote, one could do:
+<pre style=\"font-family: monospace, Courier\">
+   [ir_translate]
+   006=20df14    ; make "bottom" button act as "info"
+</pre>
+or one could do this instead:
+<pre style=\"font-family: monospace, Courier\">
+   [ir_translate]
+   Bottom=Info   ; make "bottom" button act as "info"
+</pre>
+The complete set of Button names/aliases known to Hijack is
+<a href="button_names.html">listed here</a>.
+Note that many of the examples on this page have yet to be converted from hex to the symbolic button names.
+<h3>
+<img src=new.jpg> 
+PopUp Menus</h3>
+<b>New in v154</b> are "PopUp" menus, which can be defined and then attached to
+any button (except the knob).  Up to four PopUp's can be defined,
+<b>PopUp0</b>, <b>PopUp1</b>, <b>PopUp2</b>, and <b>PopUp3</b>.
+PopUp0 is slightly special, in that (1) it is the only menu that can be bound
+to the knob button, and (2) the most recently used Car/Home menu positions
+are saved/restored over power cycles for convenience.
+Here is the <em>default</em> definition for PopUp0:
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    PopUp0=Clock,Info,KnobSeek,Mark,NextSrc,Shuffle,VolAdj,VisualSeek,Knob
+</pre>
+This creates a PopUp menu for the most commonly needed Rio-Remote and other buttons
+for situations when the remote is unavailable (usually in the car).
+To attach this menu to the "quick knob press"
+just go into the main Hijack menu and select "PopUp0"
+in the "Knob Press Redefinition" menu.
+If you want to assign a PopUp menu to a button other than the knob,
+then just translate it:
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    PopUp0=Shuffle,Info,Mark,Swap,Repeat,SelectMode,NextSrc
+    Bottom.L=PopUp0      ; long press of front-panel bottom button pops up a menu
+</pre>
+And for the real hacker types, here is a more complex example,
+featuring nested menus:
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    PopUp0=Shuffle,Info,Mark,Swap,Repeat,SelectMode,NextSrc,PopUp1,Search
+    PopUp1=Time,Artist,Album,Genre,Year,Cancel,PopUp0
+    Bottom.LU=PopUp1
+    Bottom.LN=PopUp0
+</pre>
+Items on a PopUp menu are never translated, which means they
+are restricted to sending a single button code at a time.  While it might
+be useful sometimes to have a menu item send multiple button codes, this was
+not possible to implement in any reasonable fashion inside Hijack, so it ain't there.
+<p>
+The PopUp menus can be given different names as follows:
+<pre style=\"font-family: monospace, Courier\">
+    [hijack]
+    PopUp1=Tweak    ; rename PopUp1 menu to "Tweak" instead
+</pre>
+Note that this is done in the [hijack] section of config.ini, not the [ir_translate] section.
+Names are restricted to eight characters or less, so that they will fit in the PopUp box
+on screen when activated.
+<h3>Verifying Translations</h3>
+<p>
+If you are unsure whether or not your translations are being accepted,
+then connect to the serial port and then restart the player.
+The IR translations that failed will be dumped out as errors on startup.
+<p>
+Here is a very useful translation some folks like, to allow switching between
+the Tuner and MP3 player with a "long press" of the front panel <b>BOTTOM</B> button:
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    ; hold down BOTTOM button to alternate between Tuner/player.
+    ; The ".N" and ".U" allow normal function when menus active.
+    ; The trailing "null" forces immediate action,
+    ; instead of waiting for you to let go of the bottom button.
+    Bottom.LT=Player.N,Bottom.LU,null   ; Tuner active, switch to player
+    Bottom.L=Radio.N,Bottom.LU,null     ; Player active, switch to Tuner
+</pre>
+<p>
+Here is another real life example of how some of this stuff might be used:
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    ; Multiple mappings for TapeSelect button on Pioneer cu-vsx043 IR remote
+    a15e4c.LT=20df07   ; If (L)ongpress and (T)uner active, then toggle AM/FM
+    a15e4c.A=b9461e    ; If (A)ux active, then select Main/mp3
+    a15e4c.M=b9461c    ; If (M)ain/mp3 active, then select Tuner
+    a15e4c=b9461d      ; default: select Aux 
+    ; Somewhat more mundane mappings for other buttons on the Pioneer remote
+    ; Use the kenwood codes here cuz they're faster responding than the RIO ones
+    a25d11.L=b9460c    ; rewind
+    a25d10.L=b9460d    ; fast forward
+    a25d11=b9460a      ; prev track
+    a25d10=b9460b      ; next track
+    a25d1d=20df12      ; disc select = menu
+    a25d17=20df16      ; play/pause
+</pre>
+<h3>Timing of IR Translations</h3>
+<p>
+The IR translator normally delays sending the final "release" of a translation sequence
+until you actually release the physical button.
+If you want the final release code to <em>not</em> wait for you to let go of the button,
+then append a "null" button code to the end of the new sequence.
+<pre style=\"font-family: monospace, Courier\">
+    [ir_translate]
+    ; Program the Pioneer "CD Power" button to simulate the front-panel TOP button
+    a25d1c.L=00000000.L,null  ; power down (standby) the player (00000000 == top button)
+    a25d1c.L=00000000         ; pause/play
+</pre>
+<p>
+With very long macros, the player software may sometimes discard button presses mid-sequence.
+To help prevent this, the translation code inserts small delays between button press/release pairs
+in the data stream it feeds to the player.  In the event that the default value proves too short,
+it can be modified using config.ini, as follows:
+<pre style=\"font-family: monospace, Courier\">
+    [hijack]
+    button_pacing=20          ;default value shown (1/100ths of a second)
+</pre>
+<HR>
+<h3>Reference for Commonly Used Remotes</h3>
+Rio Remote (ERC-1A) codes:
+<pre style=\"font-family: monospace, Courier\">
+	20DF00     ;1/Time
+	20DF01     ;2/Artist
+	20DF02     ;3/Source
+	20DF03     ;Source/Power
+	20DF04     ;4
+	20DF05     ;5/Genre
+	20DF06     ;6/Year
+	20DF07     ;Tuner-Bank
+	20DF08     ;7/Repeat
+	20DF09     ;8/Swap
+	20DF0A     ;9/Title
+	20DF0B     ;Select Mode
+	20DF0C     ;Cancel/Mark
+	20DF0D     ;0/Shuffle
+	20DF0E     ;Search
+	20DF0F     ;Sound/EQ
+	20DF10     ;Prev-Rew
+	20DF11     ;Next/Ffwd
+	20DF12     ;Menu(OK)
+	20DF13     ;Volume+
+	20DF14     ;Info/Details
+	20DF15     ;Visual/VisFavs
+	20DF16     ;PlayPause/Hush
+	20DF17     ;Volume-
+
+Kenwood Remote (RCA-R6A) codes:
+
+	b94600     ;0
+	b94601     ;1
+	b94602     ;2
+	b94603     ;3
+	b94604     ;4
+	b94605     ;5
+	b94606     ;6
+	b94607     ;7
+	b94608     ;8
+	b94609     ;9
+	b9460A     ;PrevTrack
+	b9460B     ;NextTrack
+	b9460C     ;AM
+	b9460D     ;FM
+	b9460E     ;Prog
+	b9460F     ;DirecT
+	b94614     ;Volume+
+	b94615     ;Volume-
+	b9461B     ;Star *
+	b9461C     ;Tuner
+	b9461D     ;Tape
+	b9461E     ;CD
+	b9461F     ;CD-MD-CH
+	b9465E     ;DNPP
+
+Front panel codes:
+
+	000000     ;Top
+	000002     ;Right
+	000004     ;Left
+	000006     ;Bottom
+	000008     ;Knob pressed
+	00000a     ;Knob Right
+	00000b     ;Knob Left
+
+Translation example for the Pioneer CD-SR77 / CD-SR80 (courtesy of TonyC):
+
+	[ir_translate]
+	; The shift key
+	AD520C.L=20df03.L,null      ; press and hold "ATT" = standby
+	AD520C=null.S               ; "ATT" = Shift Key
+	;
+	; These are needed to ignore the "Func" button sending out a bogus code
+	AF5067=null
+	80AF5067=null
+	;
+	; Search macros
+	; used when shift-lock is active and long press
+	AD5212.LS=20df0e                                        ; "1" PIN
+	AD5243.LS=20df0e,20df0e                                 ; "6" year
+	AD520A.LS=20df0e,20df0e,20df0e                          ; "9" title
+	AD521A.LS=20df0e,20df0e,20df0e,20df0e                   ; "2" artist
+	AD5241.LS=20df0e,20df0e,20df0e,20df0e,20df0e            ; "5" genre
+	AD5242.LS=20df0e,20df0e,20df0e,20df0e,20df0e,20df0e     ; "3" source
+	;
+	; Numbers
+	; Shift lock active, short press
+	AD5212.S=20df00                 ; 1
+	AD521A.S=20df01                 ; 2
+	AD5242.S=20df02                 ; 3
+	AD5240.S=20df04                 ; 4
+	AD5241.S=20df05                 ; 5
+	AD5243.S=20df06                 ; 6
+	AD5219.S=20df08                 ; 7
+	AD520D.S=20df09                 ; 8
+	AD520A.S=20df0a                 ; 9
+	AD520B.S=20df0d                 ; 0
+	;
+	; volume up / down
+	AD520A.B
+	AD520B.A
+	AD520A=20df17,20df17,20df17,20df17,20df17
+	AD520B=20df13,20df13,20df13,20df13,20df13
+	;
+	; The "source button"
+	AD520D.LT=20df07,null       ; AM/FM in tuner
+	AD520D.LM=20df0B,null       ; select mode in player
+	AD520D.T=b9461e    ; switch to player from tuner
+	AD520D.A=b9461e    ; switch to player from Aux
+	AD520D.M=b9461c    ; switch to tuner from player
+	;
+	; Setting the Prev/Next buttons to emulate front-panel allows
+	; press-and-hold to do manual tuning in tuner mode
+	AD5242.T=4;
+	AD5243.T=2;
+	AD5242.LM=b9460c.L ;Prev Track / Rewind 
+	AD5243.LM=b9460d.L ; Next Track / Fast Forward 
+	AD5242.M=20df10    ; Prev Track 
+	AD5243.M=20df11    ; Next Track ;
+	;
+	; Normal functions
+	AD5212.L=20df15,null  ; press and hold cancel = visual (makes no sense)
+	AD5212=20df0c      ; cancel
+	AD521A.L=20df12.L  ; menu/OK
+	AD521A=20df12      ; menu/OK
+	AD5240.L=20df16.L  ; play
+	AD5240=20df16      ; play
+	AD5241.L=20df14.L  ; info
+	AD5241=20df14      ; info
+	AD5219=20df0e      ; search
+</pre>
+<hr>
+</body>
+</html>

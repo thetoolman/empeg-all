@@ -1,0 +1,138 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Hijack Kernel Feature List</title>
+</head>
+<body bgcolor=white>
+<A HREF=index.html><IMG SRC=up.jpg BORDER=1 align=top></A>
+<A href="http://sourceforge.net"><IMG src="http://sourceforge.net/sflogo.php?group_id=43347&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+<h2>
+Hijack Kernel Feature List
+</h2>
+Currently implemented features (non-exhaustive list):
+<pre style=\"font-family: monospace, Courier\">
+	Auto Volume Adjust
+	Break-Out game (for red-lights, and passengers on long drives)
+	Button Codes Display (raw, untranslated values)
+	Calculator (simple, integers only)
+	Countdown Timer (auto on/off, alarm)
+	Filesystem Check on Sync:  Enable/Disable
+	Font Display
+	Force DC/Car Mode
+	Vital Signs
+	High Temperature Warning
+	Knob Press Redefinition (great for in-car, with tons of options)
+	Quicktimer feature using the '4' button
+	Reboot Machine
+	Restore DC/Car Visuals
+	Screen Blanker (prevents burn-out after end of playlist)
+	Vital Signs
+	Long Knob Press (2+ seconds) cycles among input sources
+	IR translations for "foreign" remotes in config.ini
+	Different translations for long/short presses, Tuner/Aux/Main, shift-lock, etc..
+	Initialization keypress macros from config.ini
+	Current track information in /proc/empeg_notify
+	Built-in FTP and HTTP servers, with resume download capability
+	User programmable PopUp menus via ir_translate
+	Playlist browsing/streaming/m3u via khttpd
+	Popup message when [ir_translate] in config.ini has errors
+	Popup message for [hijack] option errors in config.ini
+	Intercepts config.ini and edits-in-place for ;@HOME/;@WORK
+	Tuner simulation
+	Sony Stalk Support: translations to/from stalk codes
+</pre>
+The <b>hotlist</b> of features planned for the near future:
+<pre style=\"font-family: monospace, Courier\">
+	Get "Visual-" to work without a tuner module installed.
+</pre>
+Other ideas on the back-burner:
+<pre style=\"font-family: monospace, Courier\">
+	Display dimming for AC/Home mode.
+	Use sys_sendfile() in kftpd/khttpd.
+	Write a /proc parser to generically XML-ize some of the info there.
+	Tuner-ID detection, used for AC/DC override
+	Add "overwrite in place" for ext2 files on r/o filesystem.
+	Allow new features based on Sony Stalk codes (eg. --visuals)
+	Program launching from menu-items defined in config.ini
+	Extreme Low Temperature drive spin-up prevention
+</pre>
+<h2>
+Hijack kftpd & khttpd Stuff 
+</h2>
+<pre style=\"font-family: monospace, Courier\">
+Recent stuff of interest includes the new kftpd "SITE" commands: 
+
+-- SITE RO 
+-- SITE RW 
+-- SITE REBOOT 
+
+The RW command remounts /,/drive0,drive1 for read-write access, and RO puts them back
+into read-only. Wait about 5 seconds after issuing them, because they execute
+asynchronously. 
+
+Also new, is the /proc/empeg_kernel "device", created within the kernel by Hijack. This is
+simply a block device entry for MAJOR=60 MINOR=8, the "kernel" flasher. If you use FTP to
+upload a kernel zImage file to /proc/empeg_kernel then it will be burned to flash during the
+FTP. Takes about 5 seconds. 
+
+This is the much faster equivalent to using "download" or "logo editor" to flash a new kernel.
+Works fine on a stock consumer image, too, so long as Hijack v124 (or higher) has been
+installed. 
+
+Also recently new, is the ability to write to /proc/empeg_notify. Reading from it just gives the
+player status (requires [output]notify=1 in config.ini), but the other direction can be used to
+inject commands to Hijack: 
+
+echo "button 20df12" >/proc/empeg_notify (a short press) 
+echo "button 20df12.L" >/proc/empeg_notify (a long press) 
+
+This virtual button pressing can be done remotely using FTP to write to those files, as well as
+using the FTP SITE EXEC command to issue those "echo" commands shown above. 
+
+In addition to "button" commands, one can also do" 
+
+echo "reboot" >/proc/empeg_notify 
+
+and also for fun you can do: 
+
+echo "popup Hello, World!" >/proc/empeg_notify 
+
+Okay v126 has just been released.
+
+Improvements from v124/v125 include:
+
+-- http dirlist works again (was broken in v125).
+
+-- SITE EXEC is as broken as before.. I think I'll remove it entirely next release, since the enhancements below pretty much eliminate most needs for it.
+
+-- Popup messages are now used as progress indicators for SITE RO and SITE RW commands in ftp.
+
+-- ftp SITE RO and SITE RW are now implemented internal to the kernel, so they will work fine on a consumer image (previously required the developer image).
+
+-- ftp SITE REBOOT command now does "SITE RO" automatically before reboot.  Note that the Hijack Menu "Reboot Machine" does NOT do RO before booting though..
+
+-- ftp SITE BUTTON xxxxxxxx command exists for remote button simulations.  Also works with xxxxxxxx.L to simulate longer presses.
+
+-- ftp SITE SERIAL xxxxxxxx command exists for faking serial port input, useful for playing tunes by #fid.
+
+-- Multiple SITE commands can be issued at once, separated by semi-colons.
+
+-- All of the SITE syntax now also works for echoing commands to /proc/empeg_notify as well as for using HTTP GET commands with parameters for /proc/empeg_notify, as in:
+
+  http://myempeg.localnet./proc/empeg_notify?button=20df12.L
+
+or to play fid #999 on the empeg unit:
+
+  http://myempeg.localnet./proc/empeg_notify?serial=%23999
+
+-- I have replaced /proc/empeg_screen.tiff with a PNG version called /proc/empeg_screen.png  --- it is still tiny (32x128 pixels), but if we later put an HTML wrapper around it, we can get most browsers to scale it to a viewable size.  I'm hoping somebody writes some HTML to present this screen display along with some buttons that use the parameter syntax (discussed above) to do full remote control.. How about it?  There is also now a /proc/empeg_screen.raw, which is a 2048 screen capture from the empeg's software buffer, 2 pixels per byte. 
+
+Other changes, but I've lost track..
+
+Enjoy!
+
+
+Cool, eh!  
+</pre>
+</BODY>
+</HTML>

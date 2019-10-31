@@ -1,0 +1,654 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <META NAME="MSSmartTagsPreventParsing" content="TRUE">
+   <title>Neat Empeg Stuff!</title>
+</head>
+<BODY BGCOLOR=WHITE>
+<H1>
+<A href="http://sourceforge.net/projects/empeg-hijack"><IMG src="http://sflogo.sourceforge.net/sflogo.php?group_id=43347&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+Neat Stuff for <IMG SRC=empeg.jpg align=middle>&nbsp (RioCar) Owners &nbsp
+</H1>
+Click <A HREF="hdparm.bin">here</a> for <A HREF="hdparm.bin">hdparm</a> (empeg binary), the Linux tool for manipulating hard disk features.
+<br>
+Click <A HREF="smartctl.bin">here</a> for <A HREF="smartctl.bin">smartctl</a>, a Linux tool for diagnosing hard disk failures.
+<br>
+Click <A HREF="strace.bin">here</a> for <A HREF="strace.bin">strace</a>, a Linux tool for tracing system calls (reverse engineering).
+<br>
+Click <A HREF="empsync.html">here</a> for <A HREF="empsync.html">empsync</a>, a Linux tool for managing music on an Empeg car audio player.
+<br>
+Click <A HREF="mp3tool.html">here</a> for <A HREF="mp3tool.html">mp3tool</a>, a Linux tool for manipulating tags/headers within .mp3 files.
+<br>
+Click <A HREF="aniwrite.html">here</a> for <A HREF="aniwrite.html">aniwrite</a>, a shell tool for writing new boot animations on the player.
+<br>
+<IMG SRC=new.jpg>
+Click <A HREF="upgrader.tgz">here</a> for <A HREF="upgrader.tgz">upgrader</a>, a shell tool for applying .upgrade files using ethernet (*nix, windows, mac).
+<hr>
+<TABLE WIDTH=100% BORDER=0>
+<TD ALIGN=CENTER><IMG SRC=voladj.jpg>
+<TD ALIGN=CENTER><IMG SRC=menu1.jpg>
+<TR>
+<TD ALIGN=CENTER><IMG SRC=menu2.jpg>
+<TD ALIGN=CENTER><IMG SRC=maxtemp.jpg>
+</TABLE>
+<h2>"Hijack" Menu System, with VolAdj, IR-Translate, and much more!</h2>
+If you find yourself continually having to adjust the player volume up/down for each song,
+then this hack is exactly what you need to cure the problem.
+The original VolAdj code was by <A HREF="http://gecko.eric.net.au/~rjlov/compress.html">Richard Lovejoy</a>.
+<p>
+This enhanced version includes a new front panel menu system for controlling the automatic volume adjustment and <b>tons</b> of other stuff.
+There are separate VolAdj settings for home/car use,
+preserved over (most) power cycles (initially "Off" after installation).
+VolAdj options include "Off", "Low", "Medium", and "High",
+using values suggested by tfabris ("FAQ-Master").
+<p>
+To access the Hijack menu system, press and <b>hold-in</b> either the rotary KNOB,
+or the
+(Rio remote) <b>MENU</b> button, until the menu appears.
+Alternatively, press/release the (Kenwood remote) CD button three times in succession to activate the menu.
+Once in the menu system, navigate using either the KNOB, or the NEXT/PREV track buttons on the remote.
+To activate a menu selection, press the KNOB (or CD or MENU button on the remote).
+To exit from the menu, either wait 5 seconds, or press the front-panel TOP button or (Kenwood remote) '*' or (Rio remote) CANCEL button
+<p>
+Most menu functions utilize the same buttons (KNOB, NEXT/PREV track to move around, CD or MENU to select, TOP or '*' or CANCEL to quit).
+The menu system has grown considerably since its introduction, and now sports <a href=features.html>numerous features (click for a list)</a>.
+<p>
+<a href=ir_translate.html>Click here</a> for <b><a href=ir_translate.html>instructions on configuring IR-Translations</a></b>
+(for third-party remote controls, or even the stock ones).
+Certain other settings can also be modified in config.ini, using the syntax shown below:
+<pre style=\"font-family: monospace, Courier\">
+	[hijack]
+	voladjlow=0x1800,100,0x1000,25,60     ;default value shown
+	voladjmed=0x2000,409,0x1000,27,70     ;default value shown
+	voladjhigh=0x2000,3000,0xc00,30,80    ;default value_shown
+	temperature_correction=-4             ;default value shown (degrees C)
+	button_pacing=20                      ;default value shown (1/100ths of a second)
+	old_style=1                           ;use "original style" of hijack menus
+	supress_notify=1                      ;for use with [output]notify=1
+</pre>
+Click <a href=voladj_parms.html>here</a> for more information on using custom VolAdj settings in the config.ini file.
+<p><IMG SRC=new.jpg>
+ Hijack has built-in FTP and HTTP servers for remote access, and remote playlist browsing capability
+for use in conjunction with web browsers and audio playback software.  To access this feature,
+just point a web browser at <b>http://your.players.ipaddr/</b> and click on the link at the bottom of the page.
+<p>
+There is also an evolving ioctl() interface for binding userland extensions into the menu system.
+If you want to add your own userland application to the menus, check out the comments at the top of hijack.h for details.
+<TABLE BORDER=1 BGCOLOR=yellow>
+<TD>
+There is now an excellent <a href="http://www.riocar.org/modules.php?op=modload&name=FAQ&file=index&myfaq=yes&id_cat=11&categories=Hijack+Kernel+Questions">
+Hijack FAQ</a> hosted at <a href="http://www.riocar.org/">RioCar.Org</a>
+</TABLE>
+<h3>
+<IMG SRC=new.jpg>
+<a href=stalk.html>Click here for Sony Stalk Info!</a></h3>
+<h3>Installing the Kernel <font size=-1>(easier than you'd expect)</font></h3>
+To use this version of the "Hijack" menu system, your car player must already be
+running v2 or v3 player software from Empeg/Rio.
+Then, grab the POSIX (Linux and friends) Empeg <A HREF=download.c>download.c</a> utility
+(recently updated to work with USB-Serial adapters!),
+and compile and run it under Linux as follows:
+<pre style=\"font-family: monospace, Courier\">
+     cc -O -o download <A HREF=download.c>download.c</a>
+     ## Power OFF your player, and connect up the factory serial cable
+     ./download  ZZZZZZZZZZ.zImage  10000
+     ## The program will now prompt you to power up the player
+</pre>
+Of course, you'll have to replace the '<tt>ZZZZZZZZZ</tt>' with the correct kernel filename (see below),
+<br><b>MS-Windows users</b> should use <A HREF="http://www.riocar.org/download.php">Tony's Empeg Logo Editor</a>
+to install the hacked kernel, rather than the download procedure above.
+Even if you've never installed a custom kernel before, <em>try it</em>, it's much easier than you might expect.
+<h3>Download Pre-Built Kernels and/or Source Code:</h3>
+These are for use <b>only</b> with Empeg/RioCar Player Software <b>v2.00 or newer</b>.
+<br>
+<TABLE BORDER=1>
+<TR><TD>Pre-built kernel for all Mk2/Mk2a players <TD><A TYPE="application/octet-stream" HREF="v520.hijack.mk2.zImage">v520.hijack.mk2.zImage</A><TD>495936 bytes<TD><FONT SIZE=-1>2016-05-27 09:00</FONT>
+<TR><TD>Pre-built Kernel for (older) Mk1 players  <TD><A TYPE="application/octet-stream" HREF="v520.hijack.mk1.zImage">v520.hijack.mk1.zImage</A><TD>344784 bytes<TD><FONT SIZE=-1>2016-05-27 09:00</FONT>
+<TR><TD>Unmodified v2final Mk2/Mk2a kernel binary <TD><A TYPE="application/octet-stream" HREF="kernel.v2final.mk2.zImage">kernel.v2final.mk2.zImage</A><TD>475748 bytes<TD><FONT SIZE=-1>Jan 3 13:45</FONT>
+<TR><TD>Unmodified v2final Mk1 kernel binary      <TD><A TYPE="application/octet-stream" HREF="kernel.v2final.mk1.zImage">kernel.v2final.mk1.zImage</A><TD>294308 bytes<TD><FONT SIZE=-1>Jan 3 13:45</FONT>
+<TR><TD><FONT SIZE=-1>armlinux toolchain for building kernels.  Untar from root-dir and prepend to $PATH.</FONT>
+		<TD><A TYPE="application/octet-stream" HREF=armtools-empeg.tar.bz2>armtools-empeg.tar.bz2</A><TD>16 MB<TD><font size=-1>Built under Redhat-7.0 01-Jan-2002</font>
+<TR><TD><FONT SIZE=-1>Roll-your-own armlinux toolchain starter kit.  See enclosed README for extra packages required.
+			<TD><A TYPE="application/octet-stream" HREF=armtools-empeg-skeleton.tar.gz>armtools-empeg-skeleton.tar.gz</A><TD>22422 bytes<TD><font size=-1>01-Jan-2002</font>
+<TR><TD><b>mcomb</b>'s pre-built Hijack kernels with <b>ext3</b> filesystem support<TD><A TYPE="application/octet-stream" HREF="http://macgeek.dyndns.org/empeg/ext3/">http://macgeek.dyndns.org/empeg/ext3/</A><TD> <TD>
+</TABLE>
+<h3>
+<IMG SRC=mlord.jpg BORDER=0 align=middle>
+Is This Safe?</h3>
+I've been hacking Linux as a member of the core Linux kernel development team since 1992,
+best known as the original "Linux IDE Guy", writing/maintaining the drivers for ATA/IDE disks,
+tapes, cdroms, etc..  I wrote my first Pong implementation on an Apple-II computer in 1981.
+So, I guess I do have a <em>little</em> experience with this stuff.
+<p>
+But even if it does mess things up, just reinstall the original official software (a .upgrade file) again,
+and it will restore your player back to it's pre-experiment condition.
+-- <A HREF="mailto:mlord@pobox.com">Mark Lord</a>
+<h3>Relative patches and Revision History</h3>
+<TABLE BORDER=1>
+<TR><TD><a href="patches/relative/v519-v520.patch.gz">v519-v520</a><TD>Latest VolAdj code from Richard Lovejoy.
+<TR><TD><a href="patches/relative/v518-v519.patch.gz">v518-v519</a><TD>Add <b>/proc/df</b> entry for use by Roger's tools.
+<TR><TD><a href="patches/relative/v517-v518.patch.gz">v517-v518</a><TD>Fix silly bug with powerfail_timeout from v517.
+<TR><TD><a href="patches/relative/v516-v517.patch.gz">v516-v517</a><TD>Failsafe poweroff in-car, even if player crashes or "no hard disk found". BUGGY, use v518 instead.
+<TR><TD><a href="patches/relative/v515-v516.patch.gz">v515-v516</a><TD>Fix I2C code (broken since v506), so that tuner works properly again.
+<TR><TD><a href="patches/relative/v514-v515.patch.gz">v514-v515</a><TD>Omit WhackAMole by default to save RAM.
+<TR><TD><a href="v515.tar.bz2">v515.tar.bz2</a><TD bgcolor="yellow">Complete v515 kernel source tree (13MB), including secret notifications.
+<TR><TD><a href="patches/relative/v513-v514.patch.gz">v513-v514</a><TD>Assembly code fixes for cross-builds on OS/X.
+<TR><TD><a href="patches/relative/v512-v513.patch.gz">v512-v513</a><TD>Fix missing comma in fidentry code.
+<TR><TD><a href="patches/relative/v511-v512.patch.gz">v511-v512</a><TD>Fix SelectMode button side-effects during fidentry.
+<TR><TD><a href="patches/relative/v510-v511.patch.gz">v510-v511</a><TD>Fix b0rked version number; remove leftover DSP debugging code.
+<TR><TD><a href="patches/relative/v509-v510.patch.gz">v509-v510</a><TD>Enable use of SelectMode button in FidEntry.
+<TR><TD><a href="patches/relative/v508-v509.patch.gz">v508-v509</a><TD>Add "silent=1" config.ini option, to suppress nearly all Hijack output to serial port.
+<TR><TD><a href="patches/relative/v507-v508.patch.gz">v507-v508</a><TD>Make hijack compatible with hdparm-9.8.
+<TR><TD><a href="patches/relative/v506-v507.patch.gz">v506-v507</a><TD>Shave another usec from the I2C zero-bit path.
+<TR><TD><a href="patches/relative/v505-v506.patch.gz">v505-v506</a><TD>Overhaul I2C code, combining common paths, simplifying, and shortening the timings where possible.
+<TR><TD><a href="v505.tar.bz2">v505.tar.bz2</a><TD bgcolor="yellow">Complete v505 kernel source tree (13MB).
+<TR><TD><a href="patches/relative/v504-v505.patch.gz">v504-v505</a><TD>Shorten the I2C "start" sequence, recommended by Ben Kamen.
+<TR><TD><a href="patches/relative/v503-v504.patch.gz">v503-v504</a><TD>Increase wait-for-initial-DRQ on WRITE to 5secs (overkill) to help with SSDs.
+<TR><TD><a href="patches/relative/v502-v503.patch.gz">v502-v503</a><TD>Fix off-by-one bug in LBA48 support (affects some HGST drives, possibly others).
+<TR><TD><a href="patches/relative/v501-v502.patch.gz">v501-v502</a><TD>Check for bootp mtype==2 when doing DHCP workaround (nice, but not necessary).
+<TR><TD><a href="patches/relative/v500-v501.patch.gz">v500-v501</a><TD>Workaround v3alpha11 DHCP client bug; fix bad #ifdef for fidentry functionality.
+<TR><TD><a href="patches/relative/v499-v500.patch.gz">v499-v500</a><TD>Fix ktelnetd to handle multiple connections.
+<TR><TD><a href="v500.tar.bz2">v500.tar.bz2</a><TD bgcolor="yellow">Complete v500 kernel source tree (13MB).
+<TR><TD><a href="patches/relative/v498-v499.patch.gz">v498-v499</a><TD>Add rudimentary telnet daemon to kernel; to enable it, use ktelnetd_port=23 in config.ini
+<TR><TD><a href="patches/relative/v497-v498.patch.gz">v497-v498</a><TD>More tidyups.
+<TR><TD><a href="patches/relative/v496-v497.patch.gz">v496-v497</a><TD>Tidy up kftpd.c; remove fidentry stuff from mk1 builds
+<TR><TD><a href="patches/relative/v495-v496.patch.gz">v495-v496</a><TD bgcolor="lightgray">Add Whack-A-Mole game.
+<TR><TD><a href="patches/relative/v494-v495.patch.gz">v494-v495</a><TD>Remove WAM hooks.
+<TR><TD><a href="patches/relative/v493-v494.patch.gz">v493-v494</a><TD>Insert WAM hooks.
+<TR><TD><a href="patches/relative/v492-v493.patch.gz">v492-v493</a><TD>Replaced ptable-write-blocked message with printk; added LittleBlueThing's Boot Graphics menu item.
+<TR><TD><a href="patches/relative/v491-v492.patch.gz">v491-v492</a><TD>Nuked leftover "pump" message from boot time.
+<TR><TD><a href="patches/relative/v490-v491.patch.gz">v490-v491</a><TD>Fixed version number (was v499!), and added support for long SG_IO timeouts.
+<TR><TD><a href="patches/relative/v489-v490.patch.gz">v489-v490</a><TD bgcolor="lightgray">Add SG_IO SAT Passthru support to the IDE driver, for use by hdparm.
+<TR><TD><a href="patches/relative/v488-v489.patch.gz">v488-v489</a><TD>Prevent .upgrade files from nuking a modified partition table.
+<TR><TD><a href="patches/relative/v487-v488.patch.gz">v487-v488</a><TD>Get rid of "Dead temp.sensor" pop-up.
+<TR><TD><a href="patches/relative/v486-v487.patch.gz">v486-v487</a><TD bgcolor="lightgray">Automatically fix temperature sensor if stuck in one-shot mode.
+<TR><TD><a href="patches/relative/v485-v486.patch.gz">v485-v486</a><TD>Add source code for fixing temperature sensor (not included by default).
+<TR><TD><a href="patches/relative/v484-v485.patch.gz">v484-v485</a><TD>Add a leading '*' in Vitals for players with cs4231a problems.
+<TR><TD><a href="patches/relative/v483-v484.patch.gz">v483-v484</a><TD>Improve serial port messages for "CS4231A: not responding".
+<TR><TD><a href="patches/relative/v482-v483.patch.gz">v482-v483</a><TD>Improve I2C timing by fixing a bit-to-bit bug.
+<TR><TD><a href="patches/relative/v481-v482.patch.gz">v481-v482</a><TD>Fix decimal fidentry of '2' (broken in v481).
+<TR><TD><a href="patches/relative/v480-v481.patch.gz">v480-v481</a><TD>Add "decimal_fidentry=1" option for 10-fingered apes to use in config.ini.
+<TR><TD><a href="patches/relative/v479-v480.patch.gz">v479-v480</a><TD>Add FidEntry button code; put it on PopUp0; replace AM/FM with Tuner on Popup0; beef-up stalk debug; beef-up crash recovery.
+<TR><TD><a href="patches/relative/v478-v479.patch.gz">v478-v479</a><TD>Add "Src" button label from kenwood rc-600 (behaves similarly to NextSrc, except it cycles AM/FM/AUX/MP3
+<TR><TD><a href="patches/relative/v477-v478.patch.gz">v477-v478</a><TD>Finish implementation of "FID=001&ext=.xml&OFFSET=5&COUNT=10" for M.Cushman
+<TR><TD><a href="patches/relative/v476-v477.patch.gz">v476-v477</a><TD>Implement "Kill and Pause Player" menu entry, with progressive kills.
+<TR><TD><a href="patches/relative/v475-v476.patch.gz">v475-v476</a><TD>Tweak khttp priority: stay at SCHED_RR for files <= 64kB
+<TR><TD><a href="patches/relative/v474-v475.patch.gz">v474-v475</a><TD>Bump up khttp/kftpd priorities for smoother web interface.
+<TR><TD><a href="patches/relative/v473-v474.patch.gz">v473-v474</a><TD>Increase LONGLONG knob-press time from 2sec to 3sec.
+<TR><TD><a href="patches/relative/v472-v473.patch.gz">v472-v473</a><TD>Add ".R" suffix to button label decoder for BUTTONRAW= release events.
+<TR><TD><a href="patches/relative/v471-v472.patch.gz">v471-v472</a><TD>Make /proc/empeg_screen.png have a transparent background; begin adding .xml running order for Cushman (not working yet).
+<TR><TD><a href="patches/relative/v470-v471.patch.gz">v470-v471</a><TD>Automatically detect/use the /default.xsl (or whatever) stylesheet.
+<TR><TD><a href="patches/relative/v469-v470.patch.gz">v469-v470</a><TD>Remove Tuner Adjustments from .config; add ?IGNORE=(whatever) for http.
+<TR><TD><a href="patches/relative/v468-v469.patch.gz">v468-v469</a><TD>Fixed fake_tuner bug; added Tuner Adjustments to Hijack menu.
+<TR><TD><a href="patches/relative/v467-v468.patch.gz">v467-v468</a><TD>Show playlist.track info in VitalSigns and on error.
+<TR><TD><a href="patches/relative/v466-v467.patch.gz">v466-v467</a><TD>Prevent infinite looping in tuner-id detection paths.
+<TR><TD><a href="patches/relative/v465-v466.patch.gz">v465-v466</a><TD>Tidy up the boot animation code.
+<TR><TD><a href="patches/relative/v464-v465.patch.gz">v464-v465</a><TD>Added Reboot buttoncode; added QuickTimer to PopUp0.
+<TR><TD><a href="patches/relative/v463-v464.patch.gz">v463-v464</a><TD bgcolor="lightgray">Fix broken LBA48 support -- now tested!
+<TR><TD><a href="patches/relative/v462-v463.patch.gz">v462-v463</a><TD>Add score-keeping to BreakOut game.
+<TR><TD><a href="patches/relative/v461-v462.patch.gz">v461-v462</a><TD>Force mono font for khttpd directory listings (for MSIE).
+<TR><TD><a href="patches/relative/v460-v461.patch.gz">v460-v461</a><TD>Revert v441, and make the serial port user-friendly again.
+<TR><TD><a href="patches/relative/v459-v460.patch.gz">v459-v460</a><TD>Prevent knob L/R from waking player in standby.
+<TR><TD><a href="patches/relative/v458-v459.patch.gz">v458-v459</a><TD>Tidy up cs4231a emulation, simulate other sample rates.
+<TR><TD><a href="patches/relative/v457-v458.patch.gz">v457-v458</a><TD>Improve (dead) cs4231a emulation (fixes slow mute/unmute); remove recent samples from /proc.
+<TR><TD><a href="patches/relative/v456-v457.patch.gz">v456-v457</a><TD>Permit use of Tuner/Aux even when cs4231a is "not found" (dead).
+<TR><TD><a href="patches/relative/v455-v456.patch.gz">v455-v456</a><TD>Added nfs-root patch from Thomas Jarosch.
+<TR><TD><a href="patches/relative/v454-v455.patch.gz">v454-v455</a><TD>Fixed (and actually *tested*) the extmute stuff.
+<TR><TD><a href="patches/relative/v453-v454.patch.gz">v453-v454</a><TD>Oops.. v453 fixed "SaveSrc" but not "SaveAux"; got both this time.
+<TR><TD><a href="patches/relative/v452-v453.patch.gz">v452-v453</a><TD>Nuke WakeUp and RestoreSleep (buggy), and combine them into the existing SaveAux/RestoreSrc instead.
+<TR><TD><a href="patches/relative/v451-v452.patch.gz">v451-v452</a><TD>Add new virtual buttoncodes:  WakeUp and RestoreSleep
+<TR><TD><a href="patches/relative/v450-v451.patch.gz">v450-v451</a><TD>Tweak bus-test messages; cancel bootup messages when knob/L/R are used.
+<TR><TD><a href="patches/relative/v449-v450.patch.gz">v449-v450</a><TD bgcolor="lightgray">Workaround to permit MP3 use when "cs4231a not found".
+<TR><TD><a href="patches/relative/v448-v449.patch.gz">v448-v449</a><TD>Enable use of button names for extmute_on=/extmute_off= options.
+<TR><TD><a href="patches/relative/v447-v448.patch.gz">v447-v448</a><TD>Move IDE data line diagnostic code to a better place.
+<TR><TD><a href="patches/relative/v446-v447.patch.gz">v446-v447</a><TD>Add IDE data line diagnostic to the boot sequence.
+<TR><TD><a href="patches/relative/v445-v446.patch.gz">v445-v446</a><TD>Suppress -EPIPE errors from kftpd.
+<TR><TD><a href="patches/relative/v444-v445.patch.gz">v444-v445</a><TD>Added SaveSrc,RestoreSrc,SaveAux,AM,FM virtual buttons; expanded knob menus from 8 to 16 entries.
+<TR><TD><a href="patches/relative/v443-v444.patch.gz">v443-v444</a><TD>Boost cs4231a gain for sampling FM/AUX visuals; add recent samples to /proc.
+<TR><TD><a href="patches/relative/v442-v443.patch.gz">v442-v443</a><TD>Enable I2S ("digital out") for all player modes, not only for mpeg.
+<TR><TD><a href="patches/relative/v441-v442.patch.gz">v441-v442</a><TD>Fix off-by-one bug in v441: serial commands now working again.
+<TR><TD><a href="patches/relative/v440-v441.patch.gz">v440-v441</a><TD>Isolate player s/w from serial port.
+<TR><TD><a href="patches/relative/v439-v440.patch.gz">v439-v440</a><TD>Source sync.
+<TR><TD><a href="patches/relative/v438-v439.patch.gz">v438-v439</a><TD>Fix dimmer-low default for buttons.
+<TR><TD><a href="patches/relative/v437-v438.patch.gz">v437-v438</a><TD>Fix "charset-" typo in kftpd.
+<TR><TD><a href="patches/relative/v436-v437.patch.gz">v436-v437</a><TD>Fix compile issue when extra-mem support not configured.
+<TR><TD><a href="patches/relative/v435-v436.patch.gz">v435-v436</a><TD>I2C/fan-controller protocol twiddles; remove bug workarounds for old v3alphas.
+<TR><TD><a href="patches/relative/v434-v435.patch.gz">v434-v435</a><TD>Fix reversed "Forced AC/DC" messages at boot.
+<TR><TD><a href="patches/relative/v433-v434.patch.gz">v433-v434</a><TD>Add encoding info to html playlists.
+<TR><TD><a href="patches/relative/v432-v433.patch.gz">v432-v433</a><TD>Use UTF-8 for XML charset on v3 players.
+<TR><TD><a href="patches/relative/v431-v432.patch.gz">v431-v432</a><TD>Add "buttonled_dim=" option to config.ini.
+<TR><TD><a href="patches/relative/v430-v431.patch.gz">v430-v431</a><TD>Fix printk() bug.
+<TR><TD><a href="patches/relative/v429-v430.patch.gz">v429-v430</a><TD>Undo changes from v429 (not necessary after all); tidy up other stuff
+<TR><TD><a href="patches/relative/v428-v429.patch.gz">v428-v429</a><TD>First crack at support for PCA's Mk2 memory expansion board.
+<TR><TD><a href="patches/relative/v427-v428.patch.gz">v427-v428</a><TD>Undo Jack; publish full tree snapshot.
+<TR><TD><a href="patches/relative/v426-v427.patch.gz">v426-v427</a><TD>Resyncing my tree; was in a weird state.
+<TR><TD><a href="patches/relative/v425-v426.patch.gz">v425-v426</a><TD>Add S.M.A.R.T. support; another -ECONRESET fix.
+<TR><TD><a href="patches/relative/v424-v425.patch.gz">v424-v425</a><TD>Fix -ECONRESET complaints in kftpd.
+<TR><TD><a href="patches/relative/v423-v424.patch.gz">v423-v424</a><TD>Fix kftpd goof in v423.
+<TR><TD><a href="patches/relative/v422-v423.patch.gz">v422-v423</a><TD>Improve error reporting in kftpd (BROKEN)
+<TR><TD><a href="patches/relative/v421-v422.patch.gz">v421-v422</a><TD>Adjust for timezone in hjcd()
+<TR><TD><a href="patches/relative/v420-v421.patch.gz">v420-v421</a><TD>Cosmetic change.
+<TR><TD><a href="patches/relative/v419-v420.patch.gz">v419-v420</a><TD>Try to workaround player crash loops by clearing the active playlist.
+<TR><TD><a href="patches/relative/v418-v419.patch.gz">v418-v419</a><TD>Add popup message for out-of-mem case.
+<TR><TD><a href="patches/relative/v417-v418.patch.gz">v417-v418</a><TD>Add popup messages for various hard/soft faults.
+<TR><TD><a href="patches/relative/v416-v417.patch.gz">v416-v417</a><TD>Double-quote track names for Mozilla's Save-To-Disk.
+<TR><TD><a href="patches/relative/v415-v416.patch.gz">v415-v416</a><TD>Fix Lavatory Floor visual crash-loop for radio/AUX.
+<TR><TD><a href="patches/relative/v414-v415.patch.gz">v414-v415</a><TD>Minor XML tweaks; remove bogus mem_end test from v414.
+<TR><TD><a href="patches/relative/v413-v414.patch.gz">v413-v414</a><TD>Quote double-quotes in xml output.
+<TR><TD><a href="patches/relative/v412-v413.patch.gz">v412-v413</a><TD>Undo v412 changes -- the v411 code looks more correct!
+<TR><TD><a href="patches/relative/v411-v412.patch.gz">v411-v412</a><TD>Try to fix support for Mk1 memory upgrades (DUD).
+<TR><TD><a href="patches/relative/v410-v411.patch.gz">v410-v411</a><TD>Fix standby bug in screen blanker.
+<TR><TD><a href="patches/relative/v409-v410.patch.gz">v409-v410</a><TD>Tidy up extraneous printk's.
+<TR><TD><a href="patches/relative/v408-v409.patch.gz">v408-v409</a><TD>GOOD: Remove ReservedMem feature (messes up on stock players).
+<TR><TD><a href="patches/relative/v407-v408.patch.gz">v407-v408</a><TD>DUD: Fixes for TAKEOVER, ReservedMem.
+<TR><TD><a href="patches/relative/v406-v407.patch.gz">v406-v407</a><TD>DUD: Add EMPEG_HIJACK_WAIT_FOR_PLAYER ioctl.
+<TR><TD><a href="patches/relative/v405-v406.patch.gz">v405-v406</a><TD>DUD: Fix EMPEG_HIJACK_TAKEOVER bug.
+<TR><TD><a href="patches/relative/v404-v405.patch.gz">v404-v405</a><TD>DUD: Add EMPEG_HIJACK_TAKEOVER for tonyc.
+<TR><TD><a href="patches/relative/v403-v404.patch.gz">v403-v404</a><TD>DUD: Add "ReserveMem" menu entry & functionality.
+<TR><TD><a href="patches/relative/v402-v403.patch.gz">v402-v403</a><TD bgcolor="lightgray">Implement backend of ;@MENUEXEC (now fully functional).
+<TR><TD><a href="patches/relative/v401-v402.patch.gz">v401-v402</a><TD>Add ext3 support to the RO/RW commands.
+<TR><TD><a href="patches/relative/v400-v401.patch.gz">v400-v401</a><TD>Fix Temperature display and round corners for buttonled levels.
+<TR><TD><a href="patches/relative/v399-v400.patch.gz">v399-v400</a><TD>Add support for tonyc's song ratings app.
+<TR><TD><a href="patches/relative/v398-v399.patch.gz">v398-v399</a><TD>Another fix for crashing visuals in v3alpha8.
+<TR><TD><a href="patches/relative/v397-v398.patch.gz">v397-v398</a><TD>Fix unresponsive player during readahead.
+<TR><TD><a href="patches/relative/v396-v397.patch.gz">v396-v397</a><TD>Prevent v3a8 crash loops with Lavatory Floor visual.
+<TR><TD><a href="patches/relative/v395-v396.patch.gz">v395-v396</a><TD>Fix serial notify handling for v3a8 (and beyond).
+<TR><TD><a href="patches/relative/v394-v395.patch.gz">v394-v395</a><TD>Fix some (rare) bugs in FTP error handling.
+<TR><TD><a href="patches/relative/v393-v394.patch.gz">v393-v394</a><TD>Add full support for 33-64MB of DRAM (Mk2a).
+<TR><TD><a href="patches/relative/v392-v393.patch.gz">v392-v393</a><TD>Allow any macro order/combos; Report DRAM size in Vitals; Fix email addr in VERSION strings.
+<TR><TD><a href="patches/relative/v391-v392.patch.gz">v391-v392</a><TD>Add ;@LOOPBACK and ;@NOLOOPBACK macros for config.ini
+<TR><TD><a href="patches/relative/v390-v391.patch.gz">v390-v391</a><TD>Rewrite MMU fiddling entirely in C.
+<TR><TD><a href="patches/relative/v389-v390.patch.gz">v389-v390</a><TD>Fix khttpd access to some /proc/ files; fix mktime().
+<TR><TD><a href="patches/relative/v388-v389.patch.gz">v388-v389</a><TD>Make it all work on Mk1/Mk2 (broken through v386-v388).
+<TR><TD><a href="patches/relative/v387-v388.patch.gz">v387-v388</a><TD>Beef up memory test and fault report.  Mk2/Mk1 broken.
+<TR><TD><a href="patches/relative/v386-v387.patch.gz">v386-v387</a><TD>Remove need for Hugo's special 0e000 loader when using extra DRAM.  Mk2/Mk1 broken.
+<TR><TD><a href="patches/relative/v385-v386.patch.gz">v385-v386</a><TD bgcolor="lightgray">Added extra memory auto-detection.  Mk2/Mk1 broken.
+<TR><TD><a href="patches/relative/v384-v385.patch.gz">v384-v385</a><TD>Add "stalk_enabled=0" option.
+<TR><TD><a href="patches/relative/v383-v384.patch.gz">v383-v384</a><TD>Add 32MB Mk2a memory support (compile-time option).
+<TR><TD><a href="patches/relative/v382-v383.patch.gz">v382-v383</a><TD>Restore full privileges when HTTP passwords are not used.
+<TR><TD><a href="patches/relative/v381-v382.patch.gz">v381-v382</a><TD>Fixes to HTTP authentication.
+<TR><TD><a href="patches/relative/v380-v381.patch.gz">v380-v381</a><TD bgcolor="lightgray">Add HTTP authentication for web access; revamp security options; lowercase HTML.
+<TR><TD><a href="patches/relative/v379-v380.patch.gz">v379-v380</a><TD>Allow ';' without intervening space after AC/DC/HOME/WORK macros (for stacking macros).
+<TR><TD><a href="patches/relative/v378-v379.patch.gz">v378-v379</a><TD>Add m1u and mpg mime-types; convert " into _ in song titles over http.
+<TR><TD><a href="patches/relative/v377-v378.patch.gz">v377-v378</a><TD>Compute time offset from zoneinfo for clock; get rid of time_offset= from config.ini
+<TR><TD><a href="patches/relative/v376-v377.patch.gz">v376-v377</a><TD>Slight code-cleanup from v376.  No fixes or functional changes.
+<TR><TD><a href="patches/relative/v375-v376.patch.gz">v375-v376</a><TD>Do zoneinfo logic much earlier, just before config.ini processing.
+<TR><TD><a href="patches/relative/v374-v375.patch.gz">v374-v375</a><TD>Emulate /etc/localtime.
+<TR><TD><a href="patches/relative/v373-v374.patch.gz">v373-v374</a><TD>Fix /proc/empeg_notify for v3alpha7.
+<TR><TD><a href="patches/relative/v372-v373.patch.gz">v372-v373</a><TD>Revert spindown default back to normal for v3alpha7.
+<TR><TD><a href="patches/relative/v371-v372.patch.gz">v371-v372</a><TD>Ooops.. version check would fail on some v2betas.
+<TR><TD><a href="patches/relative/v370-v371.patch.gz">v370-v371</a><TD>Reduce default spindown by 2 for v3alphas.
+<TR><TD><a href="patches/relative/v369-v370.patch.gz">v369-v370</a><TD>Add player_buf access ioctls for yn0t_
+<TR><TD><a href="patches/relative/v368-v369.patch.gz">v368-v369</a><TD>Remove Pegasus debug msgs from regular build
+<TR><TD><a href="patches/relative/v367-v368.patch.gz">v367-v368</a><TD>Third time lucky:  fix GPSapp or toss it?
+<TR><TD><a href="patches/relative/v366-v367.patch.gz">v366-v367</a><TD>Fix supress_notify and /proc/empeg_notify for v3alpha6.
+<TR><TD><a href="patches/relative/v365-v366.patch.gz">v365-v366</a><TD>Try again: fix GPSapp problem from v361
+<TR><TD><a href="patches/relative/v364-v365.patch.gz">v364-v365</a><TD bgcolor="lightgray">Merge USB-ethernet emulation ("PEGASUS") from Mark "Chimaera" Jenkins
+<TR><TD><a href="patches/relative/v363-v364.patch.gz">v363-v364</a><TD>Fix GPSapp problem from v361?
+<TR><TD><a href="patches/relative/v362-v363.patch.gz">v362-v363</a><TD>Updated work-around for broken PrevVisuals in v3alpha6.
+<TR><TD><a href="patches/relative/v361-v362.patch.gz">v361-v362</a><TD>Removed all redundant display code/menu; alpha sorted the quick knob press menu; added Jack.
+<TR><TD><a href="patches/relative/v360-v361.patch.gz">v360-v361</a><TD>Rewrote EXEC/EXEC_ONCE to run with "/bin/sh -c" prefix; added SITE EXEC; prep'd ;@MENUEXEC (not all there yet)
+<TR><TD><a href="patches/relative/v359-v360.patch.gz">v359-v360</a><TD>Remove redundant display updates; add menu item to temporarily reenable them.
+<TR><TD><a href="patches/relative/v358-v359.patch.gz">v358-v359</a><TD>Single-thread ALL display updates (jitter fix!).
+<TR><TD><a href="patches/relative/v357-v358.patch.gz">v357-v358</a><TD>Improve response of Savearea display.
+<TR><TD><a href="patches/relative/v356-v357.patch.gz">v356-v357</a><TD>Remove Calculator; fix Savearea display; minor cleanups.
+<TR><TD><a href="patches/relative/v355-v356.patch.gz">v355-v356</a><TD>Add .flac and .ogg support to khttpd
+<TR><TD><a href="patches/relative/v354-v355.patch.gz">v354-v355</a><TD>Remove all stalk code from Mk1 builds.
+<TR><TD><a href="patches/relative/v353-v354.patch.gz">v353-v354</a><TD>Show raw stalk values on Button Codes Display screen.
+<TR><TD><a href="patches/relative/v352-v353.patch.gz">v352-v353</a><TD>Added ";@DELAY" macro for config.ini
+<TR><TD><a href="patches/relative/v351-v352.patch.gz">v351-v352</a><TD>Fix "Battery Icon after Standby"; remove "Blanker Action" option from Hijack menus.
+<TR><TD><a href="patches/relative/v350-v351.patch.gz">v350-v351</a><TD>Fix headlight-sense bug (on startup) in Empeg kernel
+<TR><TD><a href="patches/relative/v349-v350.patch.gz">v349-v350</a><TD>Restore waving-Tux as default animation (yay!)
+<TR><TD><a href="patches/relative/v348-v349.patch.gz">v348-v349</a><TD>suppress -ENOENT messages from kftpd filp_open()
+<TR><TD><a href="patches/relative/v347-v348.patch.gz">v347-v348</a><TD>Updated work-around for broken PrevVisuals in v3alpha5.
+<TR><TD><a href="patches/relative/v346-v347.patch.gz">v346-v347</a><TD>Fixed all(?) issues with FIDS subdirs stuff.
+<TR><TD><a href="patches/relative/v345-v346.patch.gz">v345-v346</a><TD>DUD! Do not use (tried to fix some issues with FIDS subdirs stuff).
+<TR><TD><a href="patches/relative/v344-v345.patch.gz">v344-v345</a><TD>Temporary: have kftpd auto-convert /drive?/fids/* into /empeg/fids?/* to help JEmplode with new fids subdirs.
+<TR><TD><a href="patches/relative/v343-v344.patch.gz">v343-v344</a><TD>Enhanced support for fids subdirs; added ftpfs (not compiled-in by default): "mount -n -tftpfs none /x -oip=10.0.0.8,user=root,pass=xxxx"
+<TR><TD><a href="patches/relative/v342-v343.patch.gz">v342-v343</a><TD>Added "No-Loopback" option to the Force AC/DC Power Mode menu.
+<TR><TD><a href="patches/relative/v341-v342.patch.gz">v341-v342</a><TD>Added work-around for broken PrevVisuals in v3alpha3.
+<TR><TD><a href="patches/relative/v340-v341.patch.gz">v340-v341</a><TD>Ignore stalk in standby; beef up loopback test; remove some dead code; add FTP "SIZE" command.
+<TR><TD><a href="patches/relative/v339-v340.patch.gz">v339-v340</a><TD>Remove AUX from NextSrc sequence, add "nextsrc_aux_enabled=1" option to re-include it if wanted.
+<TR><TD><a href="patches/relative/v338-v339.patch.gz">v338-v339</a><TD>Set mimetype to text/xml for .xsl files.
+<TR><TD><a href="patches/relative/v337-v338.patch.gz">v337-v338</a><TD>Cosmetic changes to the RDS/AF disable code.
+<TR><TD><a href="patches/relative/v336-v337.patch.gz">v336-v337</a><TD>Removed CONFIG_IRCOMM=y from car2 config; added "Tuner AF Blocking" to menu.
+<TR><TD><a href="patches/relative/v335-v336.patch.gz">v335-v336</a><TD>Added menu entry to resolve player/apps serial port contention: DC/Car mode only.  Big Secret!
+<TR><TD><a href="patches/relative/v334-v335.patch.gz">v334-v335</a><TD>Modified boot-time pop-up to show "Forced AC/DC.." when active, except when docked with loopback.
+<TR><TD><a href="patches/relative/v333-v334.patch.gz">v333-v334</a><TD>Replaced v334 with new copy with correct version number. Reduced delay in display_sendcontrol_part2().
+<TR><TD><a href="patches/relative/v332-v333.patch.gz">v332-v333</a><TD>Fixed fake_tuner (I think); fixed fake_tuner for operation in a "loopback" dock; trying a fix for "battery icon" issue.
+<TR><TD><a href="patches/relative/v331-v332.patch.gz">v331-v332</a><TD>Fixed tuner in NextSrc; re-added fake_tuner again (not tested).
+<TR><TD><a href="patches/relative/v330-v331.patch.gz">v330-v331</a><TD>Fixed .L handling in ir_translate.
+<TR><TD><a href="patches/relative/v329-v330.patch.gz">v329-v330</a><TD>Try to fix Tuner RDS issues ("trace_tuner=1" sample messages, anyone?); remove "fake_tuner" code/option.
+<TR><TD><a href="patches/relative/v328-v329.patch.gz">v328-v329</a><TD>Added EMPEG_HIJACK_READ_GPLR ioctl.
+<TR><TD><a href="patches/relative/v327-v328.patch.gz">v327-v328</a><TD>Added extra /proc/flash_* device entries for upcoming release of Linux upgrade tool.
+<TR><TD><a href="patches/relative/v326-v327.patch.gz">v326-v327</a><TD>Fine-tuned the tuner_id detection code, incorporating ideas from Kim Covil's earlier patch.
+<TR><TD><a href="patches/relative/v325-v326.patch.gz">v325-v326</a><TD>Added .V flag for triggering translations only when SoundAdj popup is active.
+<TR><TD><a href="patches/relative/v324-v325.patch.gz">v324-v325</a><TD>Re-added missing stalk button code to list -- hopefully stalks work fine now.
+<TR><TD><a href="patches/relative/v323-v324.patch.gz">v323-v324</a><TD>Fixed khttpd playlists top-left-corner "Stream" button.
+<TR><TD><a href="patches/relative/v322-v323.patch.gz">v322-v323</a><TD>Fixed broken .m3u handling in khttpd playlists.
+<TR><TD><a href="patches/relative/v321-v322.patch.gz">v321-v322</a><TD>Fixed mod(4096) issue with config.ini file parsing: very large config.ini files now work fine.
+<TR><TD><a href="patches/relative/v320-v321.patch.gz">v320-v321</a><TD>Revamped "Force AC/DC Power Mode" to include settings based on tuner-id.
+<TR><TD><a href="patches/relative/v319-v320.patch.gz">v319-v320</a><TD>Bah.. humbug.. rewrote most of the Volume Lock code.  Now it works.  Really.  Honest!  Want some swampland with that?
+<TR><TD><a href="patches/relative/v318-v319.patch.gz">v318-v319</a><TD>Fixed bug in "Volume Lock on Boot".
+<TR><TD><a href="patches/relative/v317-v318.patch.gz">v317-v318</a><TD>Tidied up "Volume Lock on Boot" menu screen.
+<TR><TD><a href="patches/relative/v316-v317.patch.gz">v316-v317</a><TD>Added "Volume Lock on Boot" menu item to save/restore Last/Current ac/dc volume settings on boot.
+<TR><TD><a href="patches/relative/v315-v316.patch.gz">v315-v316</a><TD>Remove special case iTunes '_' from khttp.
+<TR><TD><a href="patches/relative/v314-v315.patch.gz">v314-v315</a><TD>Never released.
+<TR><TD><a href="patches/relative/v313-v314.patch.gz">v313-v314</a><TD>Fixed open("/dev/empeg_state") to allow multiple readers.
+<TR><TD><a href="patches/relative/v312-v313.patch.gz">v312-v313</a><TD>Added config.ini option:  khttpd_root_index=<pathname>
+<TR><TD><a href="patches/relative/v311-v312.patch.gz">v311-v312</a><TD>Ooops.. dock detection can use only 7-bit pattern after hard power-on.
+<TR><TD><a href="patches/relative/v310-v311.patch.gz">v310-v311</a><TD bgcolor="lightgray">Add home dock detection via tuner serial port loopback.
+<TR><TD><a href="patches/relative/v309-v310.patch.gz">v309-v310</a><TD>Added khttpd detection/support for new-style FIDS directory structure on player (/driveX/fids/_YYYYY/XXX).
+<TR><TD><a href="patches/relative/v308-v309.patch.gz">v308-v309</a><TD>Fixed dud release v308.  All is now well.  Repeat after me, All is now well..
+<TR><TD><a href="patches/relative/v307-v308.patch.gz">v307-v308</a><TD>Prevent config.ini conflicts when doing EXECs.
+<TR><TD><a href="patches/relative/v306-v307.patch.gz">v306-v307</a><TD>Leave stdin/stdout/stderr connected to serial console when doing EXEC/EXEC_ONCE commands.
+<TR><TD><a href="patches/relative/v305-v306.patch.gz">v305-v306</a><TD>Fixed potential (crash!) incompatibility between v305 and older GPSapp installs.
+<TR><TD><a href="patches/relative/v304-v305.patch.gz">v304-v305</a><TD>Ooops.. broke the EXEC stuff in v304, fixed it in v305; also, fixed exit status reporting to show negatives correctly.
+<TR><TD><a href="patches/relative/v303-v304.patch.gz">v303-v304</a><TD>Renamed "exec=" to ";@EXEC ", and "exec_once=" to ";@EXEC_ONCE "; force "-s-" flag for player when on DC power; added I2C fan thermostat logic and config options. 
+<TR><TD><a href="patches/relative/v302-v303.patch.gz">v302-v303</a><TD>Fixed formatting error on "VisualSeek" tool.  Added "exec_once=" and "exec=" to config.ini
+<TR><TD><a href="patches/relative/v301-v302.patch.gz">v301-v302</a><TD>Added v2rc1 kernel patches; added support for "PrevVisual" button (requires v2rc1); added new "VisualSeek" tool.
+<TR><TD><a href="patches/relative/v300-v301.patch.gz">v300-v301</a><TD>Added v4 of the "audio overlay patch" from Kim Salo and others.
+<TR><TD><a href="patches/relative/v299-v300.patch.gz">v299-v300</a><TD bgcolor="lightgray">Updated to 2.2.17 kernel + ext3 fs code (off by default); fixed remount buffer; added insert/append to khttpd playlists.
+<TR><TD><a href="patches/relative/v298-v299.patch.gz">v298-v299</a><TD>Converted "KnobSeek" in Tuner mode to act as a "manual tuning dial".
+<TR><TD><a href="patches/relative/v297-v298.patch.gz">v297-v298</a><TD>Detect "logging disabled" from player and act accordingly --> this should fix "Restore DC/Car Visuals" for everyone.
+<TR><TD><a href="patches/relative/v296-v297.patch.gz">v296-v297</a><TD>Removed QuickTimer from '4' button; added "QuickTimer" virtual button for remapping to any key.
+<TR><TD><a href="patches/relative/v295-v296.patch.gz">v295-v296</a><TD>Convert @#! chars to _ in URLs from khttpd.
+<TR><TD><a href="patches/relative/v294-v295.patch.gz">v294-v295</a><TD>Try to eliminate serial rate dependencies.
+<TR><TD><a href="patches/relative/v293-v294.patch.gz">v293-v294</a><TD>Fixed Cincinnati.
+<TR><TD><a href="patches/relative/v292-v293.patch.gz">v292-v293</a><TD>Fixed SETGEOM bug; removed most needs for [output]notify=1; changed suppress_notify default to "1"; <b>removed "supress_notify"</b> spelling.
+<TR><TD><a href="patches/relative/v291-v292.patch.gz">v291-v292</a><TD>Internal whitespace tweaking.  No new code/features.
+<TR><TD><a href="patches/relative/v290-v291.patch.gz">v290-v291</a><TD>Internal code tweaking.  Nothing new outside.
+<TR><TD><a href="patches/relative/v289-v290.patch.gz">v289-v290</a><TD>Fixed v289 typo, so Sony Stalk now works again.
+<TR><TD><a href="patches/relative/v288-v289.patch.gz">v288-v289</a><TD><b>Removed "button_pacing=nn" parameter</b>; fixed long-presses for good; more startup tweaks.
+<TR><TD><a href="patches/relative/v287-v288.patch.gz">v287-v288</a><TD>Fixed Restore DC/Car Visuals (really!).
+<TR><TD><a href="patches/relative/v286-v287.patch.gz">v286-v287</a><TD>Fixed small UI glitches with INFO-SEEK workaround; fixed missing '/' in new .xml code.
+<TR><TD><a href="patches/relative/v285-v286.patch.gz">v285-v286</a><TD>Fixed reboot screen corruption; changed "Restore DC/Car Visuals" to do down.L; added .xml output for single tunes; reworked Hijack startup; fixed small glitch on INFO-SEEK. 
+<TR><TD><a href="patches/relative/v284-v285.patch.gz">v284-v285</a><TD>Rework for beta13 INFO-SEEK tool again.  Better hopefully.
+<TR><TD><a href="patches/relative/v283-v284.patch.gz">v283-v284</a><TD>Fixed beta13 INFO-SEEK tool, added S/PDIF patch for empeg-mixer.c.
+<TR><TD><a href="patches/relative/v282-v283.patch.gz">v282-v283</a><TD>Removed v2beta11 workarounds (no longer needed) from hijack.c.
+<TR><TD><a href="patches/relative/v281-v282.patch.gz">v281-v282</a><TD>Updated for v2.00-beta13 kernel changes (very minor).
+<TR><TD><a href="patches/relative/v280-v281.patch.gz">v280-v281</a><TD>Fixed LBA48 bugs.
+<TR><TD><a href="patches/relative/v279-v280.patch.gz">v279-v280</a><TD>Rewrote much of the ButtonLED Illumination code.
+<TR><TD><a href="patches/relative/v278-v279.patch.gz">v278-v279</a><TD>Fiddled with reboot code.
+<TR><TD><a href="patches/relative/v277-v278.patch.gz">v277-v278</a><TD>Increased press/release delay by 10% for longpresses; changed remount popup for Tony.
+<TR><TD><a href="patches/relative/v276-v277.patch.gz">v276-v277</a><TD>Lucky-Sevens Release: fixed (rare) Day-1 jiffies bug in Hijack.
+<TR><TD><a href="patches/relative/v275-v276.patch.gz">v275-v276</a><TD>Fixed issue with startup message.
+<TR><TD><a href="patches/relative/v274-v275.patch.gz">v274-v275</a><TD>Added (slightly flakey) Screen Blanker "PowerOff Display" option/menu.
+<TR><TD><a href="patches/relative/v273-v274.patch.gz">v273-v274</a><TD bgcolor="lightgray">Added lba48 support to IDE driver for drive sizes > 128GB.
+<TR><TD><a href="patches/relative/v272-v273.patch.gz">v272-v273</a><TD>Modify "keypress_flash=" to allow specifying flash timeout in 1/100th seconds.
+<TR><TD><a href="patches/relative/v271-v272.patch.gz">v271-v272</a><TD>Tony's sick idea: "keypress_flash=1" to blink display on remote button presses.
+<TR><TD><a href="patches/relative/v270-v271.patch.gz">v270-v271</a><TD>Try to repair all of the new userland ioctl() bugs from v270 and v269.
+<TR><TD><a href="patches/relative/v269-v270.patch.gz">v269-v270</a><TD>Bugfix in WAITMENU; also allow WAITMENU(NULL) to exit completely from menus.
+<TR><TD><a href="patches/relative/v268-v269.patch.gz">v268-v269</a><TD>Reduce startup delay by 0.5sec, speed up directory lookups, ditch the undershorts.
+<TR><TD><a href="patches/relative/v267-v268.patch.gz">v267-v268</a><TD>Modify the EMPEG_HIJACK_WAITMENU to remove all bound menu items upon exit.
+<TR><TD><a href="patches/relative/v266-v267.patch.gz">v266-v267</a><TD>Fix nasty bug from v266 that locks up player for some button commands/translations.
+<TR><TD><a href="patches/relative/v265-v266.patch.gz">v265-v266</a><TD>Fix (?) for confusion resulting from lost "release codes".
+<TR><TD><a href="patches/relative/v264-v265.patch.gz">v264-v265</a><TD>Try to fix Tony's Empeg by delaying animation startup by 1.0sec instead of .33sec.
+<TR><TD><a href="patches/relative/v263-v264.patch.gz">v263-v264</a><TD>Re-add frame-pointers to mk1 kernels as well.  No changes to mk2.
+<TR><TD><a href="patches/relative/v262-v263.patch.gz">v262-v263</a><TD>Button-illumination fixes; kernel built WITH frame-pointers.
+<TR><TD><a href="patches/relative/v261-v262.patch.gz">v261-v262</a><TD>Nuked IDE compactflash hack.
+<TR><TD><a href="patches/relative/v260-v261.patch.gz">v260-v261</a><TD>Fixed "standbyLED_on=0".
+<TR><TD><a href="patches/relative/v259-v260.patch.gz">v259-v260</a><TD>More stroking for WMP.
+<TR><TD><a href="patches/relative/v258-v259.patch.gz">v258-v259</a><TD>Fix (?) for WMP streaming; changes to IDE driver error handling for modern drives.
+<TR><TD><a href="patches/relative/v257-v258.patch.gz">v257-v258</a><TD>Fixed buttonLED illumination again.
+<TR><TD><a href="patches/relative/v256-v257.patch.gz">v256-v257</a><TD>Default back to the pulsating LED thing, for Rob.
+<TR><TD><a href="patches/relative/v255-v256.patch.gz">v255-v256</a><TD>Nuke the powerfully pulsating standby LED.
+<TR><TD><a href="patches/relative/v254-v255.patch.gz">v254-v255</a><TD>Fix minor playlist streaming issue with some versions of WinAmp.
+<TR><TD><a href="patches/relative/v253-v254.patch.gz">v253-v254</a><TD>New VolAdjust defaults from tfabris; nuked "tone_init" messages.
+<TR><TD><a href="patches/relative/v252-v253.patch.gz">v252-v253</a><TD>More Tony-proofing of animation code.
+<TR><TD><a href="patches/relative/v251-v252.patch.gz">v251-v252</a><TD>Corrected spelling of "suppress_notify"; Fixed "VolDown" when coming out of standby using countdown timer; play with animation detection.
+<TR><TD><a href="patches/relative/v250-v251.patch.gz">v250-v251</a><TD>Fixed (?) problem with BUTTONRAW.
+<TR><TD><a href="patches/relative/v249-v250.patch.gz">v249-v250</a><TD bgcolor="lightgray">XML-ized contents of /proc/empeg_notify.
+<TR><TD><a href="patches/relative/v248-v249.patch.gz">v248-v249</a><TD>Fixed missing-animation (sometimes) problem.
+<TR><TD><a href="patches/relative/v247-v248.patch.gz">v247-v248</a><TD>Added buttonLED support to car1 builds; added volboost code from genixia; allowed /proc/version access always; implicit .L on "Detail", "Hush", others.
+<TR><TD><a href="patches/relative/v246-v247.patch.gz">v246-v247</a><TD>Revamped button-labels to incorporate ".L" flags; changed animation; incorporated the volume-boost patch.
+<TR><TD><a href="patches/relative/v245-v246.patch.gz">v245-v246</a><TD>Added "Visual-" alias for "KSNext".
+<TR><TD><a href="patches/relative/v244-v245.patch.gz">v244-v245</a><TD>Implemented Sony Stalk support; fixed (?) tone controls init.
+<TR><TD><a href="patches/relative/v243-v244.patch.gz">v243-v244</a><TD>Implemented http "HEAD" (needed for mozilla 0.9.9); replaced built-in animation.
+<TR><TD><a href="patches/relative/v242-v243.patch.gz">v242-v243</a><TD>Fixes some tone control issues (but not all); added dquotes to Content-Disposition headers.
+<TR><TD><a href="patches/relative/v241-v242.patch.gz">v241-v242</a><TD>Added support for custom animations at end of kernel flash partition.
+<TR><TD><a href="patches/relative/v240-v241.patch.gz">v240-v241</a><TD>Fixed range error in FTP "REST" (HTTP "Range") handling.
+<TR><TD><a href="patches/relative/v239-v240.patch.gz">v239-v240</a><TD>Removed debouce logic from v237.
+<TR><TD><a href="patches/relative/v238-v239.patch.gz">v238-v239</a><TD>Added Bass/Treble controls, courtesy of genixia.
+<TR><TD><a href="patches/relative/v237-v238.patch.gz">v237-v238</a><TD>Removed random dance selection code; prevented PopUp on 5x4 EQ screen.
+<TR><TD><a href="patches/relative/v236-v237.patch.gz">v236-v237</a><TD>Added debounce logic to headlight sense for player.
+<TR><TD><a href="patches/relative/v235-v236.patch.gz">v235-v236</a><TD>Fixed 403 error on http RO/RW/REBOOT commands.
+<TR><TD><a href="patches/relative/v234-v235.patch.gz">v234-v235</a><TD>Inverted headlight sense logic.
+<TR><TD><a href="patches/relative/v233-v234.patch.gz">v233-v234</a><TD>Added NODATA onto "Play" links; stole another 8 bytes of flash; split more settings between home/car; remote access to voladj parameters; fake buttoncodes for voladj settings, hijack menu; buttonLEDs dim when headlights on.
+<TR><TD><a href="patches/relative/v232-v233.patch.gz">v232-v233</a><TD>More reboot tweaking; increased "unmask" timeout for IDE.
+<TR><TD><a href="patches/relative/v231-v232.patch.gz">v231-v232</a><TD>Removed excess data fields from XML output; added "NODATA" option.
+<TR><TD><a href="patches/relative/v230-v231.patch.gz">v230-v231</a><TD>Added code to guard against thermometer corruption.
+<TR><TD><a href="patches/relative/v229-v230.patch.gz">v229-v230</a><TD>Fixed kftpd MKD/RMD/XMKD/XRMD commands.
+<TR><TD><a href="patches/relative/v228-v229.patch.gz">v228-v229</a><TD>Fixed(?) problems with reboot.
+<TR><TD><a href="patches/relative/v227-v228.patch.gz">v227-v228</a><TD>Fixed http lockups.
+<TR><TD><a href="patches/relative/v226-v227.patch.gz">v226-v227</a><TD>Got rid of "buttonhack_enabled=1"; added Button Illumination menu item.
+<TR><TD><a href="patches/relative/v225-v226.patch.gz">v225-v226</a><TD>Bugfixes for kftpd 'XMKD' and 'XRMD'.
+<TR><TD><a href="patches/relative/v224-v225.patch.gz">v224-v225</a><TD>More debug logic for lockups; updated font from Bruno.
+<TR><TD><a href="patches/relative/v223-v224.patch.gz">v223-v224</a><TD bgcolor="lightgray">Fixed another jiffie bug; added better debug displays.
+<TR><TD><a href="patches/relative/v222-v223.patch.gz">v222-v223</a><TD bgcolor="lightgray">Fixed the jiffie lockup issue (not specific to Hijack).
+<TR><TD><a href="patches/relative/v221-v222.patch.gz">v221-v222</a><TD>Improved "jiffie" messages; made menu-Reboot remount drives r/o first.
+<TR><TD><a href="patches/relative/v220-v221.patch.gz">v220-v221</a><TD>Added "jiffie" slowdown detection.
+<TR><TD><a href="patches/relative/v219-v220.patch.gz">v219-v220</a><TD>Repulsed the barbarians.
+<TR><TD><a href="patches/relative/v218-v219.patch.gz">v218-v219</a><TD>Rearranged channel delay code for faster operation.
+<TR><TD><a href="patches/relative/v217-v218.patch.gz">v217-v218</a><TD>Appease the barbarian hordes.
+<TR><TD><a href="patches/relative/v216-v217.patch.gz">v216-v217</a><TD>Disable buttonhack patch by default: interferes with LongPress of Source (and others?).
+<TR><TD><a href="patches/relative/v215-v216.patch.gz">v215-v216</a><TD>Implemented beta11-INFO workaround; added error-recovery for missing dance files; allow up to 16 (was 10) dance files.
+<TR><TD><a href="patches/relative/v214-v215.patch.gz">v214-v215</a><TD>Added *.js, .jar, and *.m3u to webfiles exceptions; more "netscape" niceness in playlists; fixed Restore_Visuals.
+<TR><TD><a href="patches/relative/v213-v214.patch.gz">v213-v214</a><TD>Added "EXT=.xxx" syntax for URLs.
+<TR><TD><a href="patches/relative/v212-v213.patch.gz">v212-v213</a><TD>Removed nocache directives where not necessary.
+<TR><TD><a href="patches/relative/v211-v212.patch.gz">v211-v212</a><TD>Implemented revised format for '?' portion of URL handling.
+<TR><TD><a href="patches/relative/v210-v211.patch.gz">v210-v211</a><TD>Some bug fixes.
+<TR><TD><a href="patches/relative/v209-v210.patch.gz">v209-v210</a><TD>Fixed %xx parsing in khttpd; fixed VolUp/VolDown (were reversed).
+<TR><TD><a href="patches/relative/v208-v209.patch.gz">v208-v209</a><TD>Skip edit/parsing of config.ini when it's too large for kmalloc().
+<TR><TD><a href="patches/relative/v207-v208.patch.gz">v207-v208</a><TD>Added "dance=" for creating list of Flancedoor visuals for random selection.
+<TR><TD><a href="patches/relative/v206-v207.patch.gz">v206-v207</a><TD>Added a default definition for PopUp0.
+<TR><TD><a href="patches/relative/v205-v206.patch.gz">v205-v206</a><TD>Added "Clock" virtual button code (stick it onto a PopUpX menu) to display current time/date for a few seconds; added "[hijack] time_offset=mmm" for config.ini to correct the time-of-day (because the player doesn't pass timezone to the kernel..).
+<TR><TD><a href="patches/relative/v204-v205.patch.gz">v204-v205</a><TD>Removed mime-type from ".xsl" files (Mozilla got confused); more .xml tweaking.
+<TR><TD><a href="patches/relative/v203-v204.patch.gz">v203-v204</a><TD>Renamed "khttpd_xsl=" to "khttpd_style=".
+<TR><TD><a href="patches/relative/v202-v203.patch.gz">v202-v203</a><TD bgcolor="lightgray">Added '&' escapes for xml '<>&' characters; added missing "xsl" mime/permissions; added "?STYLE=/some/path/name.xsl.xml" capability.
+<TR><TD><a href="patches/relative/v201-v202.patch.gz">v201-v202</a><TD>First hack at "?.xml" support; allow access to "web" files (.html,.htm,.jpg,.png,.xsl,.css, etc.) even when "khttpd_files=0"; include basic "buttonhack.patch" for illuminated button kits.
+<TR><TD><a href="patches/relative/v200-v201.patch.gz">v200-v201</a><TD>Handle LARGE config.ini files (note: the player only uses the final 4096 bytes..); allow non-tcp on port 8300; Round corners on @HOME/@WORK menu; added v1.0 delaytime patch from Christian Hack.
+<TR><TD><a href="patches/relative/v199-v200.patch.gz">v199-v200</a><TD>Fixed missing '?' on "Stream" button on top lines of playlists.
+<TR><TD><a href="patches/relative/v198-v199.patch.gz">v198-v199</a><TD>Tolerate excess trailing '/' on playlist URLs; don't do %xx in m3u's destined for MSIE+MacOS.
+<TR><TD><a href="patches/relative/v197-v198.patch.gz">v197-v198</a><TD>Fix overly-restrictive security in v197; remove "unclickable" items from playlist displays.
+<TR><TD><a href="patches/relative/v196-v197.patch.gz">v196-v197</a><TD>Allow multi-packet HTTP request headers; tweaked http dir listings; added "Stream / Play" fields.
+<TR><TD><a href="patches/relative/v195-v196.patch.gz">v195-v196</a><TD>Fix KnobLeft and KnobRight ir_translate capability.
+<TR><TD><a href="patches/relative/v194-v195.patch.gz">v194-v195</a><TD>Use "artist - tune" in .m3u URLs, hexcoded for most clients, underscores for iTunes.
+<TR><TD><a href="patches/relative/v193-v194.patch.gz">v193-v194</a><TD>Renamed beta10 to beta11 on everything to help people "cope"; changed .m3u format to use artist-tune in URLs.
+<TR><TD><a href="patches/relative/v192-v193.patch.gz">v192-v193</a><TD>Removed experiments; fixed voladj and knob save/restore.
+<TR><TD><a href="patches/relative/v191-v192.patch.gz">v191-v192</a><TD>(goofed in v191, trying again) Experimenting with playlist changes for iTunes.
+<TR><TD><a href="patches/relative/v190-v191.patch.gz">v190-v191</a><TD>Experimenting with playlist changes for iTunes.
+<TR><TD><a href="patches/relative/v189-v190.patch.gz">v189-v190</a><TD>Updated to match v2.00b10 kernel for v2.00-beta10 and v2.00-beta11.
+<TR><TD><a href="patches/relative/v188-v189.patch.gz">v188-v189</a><TD>Re-implemented "initial=" from scratch, now works (but needs "notify=1") with .[CHTMA] flags!
+<TR><TD><a href="patches/relative/v187-v188.patch.gz">v187-v188</a><TD>Fixed save/restore of "Knob Press Redefinition" (been broken for a while..).
+<TR><TD><a href="patches/relative/v186-v187.patch.gz">v186-v187</a><TD>Fixed splash vs. animation issue; fixed Empeg flash driver; nuked "Knob Rotate Redefinition"; added "KnobSeek" virtual button.
+<TR><TD><a href="patches/relative/v185-v186.patch.gz">v185-v186</a><TD>Ignore missing playlist files, but log them on the console.
+<TR><TD><a href="patches/relative/v184-v185.patch.gz">v184-v185</a><TD>Removed "/." subelements from kftpd cwd; changed kftpd to not show dotfiles unless asked ("ls -a").
+<TR><TD><a href="patches/relative/v183-v184.patch.gz">v183-v184</a><TD>Make playlist browser continue after fid errors; use "Host" from HTTP header in m3u files; make kftp show dot dirs like other servers.
+<TR><TD><a href="patches/relative/v182-v183.patch.gz">v182-v183</a><TD>Cleaned up NextSrc button; fixed BUG in ";@HOME" / ";@WORK" detection from v182.
+<TR><TD><a href="patches/relative/v181-v182.patch.gz">v181-v182</a><TD>Added "[hijack] disable_emplode=1" for config.ini; merged a bunch of strings, tidied up menus.
+<TR><TD><a href="patches/relative/v180-v181.patch.gz">v180-v181</a><TD>Groundwork to support for Sony Stalk RM-X4S.
+<TR><TD><a href="patches/relative/v179-v180.patch.gz">v179-v180</a><TD>Tolerate '\0' character within tag files.
+<TR><TD><a href="patches/relative/v178-v179.patch.gz">v178-v179</a><TD>Allow use of ";@HOME" and ";@WORK" after ";@AC " or ";@DC " on same line; added workaround for tagfiles that are missing the "type=" line.
+<TR><TD><a href="patches/relative/v177-v178.patch.gz">v177-v178</a><TD>Added ";@AC" and ";@DC" flags for config.ini; disabled kftpd/khttpd when on DC; added "dc_servers=1" to reenable them.
+<TR><TD><a href="patches/relative/v176-v177.patch.gz">v176-v177</a><TD>Added go-directly-to-reboot to the "Home/Car Location".
+<TR><TD><a href="patches/relative/v175-v176.patch.gz">v175-v176</a><TD>Revamped config.ini processing; added ";@HOME ", ";@WORK " directives; added hijack version to /proc/version; fixed some lowercase dependencies.
+<TR><TD><a href="patches/relative/v174-v175.patch.gz">v174-v175</a><TD>Fixed buffer length limitations in playlist browser; reduced CPU usage.
+<TR><TD><a href="patches/relative/v173-v174.patch.gz">v173-v174</a><TD>Whoops.. v172 broke remote commands; fixed again.
+<TR><TD><a href="patches/relative/v172-v173.patch.gz">v172-v173</a><TD>More playlist HTML tidying.
+<TR><TD><a href="patches/relative/v171-v172.patch.gz">v171-v172</a><TD>Added "nocache" headers for /proc/*, /dev/*; reset options to defaults before re-reading config.ini.
+<TR><TD><a href="patches/relative/v170-v171.patch.gz">v170-v171</a><TD>Added "spindown_seconds" for hard drives (default 30 seconds).
+<TR><TD><a href="patches/relative/v169-v170.patch.gz">v169-v170</a><TD>Added ftp "rename" (RNFR/RNTO); misc playlist browsing improvements.
+<TR><TD><a href="patches/relative/v168-v169.patch.gz">v168-v169</a><TD>Fixed "empty playlist" issue.
+<TR><TD><a href="patches/relative/v167-v168.patch.gz">v167-v168</a><TD bgcolor="lightgray">Enabled playlist nesting (up to 16 levels deep); removed knob rotate delay outside of hijack; added access restrictions: "kftpd_password", "khttpd_dirs", "khttpd_files", "khttpd_playlists", "khttpd_commands".
+<TR><TD><a href="patches/relative/v166-v167.patch.gz">v166-v167</a><TD>Fixed lseek() bug (REST, Range:, WinAmp).
+<TR><TD><a href="patches/relative/v165-v166.patch.gz">v165-v166</a><TD>Added "artist - " to streaming "titles".
+<TR><TD><a href="patches/relative/v164-v165.patch.gz">v164-v165</a><TD>Fixed problem with "titles" in playlist browser.
+<TR><TD><a href="patches/relative/v163-v164.patch.gz">v163-v164</a><TD>Now using "icy-name:" tags for track titles (XMMS, WinAmp, ..).
+<TR><TD><a href="patches/relative/v162-v163.patch.gz">v162-v163</a><TD>Added 2-drive support for HTTP playlists; added track titles for WinAmp; added filename.ext for HTTP music downloads.
+<TR><TD><a href="patches/relative/v161-v162.patch.gz">v161-v162</a><TD>Fixed nasty IR bug from v161; added PopUp alert for bad it_translate's.
+<TR><TD><a href="patches/relative/v160-v161.patch.gz">v160-v161</a><TD>Added XMKD/XRMD/REST to kftpd; added "Range:" to khttpd; added "invalid mixer" workaround; made "NextSrc" use Rio codes instead of Kenwood; added "ir_debug=1"; fixed knob after reboot issue; fixed '%xx' translation bug; added "SERIAL" command.  Removed disable_rioremote code.
+<TR><TD><a href="patches/relative/v159-v160.patch.gz">v159-v160</a><TD>Fixed http redirect bug for directories; added "/sbin/hijack" to "init" search order.
+<TR><TD><a href="patches/relative/v158-v159.patch.gz">v158-v159</a><TD>More bugfixes in playlist browser.
+<TR><TD><a href="patches/relative/v157-v158.patch.gz">v157-v158</a><TD>Fixed bug in .m3u generation for individual tunes.
+<TR><TD><a href="patches/relative/v156-v157.patch.gz">v156-v157</a><TD bgcolor="lightgray">Added .m3u playlist support, with NEW SYNTAX:  http://your.empeg/drive0/fids/101?.html; added (untested) "VolAdj" buttoncode; added missing "Source" button name.
+<TR><TD><a href="patches/relative/v155-v156.patch.gz">v155-v156</a><TD>Added some curtains to playlist browser; added more debug to fix_visuals().
+<TR><TD><a href="patches/relative/v154-v155.patch.gz">v154-v155</a><TD bgcolor="lightgray">Added preliminary playlist browsing via "http://my.empeg.whereever/drive0/fids/101?format".
+<TR><TD><a href="patches/relative/v153-v154.patch.gz">v153-v154</a><TD bgcolor="lightgray">Added user-defined PopUp menus to [ir_translate]; removed internal PopUp menur; see the updated <a href=ir_translate.html>ir_translate</a> page for details.
+<TR><TD><a href="patches/relative/v152-v153.patch.gz">v152-v153</a><TD>Fixed sequencing issue with button name lookups.
+<TR><TD><a href="patches/relative/v151-v152.patch.gz">v151-v152</a><TD>Removed ".[NU]" from leftside of ir_translate; added symbutton names; increased 2nd drive timeouts.
+<TR><TD><a href="patches/relative/v150-v151.patch.gz">v150-v151</a><TD>Yet another attempt at getting .S, .N, and .U to all play together nicely.
+<TR><TD><a href="patches/relative/v149-v150.patch.gz">v149-v150</a><TD>Patch is now synchronised with v200b8 base kernel (compatible with all v2.00 betas).
+<TR><TD><a href="patches/relative/v148-v149.patch.gz">v148-v149</a><TD>Fixed nasty typo (killed ir_translate) from v148.
+<TR><TD><a href="patches/relative/v147-v148.patch.gz">v147-v148</a><TD>Experimental: more SHIFT toggle rework.
+<TR><TD><a href="patches/relative/v146-v147.patch.gz">v146-v147</a><TD>Fixed(?) SHIFT toggle; changed SITE RO/RW to loop over ext2 filesystems in /proc/mounts, and removed {/,/drive0,/drive1} parameters (not needed anymore).
+<TR><TD><a href="patches/relative/v145-v146.patch.gz">v145-v146</a><TD>Implemented .U and .N for RHS of '=' in ir_translate.
+<TR><TD><a href="patches/relative/v144-v145.patch.gz">v144-v145</a><TD>Added code to fake the ACCESSORY line when faking DC/Car mode; added /proc/empeg_screen.raw
+<TR><TD><a href="patches/relative/v143-v144.patch.gz">v143-v144</a><TD>Bugfix in RDS hack; source code compatibility with an upcoming Empeg beta software release.
+<TR><TD><a href="patches/relative/v142-v143.patch.gz">v142-v143</a><TD>Added "nocheck" to "SITE RW" commands, for dramatic speedup.
+<TR><TD><a href="patches/relative/v141-v142.patch.gz">v141-v142</a><TD>Fixed "shift" toggle; changed default button_pacing to 20 from 8 (1/100ths of a second).
+<TR><TD><a href="patches/relative/v140-v141.patch.gz">v140-v141</a><TD>Fixed another globbing bug.
+<TR><TD><a href="patches/relative/v139-v140.patch.gz">v139-v140</a><TD>Okay, got all (?) of the button hacks working again in harmony.
+<TR><TD><a href="patches/relative/v138-v139.patch.gz">v138-v139</a><TD>Fixed "Details" quick knob press; broke other stuff.. do not use.
+<TR><TD><a href="patches/relative/v137-v138.patch.gz">v137-v138</a><TD>Fixed globbing in kftpd (buffer reuse issue).
+<TR><TD><a href="patches/relative/v136-v137.patch.gz">v136-v137</a><TD>Fixed ".S" (broken in v136); fixed screen blanker "fuzz" calculation.
+<TR><TD><a href="patches/relative/v135-v136.patch.gz">v135-v136</a><TD>More IR hacking.. added '.U' (UI menu system active) and '.N' (menu system Not active) button flags.
+<TR><TD><a href="patches/relative/v134-v135.patch.gz">v134-v135</a><TD>Fixed segfault in ftp "HELP" and "SITE HELP" commands; added config.ini option "rioremote_disabled=1";
+<TR><TD><a href="patches/relative/v133-v134.patch.gz">v133-v134</a><TD>Fixed khttpd screen grabber to not get stuck when player is in standby.
+<TR><TD><a href="patches/relative/v132-v133.patch.gz">v132-v133</a><TD>More IR hacking, seems stable; added "schedule()" calls in strategic places in kftpd.c.
+<TR><TD><a href="patches/relative/v131-v132.patch.gz">v131-v132</a><TD>Fixed bugs in ir_translations; added "max_connections=4" for config.ini; revamped memory usage in kftpd.c.
+<TR><TD><a href="patches/relative/v130-v131.patch.gz">v130-v131</a><TD>Added "BUTTONRAW" command to send raw button code instead of a press/release pair ("BUTTON").
+<TR><TD><a href="patches/relative/v129-v130.patch.gz">v129-v130</a><TD>kttpd: '?' after any directory name prevents "index.html" search; '/?' no longer returns NULL; kftpd CWD validates path; new "SITE RW /", "SITE RW /drive0" and "SITE RW /drive1" commands.
+<TR><TD><a href="patches/relative/v128-v129.patch.gz">v128-v129</a><TD>Altered khttpd to return zero data on "GET /?" operations; added table-based CRC32 for .png.
+<TR><TD><a href="patches/relative/v127-v128.patch.gz">v127-v128</a><TD>Fixed zombies; nuked ftp "SITE EXEC"; added "[hijack]i extmute_on=xxxxxxxx" and "[hijack] extmute_off=xxxxxxxx" for config.ini.
+<TR><TD><a href="patches/relative/v126-v127.patch.gz">v126-v127</a><TD>Identical to v126, except with networking stuff removed from mk1 build (no ethernet there..).
+<TR><TD><a href="patches/relative/v125-v126.patch.gz">v125-v126</a><TD>Added .png for screen dump; fixed http dirlist bug; other stuff.
+<TR><TD><a href="patches/relative/v124-v125.patch.gz">v124-v125</a><TD>kftp/khttpd: converted RO/RW to internal implementation; added generalized command interpretor.
+<TR><TD><a href="patches/relative/v123-v124.patch.gz">v123-v124</a><TD>kftp: "SITE RO", "SITE RW", "SITE REBOOT"; khttpd: "index.html" lookups; added /proc/empeg_flash device.
+<TR><TD><a href="patches/relative/v122-v123.patch.gz">v122-v123</a><TD>Added preliminary "SITE EXEC" to kftpd (no output); added command/button input writing to /proc/empeg_notify.
+<TR><TD><a href="patches/relative/v121-v122.patch.gz">v121-v122</a><TD>Fixed(?) 2-drive detection failures; multi-threaded kftpd/khttpd; mime-type for tag files.
+<TR><TD><a href="patches/relative/v120-v121.patch.gz">v120-v121</a><TD>Added fsync() after each file received; set socket options for faster TCP; fixed bug in PORT command.
+<TR><TD><a href="patches/relative/v119-v120.patch.gz">v119-v120</a><TD>Added sys_sync() after each FTP session logout; added boot-up version credit.
+<TR><TD><a href="patches/relative/v118-v119.patch.gz">v118-v119</a><TD>Sped up directory listings using iget() instead of lnamei(), except for procfs where iget() is broken.
+<TR><TD><a href="patches/relative/v117-v118.patch.gz">v117-v118</a><TD>Fixed upper/lower case issues in kftpd; added /proc/empeg_screen.tiff (maybe change to .png ?).
+<TR><TD><a href="patches/relative/v116-v117.patch.gz">v116-v117</a><TD>Fixed "SITE CHMOD" for non-root paths; added "HELP; fixed "SITE HELP"; fixed "audio/mpeg".
+<TR><TD><a href="patches/relative/v115-v116.patch.gz">v115-v116</a><TD>Tons of khttpd/kftpd fixes; "mget" now works.
+<TR><TD><a href="patches/relative/v114-v115.patch.gz">v114-v115</a><TD>Fixed kftpd/khttpd port numbers in config.ini; Added STOR,DELE,MKD,RMD,CHMOD to kftpd: mirrordir now works!
+<TR><TD><a href="patches/relative/v113-v114.patch.gz">v113-v114</a><TD>Ouch.  Fixed bugs in save/restore settings; don't popup quicktimer when equalizer settings are on screen.
+<TR><TD><a href="patches/relative/v112-v113.patch.gz">v112-v113</a><TD>Important bugfixes in khttpd and kftpd, especially for /proc/.
+<TR><TD><a href="patches/relative/v111-v112.patch.gz">v111-v112</a><TD bgcolor="lightgray">Added khttpd on port 80; added config.ini option for khttpd; added crude "tune detection" for audio streaming over http.
+<TR><TD><a href="patches/relative/v110-v111.patch.gz">v110-v111</a><TD>Improved kftpd dirlist code; <b>kftpd now runs on port 21</b>; added config.ini options for kftpd ports.
+<TR><TD><a href="patches/relative/v109-v110.patch.gz">v109-v110</a><TD>Code clean-ups; added "Settings have been lost" Pop-Up at boot time.
+<TR><TD><a href="patches/relative/v108-v109.patch.gz">v108-v109</a><TD>Added DisplayServer hack for remote control of player.
+<TR><TD><a href="patches/relative/v107-v108.patch.gz">v107-v108</a><TD>Improved kftpd dir LISTings; FIXED AC/DC POWER BUG.
+<TR><TD><a href="patches/relative/v106-v107.patch.gz">v106-v107</a><TD>Added "standby_minutes=30" to enter standby after blanker triggers; added directory LISTings to kftpd.
+<TR><TD><a href="patches/relative/v105-v106.patch.gz">v105-v106</a><TD>Fix quicktimer conflict with Tuner with press and hold '4' on RioRemote when in Tuner, not possible with Kenwood.
+<TR><TD><a href="patches/relative/v104-v105.patch.gz">v104-v105</a><TD>Really fixed '4' conflict in Search this time.
+<TR><TD><a href="patches/relative/v103-v104.patch.gz">v103-v104</a><TD bgcolor="lightgray">Fixed '4' conflict in Search; fixed 2-drive Vitals; Added kftpd version 0.1 (port 91); split source files.
+<TR><TD><a href="patches/relative/v102-v103.patch.gz">v102-v103</a><TD>Fixed bug whereby '4' (quicktimer) was being passed through to player.
+<TR><TD><a href="patches/relative/v101-v102.patch.gz">v101-v102</a><TD>Improved "quicktimer" functionality (next/prev track buttons work better).
+<TR><TD><a href="patches/relative/v100-v101.patch.gz">v100-v101</a><TD>Improved "vitals" again: shows playlist/track FIDs, drive sizes.
+<TR><TD><a href="patches/relative/v99-v100.patch.gz">v99-v100</a><TD>Added "quicktimer" PopUp on '4' button; small bug fixes; retired the Great One.
+<TR><TD><a href="patches/relative/v98-v99.patch.gz">v98-v99</a><TD>Fixed FID display on Vitals screen; Added Wayne Gretzky.
+<TR><TD><a href="patches/relative/v97-v98.patch.gz">v97-v98</a><TD>Removed "mute" detection; replaced with "pause" detect for MP3 mode only; renamed "block_notify=1" to "supress_notify=1".
+<TR><TD><a href="patches/relative/v96-v97.patch.gz">v96-v97</a><TD>Made screen blanker use "paused/muted" in decisions; updated /proc/empeg_notify fields.
+<TR><TD><a href="patches/relative/v95-v96.patch.gz">v95-v96</a><TD>Added rotaryknob de-glitch logic; added ir_translate support for front-panel buttons; revamped "vitals".
+<TR><TD><a href="patches/relative/v94-v95.patch.gz">v94-v95</a><TD>Added "Force AC/Home" option; added "Knob Rotate Redefinition" menu item.
+<TR><TD><a href="patches/relative/v93-v94.patch.gz">v93-v94</a><TD>Delayed menu update until after drive detection; faster booting for Mk1 single-drive units.
+<TR><TD><a href="patches/relative/v92-v93.patch.gz">v92-v93</a><TD>Fixed bug in "Force DC/Car Mode"; remove "Hard Disk Detection" if two drives present; "menu_remove=label" in config.ini.
+<TR><TD><a href="patches/relative/v91-v92.patch.gz">v91-v92</a><TD>Added menu item to speed-up single-drive boots; allow "Reboot" using remotes; clean-ups.
+<TR><TD><a href="patches/relative/v90-v91.patch.gz">v90-v91</a><TD>Fixed "Tuner+" PopUp button; Updated "restore visuals" to work with AM/FM Tuner modes.
+<TR><TD><a href="patches/relative/v89-v90.patch.gz">v89-v90</a><TD>Updated "restore visuals" to work with AUX input (but not Tuner yet); Fixed reboot for AUX/Tuner/Mk2a.
+<TR><TD><a href="patches/relative/v88-v89.patch.gz">v88-v89</a><TD>Still more work on "restore visuals" (looking good at this point).
+<TR><TD><a href="patches/relative/v87-v88.patch.gz">v87-v88</a><TD>More work on "restore visuals"; changed "Tuner" to "Tuner+" on PopUp menu.
+<TR><TD><a href="patches/relative/v86-v87.patch.gz">v86-v87</a><TD>Revamped PopUp behaviour, to simulate short/long button presses based on hold time; changed short-knob menus.
+<TR><TD><a href="patches/relative/v85-v86.patch.gz">v85-v86</a><TD>Renamed "/proc/empeg_no" to "/proc/empeg_notify"
+<TR><TD><a href="patches/relative/v84-v85.patch.gz">v84-v85</a><TD>Fixed empeg_notify; added block_notify=1 to suppress notify/dhcp serial output; Fixed blanker for beta7.
+<TR><TD><a href="patches/relative/v83-v84.patch.gz">v83-v84</a><TD bgcolor="lightgray">Added '/proc/empeg_notify' for FID/TrackName/etc..; Changed Timer to use minutes instead of seconds.
+<TR><TD><a href="patches/relative/v82-v83.patch.gz">v82-v83</a><TD>Fixed "restore visuals" for beta7; added .C and .H for ir_translate; added RDS; added fsck disable; cleanups.
+<TR><TD><a href="patches/relative/v81-v82.patch.gz">v81-v82</a><TD>Added "Restore DC/Car Visuals" to menu; added "old_style=1" option for config.ini file.
+<TR><TD><a href="patches/relative/v80-v81.patch.gz">v80-v81</a><TD>Updated to v200b7 (2.00-beta7) base kernel (only one-line of significant difference).
+<TR><TD><a href="patches/relative/v79-v80.patch.gz">v79-v80</a><TD>New look and feel, with hilighting.
+<TR><TD><a href="patches/relative/v78-v79.patch.gz">v78-v79</a><TD>Expanded Knob Press options; Fixed temp.display on vitals screen; fixed get_file() bug. Reduced maxtemp range.
+<TR><TD><a href="patches/relative/v77-v78.patch.gz">v77-v78</a><TD>Added dynamic "Show Flash Savearea" display.
+<TR><TD><a href="patches/relative/v76-v77.patch.gz">v76-v77</a><TD>Really fixed the config.ini voladj settings to apply immediately on player reboots.
+<TR><TD><a href="patches/relative/v75-v76.patch.gz">v75-v76</a><TD>Fixed to pass TOP button (and others) on when userland app is running.
+<TR><TD><a href="patches/relative/v74-v75.patch.gz">v74-v75</a><TD>Prevent hijack from interfering with equalizer setup screens.
+<TR><TD><a href="patches/relative/v73-v74.patch.gz">v73-v74</a><TD>Fixed config.ini voladj settings to apply immediately on player reboots
+<TR><TD><a href="patches/relative/v72-v73.patch.gz">v72-v73</a><TD>Revert IR handling back to v71 behaviour: final release happens when button is released
+<TR><TD><a href="patches/relative/v70-v72.patch.gz">v70-v72</a><TD>v72:readtherm() every 5 seconds; inittherm() every 5 minutes; Fixed handling of final release in .L translations; v71:Made IR handling consistent regardless of whether a translation table exists
+<TR><TD><a href="patches/relative/v69-v70.patch.gz">v69-v70</a><TD>Reduced therm reads/inits; Added counter to Buttons Display; Fixed(?) long press detect on foreign remotes.
+<TR><TD><a href="patches/relative/v68-v69.patch.gz">v68-v69</a><TD>Changed "Button Codes Display" to show raw (untranslated) button data.
+<TR><TD><a href="patches/relative/v67-v68.patch.gz">v67-v68</a><TD>Improved reliability with .L modifier; added "button_pacing" parameter
+<TR><TD><a href="patches/relative/v66-v67.patch.gz">v66-v67</a><TD>Implemented button queue timing for translations; Added .S modifier; Supported .L in translations.
+<TR><TD><a href="patches/relative/v65-v66.patch.gz">v65-v66</a><TD>Implemented IR translation modifiers for Long,Tuner,Aux,Main; fixed front-panel translations
+<TR><TD><a href="patches/relative/v64-v65.patch.gz">v64-v65</a><TD>Treat/require ';' as comment character in config.ini
+<TR><TD><a href="patches/relative/v63-v64.patch.gz">v63-v64</a><TD><b>New syntax</b> for ir_translations in config.ini (see above); Added voladj & temp correction to config.ini
+<TR><TD><a href="patches/relative/v62-v63.patch.gz">v62-v63</a><TD>Implemented single-to-multi button translations; tweaked calculator & reboot features
+<TR><TD><a href="patches/relative/v61-v62.patch.gz">v61-v62</a><TD>Fixed long-knob-press glitches; Clear screen on reboot
+<TR><TD><a href="patches/relative/v60-v61.patch.gz">v60-v61</a><TD>Fixed v60 bug which ignored most IR translations; Fixed VolAdj pop-up to allow access to Fader pop-up
+<TR><TD><a href="patches/relative/v59-v60.patch.gz">v59-v60</a><TD>Ignore comments after the codes on each IR translation line in config.ini
+<TR><TD><a href="patches/relative/v58-v59.patch.gz">v58-v59</a><TD bgcolor="lightgray">Fixed text-wrap bug (was dropping a char); Added config.ini IR-Translation capability
+<TR><TD><a href="patches/relative/v57-v58.patch.gz">v57-v58</a><TD>Tightened up the code a little; fixed bug on error path in get_file() [never happens anyway..]
+<TR><TD><a href="patches/relative/v56-v57.patch.gz">v56-v57</a><TD>Fixed voladj to actually use the fake/real silence parms; added read of config.ini on startup.
+<TR><TD><a href="patches/relative/v55-v56.patch.gz">v55-v56</a><TD>Improved countdown timer interface.
+<TR><TD><a href="patches/relative/v54-v55.patch.gz">v54-v55</a><TD>Improved "Force DC/Car" implementation: now shows in-car logo.
+<TR><TD><a href="patches/relative/v53-v54.patch.gz">v53-v54</a><TD bgcolor="lightgray">Added "Force DC/Car Mode" to menu
+<TR><TD><a href="patches/relative/v52-v53.patch.gz">v52-v53</a><TD>IDE multmode on; countdown timer; audible alarms; accelerated repeat on holddowns; save menu_item; (hh:)mm:ss in menus
+<TR><TD><a href="patches/relative/v51-v52.patch.gz">v51-v52</a><TD>Fixed lockup when turning VolAdj Off (gotta stop making silly mistakes someday soon..)
+<TR><TD><a href="patches/relative/v50-v51.patch.gz">v50-v51</a><TD>Fixed v49/v50 problems with Mk1 players
+<TR><TD><a href="patches/relative/v49-v50.patch.gz">v49-v50</a><TD>Fixed upper half of VolAdj graph; Save player state before Reboot; Revert ide-probe changes for Mk.1 only
+<TR><TD><a href="patches/relative/v48-v49.patch.gz">v48-v49</a><TD>Fixed VolAdj Low+High (they've NEVER worked before!); reduced kernel sizes
+<TR><TD><a href="patches/relative/v47-v48.patch.gz">v47-v48</a><TD>Ooops.. forgot to reset the CD button counter --fixed; removed unnecessary cli() from blanker
+<TR><TD><a href="patches/relative/v46-v47.patch.gz">v46-v47</a><TD>Fixed screen blanker alignment issue (100% sensitivity failed to blank); removed another stray printk()
+<TR><TD><a href="patches/relative/v45-v46.patch.gz">v45-v46</a><TD>Removed debug printk() from the new button handler
+<TR><TD><a href="patches/relative/v44-v45.patch.gz">v44-v45</a><TD>Rewrote the ugly button state tracker to fix numerous quirks; Added Reboot option, Calculator fixes
+<TR><TD><a href="patches/relative/v42-v44.patch.gz">v42-v43</a><TD>Fixed Ooops in INJECTBUTTONS; Added "long knob press" to cycle among input sources
+<TR><TD><a href="patches/relative/v41-v42.patch.gz">v41-v42</a><TD>Implemented new ioctls: SETGEOM & INJECTBUTTONS; doubled the range available for blanker sensitivity
+<TR><TD><a href="patches/relative/v40-v41.patch.gz">v40-v41</a><TD>Sped up screen compares in blanker; Fix WAITMENU comments in hijack.h; do UNBINDBUTTONS as part of WAITMENU
+<TR><TD><a href="patches/relative/v39-v40.patch.gz">v39-v40</a><TD>Fixed WAITMENU so apps can return; Added blanker "sensitivity" option; Use 15sec multiples instead of 30sec
+<TR><TD><a href="patches/relative/v38-v39.patch.gz">v38-v39</a><TD>Changed WAITMENU ioctl() to multiwait; Fixed timeout bugs; removed Exit from menu; made menu loop around
+<TR><TD><a href="patches/relative/v37-v38.patch.gz">v37-v38</a><TD>Fixed text wrap bug; more inittherm() calls; colored text from userland
+<TR><TD><a href="patches/relative/v36-v37.patch.gz">v36-v37</a><TD>Inserted "Auto VolAdj" into the "[default]" functions for short-knob-presses
+<TR><TD><a href="patches/relative/v35-v36.patch.gz">v35-v36</a><TD>Replaced "Repeat" with "Details" in knob-press-redefinitions; added signal handling to ioctls()
+<TR><TD><a href="patches/relative/v34-v35.patch.gz">v34-v35</a><TD>Try to make knob & MENU buttons behave "normally" when player's menu is active
+<TR><TD><a href="patches/relative/v33-v34.patch.gz">v33-v34</a><TD>Exactly the same as v33, but with new ioctl() for userland: EMPEG_HIJACK_POLLBUTTONS
+<TR><TD><a href="patches/relative/v32-v33.patch.gz">v32-v33</a><TD>Disable hijack stuff when unit is in standy-by ("powered down")
+<TR><TD><a href="patches/relative/v31-v32.patch.gz">v31-v32</a><TD>Use <b>MENU button instead of SELECTMODE</b>; simplified Calculator; make MaxTemp wait 5 seconds after last button
+<TR><TD><a href="patches/relative/v30-v31.patch.gz">v30-v31</a><TD>Hold/repeat next/prev track now works everywhere; new Menu for redefining the quick knob-press function
+<TR><TD><a href="patches/relative/v29-v30.patch.gz">v29-v30</a><TD>Fix wake_up's so userland apps don't crash when selected
+<TR><TD><a href="patches/relative/v28-v29.patch.gz">v28-v29</a><TD>Small fixes to userland interface
+<TR><TD><a href="patches/relative/v26-v28.patch.gz">v26-v28</a><TD>Defined more IR codes; fixed buttons bugs; added Calculator & button display
+<TR><TD><a href="patches/relative/v25-v26.patch.gz">v25-v26</a><TD>Added degreesF to MaxTemp displays; fixed multi-line text output
+<TR><TD><a href="patches/relative/v24-v25.patch.gz">v24-v25</a><TD>Added MaxTemp warning; AC/DC VolAdj; ioctls() for userland apps; rotary knob wear & tear patch
+<TR><TD><a href="patches/relative/v23-v24.patch.gz">v23-v24</a><TD>Reduce CPU usage to bare minimum; new method for saving state over power cycles
+<TR><TD><a href="patches/relative/v22-v23.patch.gz">v22-v23</a><TD bgcolor="lightgray">Fixed empeg_readtherm(); reinstated temperature display in Vitals
+<TR><TD><a href="patches/relative/v21-v22.patch.gz">v21-v22</a><TD>Include freemem with Vitals; change font entry '5' slightly
+<TR><TD><a href="patches/relative/v20-v21.patch.gz">v20-v21</a><TD>Unmask interrupts more often; #if'd out the temperature display (locks up machine)
+<TR><TD><a href="patches/relative/v19-v20.patch.gz">v19-v20</a><TD>Added Vital-Signs to the menu.  LOCKS UP.
+<TR><TD><a href="patches/relative/v18-v19.patch.gz">v18-v19</a><TD>Extensible menu; improved voladj graph; menu timeout; simpler state machine
+<TR><TD><a href="patches/relative/v17-v18.patch.gz">v17-v18</a><TD>Added screen blanker, voladj graph, cosmetics
+<TR><TD><a href="patches/relative/v16-v17.patch.gz">v16-v17</a><TD>Removed "printk()" that caused button sticking when docked
+<TR><TD><a href="patches/relative/v15-v16.patch.gz">v15-v16</a><TD>Many bugs fixed; font enhanced; cosmetics
+<TR><TD><a href="patches/relative/v14-v15.patch.gz">v14-v15</a><TD>Minor UI enhancements; new header file with IR button codes
+<TR><TD><a href="patches/relative/v13-v14.patch.gz">v13-v14</a><TD bgcolor="lightgray">Major revision; new menu structure; altered button sequences
+<TR><TD><a href="patches/relative/v12-v13.patch.gz">v12-v13</a><TD>Renamed font array; Removed credit from winners screen
+<TR><TD><a href="patches/relative/v11-v12.patch.gz">v11-v12</a><TD>Improved the font; Added Off/Normal/High/Max voladj settings
+<TR><TD><a href="patches/relative/v10-v11.patch.gz">v10-v11</a><TD bgcolor="lightgray">Added text display capability; restructured the code for future enhancement
+<TR><TD><a href="patches/relative/v9-v10.patch.gz">v9-v10</a><TD>Found/fixed bug that caused game to "take over" buttons after 12-13 minutes
+<TR><TD><a href="patches/relative/v8-v9.patch.gz">v8-v9</a><TD>Safer handling of jiffies for long uptimes
+<TR><TD><a href="patches/relative/v7-v8.patch.gz">v7-v8</a><TD>Improved reward; added pause; game slightly easier
+<TR><TD><a href="patches/relative/v6-v7.patch.gz">v6-v7</a><TD bgcolor="lightgray">Game now included for Mk1 player; VolAdj saved over power cycles
+<TR><TD><a href="patches/relative/v5-v6.patch.gz">v5-v6</a><TD bgcolor="lightgray">First version of <b>BreakOut</b> game
+<TR><TD><a href="patches/relative/v4-v5.patch.gz">v4-v5</a><TD>Fixed a quirk in Pong whereby ball could pass through paddle
+<TR><TD><a href="patches/relative/v3-v4.patch.gz">v3-v4</a><TD bgcolor="lightgray">First version to include <B>Pong</B> game
+<TR><TD><a href="patches/relative/v1-v3.patch.gz">v1-v3</a><TD>Fixed button logic to prevent lockups
+<TR><TD><a href="patches/relative/v1-v200b3.patch.gz">v1</a><TD bgcolor="lightgray">Just the VolAdj stuff with buttons to enable/disable
+<TR><TD><a href="v1.tar.bz2">v1.tar.bz2</a><TD>Complete v1 kernel source tree (16MB)
+</TABLE>
+<P>
+<TABLE WIDTH=100% BORDER=0>
+<TD ALIGN=CENTER><IMG SRC=gameover.jpg>
+</TABLE>
+</body>
+</html>
