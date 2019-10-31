@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>An empeg reports progress of OP_STATFID</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2007/12/16/an-empeg-reports-progress-of-op_statfid/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>An empeg reports progress of OP_STATFID</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-12-16 18:53:10 +0000">2007-12-16 18:53:10 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <p>We’ve seen the format of the packet that emplode sends to find out the length of a file on the empeg (OP_STATFID). The empeg seems to always send a progress packet in response. The packet looks like this:</p>
+
+<pre>0000   02 54 00 07 02 95 00 81 80 3c 00 00 00 00 00 00
+0010   00 00 00 00 00 00 00 00 00 01 00 00 00 34 d8 11
+0020   02 10 01 12 02 96 00 81 80 3c e9 1b 02 58 fc df
+0030   bd 40 fc df bd ec fe 0d 02 d0 d7 11 02 18 41 1d
+0040   02 88 fc df bd 48 01 23 02 6c fc df bd 5c fc df
+0050   bd 18 ff 0d 02 88 fc df bd 48 01 23 02 38 87</pre>
+
+<p>We already know how to parse the header, so we can see that the payload is 84 bytes long, that this is an OP_STATFID packet, and that it’s a a progress packet (0x02 = OPTYPE_PROGRESS).</p>
+
+<p>The emptool sources tell us how to parse the rest of the packet. <code class="highlighter-rouge">3c 00 00 00</code> is a new timeout value. It’s in seconds, so the empeg is telling us to hold on for another minute. The next 4 numbers are the progress values. A lot of the empeg source code assumes that things are broken down into stages, and that we can report progress on each stage. In this case, the numbers don’t really mean much.</p>
+
+<p>What’s puzzling me, though, is that the <code class="highlighter-rouge">string</code> member of the response packet appears to be total garbage. The name implies that it’s a human-readable string returned from the player that can be displayed by emplode. It’s passed to the protocol observer (if any). emptool doesn’t provide one, and neither does (as far as I remember) emplode.</p>
+
+<p>This is probably a good thing, because it appears to be garbage. It’s probably old stack frames or something similar.</p>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

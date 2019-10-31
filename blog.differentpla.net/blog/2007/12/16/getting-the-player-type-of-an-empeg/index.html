@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Getting the player type of an empeg</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2007/12/16/getting-the-player-type-of-an-empeg/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Getting the player type of an empeg</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-12-16 19:37:18 +0000">2007-12-16 19:37:18 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <p>The last couple of entries have shown the hex dumps of the individual packets. We’ll step back to a slightly higher-level view now.</p>
+
+<p>The first thing that emplode does when it contacts an empeg player is ask it what kind of player it is. Emplode needs to know this so that it can display the correct icon in the discovery window. I’ll write up something about how empeg discovery works later.</p>
+
+<p>emplode sends an OP_STATFID request to the player, asking for details about FID_PLAYERTYPE. The player immediately reports progress (as we’ve seen already, the <code class="highlighter-rouge">string</code> member of this contains garbage). Shortly afterwards, the player responds with the size of the file, reporting that it’s 12 bytes.</p>
+
+<p>emplode then sends an OP_READFID request, asking for the content of FID_PLAYERTYPE. The TransferRequestPacket allows for the PC to ask for the file in chunks. emplode asks for the whole file (chunk_offset=zero, chunk_size=12).</p>
+
+<p>Again, the player immediately reports progress.</p>
+
+<p>Then it responds with the requested data. This is in a TransferResponsePacket. It contains a status (OK), a file_id (garbage), an offset, a byte count and then the data.</p>
+
+<p>The data is a simple ASCIIZ string, containing (in this case) “empeg-car-2”. Actually, this is a Rio car, but I don’t think the protocol can tell the difference.</p>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

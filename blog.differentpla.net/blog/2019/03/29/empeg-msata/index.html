@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing an mSATA disk in an empeg</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2019/03/29/empeg-msata/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing an mSATA disk in an empeg</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2019-03-29 15:25:00 +0000">2019-03-29 15:25:00 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <h2 id="background">Background</h2>
+
+<p>The hard disk in my spare empeg player died at some point. It’s getting harder to find 2.5” PATA SSDs, so I opted for a Kingston mSATA disk (240G) and a JMicron-based mSATA to PATA adapter.</p>
+
+<p>But that left me with a problem: I had no way to install the player software. Ordinarily, you’d download the <code class="highlighter-rouge">.upgrade</code> file and apply it over a serial port with <em>empegUpgrade</em>.</p>
+
+<p>But I don’t have a suitable Windows PC any more. I have a Surface Go, running Windows 10. It only just runs <em>emplode</em> correctly. I think my odds of getting <em>empegUpgrade</em> to work on Windows 10, with a USB-serial adapter are slim-to-none.</p>
+
+<p>So: how to get the player software installed?</p>
+
+<p><em>/me strokes chin</em></p>
+
+<p>I <em>do</em> have a Linux desktop PC, so I bought an mSATA-to-USB 3 adapter, and connected the disk using that.</p>
+
+<h2 id="partitioning-the-disk">Partitioning the disk</h2>
+
+<p>Connect disk to Linux PC. It appears as <code class="highlighter-rouge">/dev/sdd</code>.</p>
+
+<p>Partition it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo fdisk /dev/sdd
+
+Welcome to fdisk (util-linux 2.27.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Device does not contain a recognised partition table.
+Created a new DOS disklabel with disk identifier 0x7b3200ef.
+
+Command (m for help): n
+Partition type
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended (container for logical partitions)
+Select (default p): e
+Partition number (1-4, default 1): 1
+First sector (2048-468862127, default 2048): &lt;Press Enter&gt;
+Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default 468862127): +32M
+
+Created a new partition 1 of type 'Extended' and of size 32 MiB.
+
+Command (m for help): n
+Partition type
+   p   primary (0 primary, 1 extended, 3 free)
+   l   logical (numbered from 5)
+Select (default p): p
+Partition number (2-4, default 2): 2
+First sector (67584-468862127, default 67584): &lt;Press Enter&gt;
+Last sector, +sectors or +size{K,M,G,T,P} (67584-468862127, default 468862127): +32M
+
+Created a new partition 2 of type 'Linux' and of size 32 MiB.
+
+Command (m for help): n
+Partition type
+   p   primary (1 primary, 1 extended, 2 free)
+   l   logical (numbered from 5)
+Select (default p): p
+Partition number (3,4, default 3): 3
+First sector (133120-468862127, default 133120): &lt;Press Enter&gt;
+Last sector, +sectors or +size{K,M,G,T,P} (133120-468862127, default 468862127): +16M
+
+Created a new partition 3 of type 'Linux' and of size 16 MiB.
+
+Command (m for help): t
+Partition number (1-6, default 6): 3
+Partition type (type L to list all types): 10
+
+Changed type of partition 'Linux' to 'OPUS'.
+
+Command (m for help): n
+Partition type
+   p   primary (2 primary, 1 extended, 1 free)
+   l   logical (numbered from 5)
+Select (default p): p
+
+Selected partition 4
+First sector (165888-468862127, default 165888): &lt;Press Enter&gt;
+Last sector, +sectors or +size{K,M,G,T,P} (165888-468862127, default 468862127): &lt;Press Enter&gt;
+
+Created a new partition 4 of type 'Linux' and of size 223.5 GiB.
+
+Command (m for help): n
+All primary partitions are in use.
+Adding logical partition 5
+First sector (4096-67583, default 4096): &lt;Press Enter&gt;
+Last sector, +sectors or +size{K,M,G,T,P} (4096-67583, default 67583): +16M
+
+Created a new partition 5 of type 'Linux' and of size 16 MiB.
+
+Command (m for help): n
+All primary partitions are in use.
+Adding logical partition 6
+First sector (38912-67583, default 38912): &lt;Press Enter&gt;
+Last sector, +sectors or +size{K,M,G,T,P} (38912-67583, default 67583): &lt;Press Enter&gt;
+
+Created a new partition 6 of type 'Linux' and of size 14 MiB.
+
+Command (m for help): t
+Partition number (1-6, default 6): 6
+Partition type (type L to list all types): 82
+
+Changed type of partition 'OPUS' to 'Linux swap / Solaris'.
+
+Command (m for help): p
+Disk /dev/sdd: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 33553920 bytes
+Disklabel type: dos
+Disk identifier: 0x7b3200ef
+
+Device     Boot  Start       End   Sectors   Size Id Type
+/dev/sdd1         2048     67583     65536    32M  5 Extended
+/dev/sdd2        67584    133119     65536    32M 83 Linux
+/dev/sdd3       133120    165887     32768    16M 10 OPUS
+/dev/sdd4       165888 468862127 468696240 223.5G 83 Linux
+/dev/sdd5         4096     36863     32768    16M 83 Linux
+/dev/sdd6        38912     67583     28672    14M 82 Linux swap / Solaris
+
+Partition table entries are not in disk order.
+
+Command (m for help): w
+The partition table has been altered.
+Calling ioctl() to re-read partition table.
+Synching disks.
+</code></pre></div></div>
+
+<h2 id="create-swap">Create swap</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo mkswap /dev/sdd6
+Setting up swapspace version 1, size = 14 MiB (14675968 bytes)
+no label, UUID=87268e95-7576-449a-b997-ca1e233b82ea
+</code></pre></div></div>
+
+<h2 id="wipe-dynamic-data">Wipe dynamic data</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo dd if=/dev/zero of=/dev/sdd3
+dd: writing to '/dev/sdd3': No space left on device
+32769+0 records in
+32768+0 records out
+16777216 bytes (17 MB, 16 MiB) copied, 0.685017 s, 24.5 MB/s
+</code></pre></div></div>
+
+<h2 id="format-the-music-partition">Format the music partition</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo mkfs.ext2 -t ext2 -v -b4096 -s 1 -i 262144 -m 0 -I 128 /dev/sdd4
+mke2fs 1.42.13 (17-May-2015)
+fs_types for mke2fs.conf resolution: 'ext2'
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=8191 blocks
+915456 inodes, 58587030 blocks
+0 blocks (0.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=4294967296
+1788 block groups
+32768 blocks per group, 32768 fragments per group
+512 inodes per group
+Filesystem UUID: 32a19196-f352-4573-baf1-088e995d7ac8
+Superblock backups stored on blocks:
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+	4096000, 7962624, 11239424, 20480000, 23887872
+
+Allocating group tables: done
+Writing inode tables: done
+Writing superblocks and filesystem accounting information: done
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo tune2fs -c -1 -i0 /dev/sdd4
+tune2fs 1.42.13 (17-May-2015)
+Setting maximal mount count to -1
+Setting interval between checks to 0 seconds
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo mount /dev/sdd4 /mnt
+roger@roger-pc:~ $ sudo mkdir -p /mnt/fids
+roger@roger-pc:~ $ sudo mkdir -p /mnt/var
+roger@roger-pc:~ $ sudo sh -c "echo '[hijack]' &gt; /mnt/var/config.ini"
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo umount /mnt
+</code></pre></div></div>
+
+<h2 id="extract-the-upgrade-file-parts">Extract the <code class="highlighter-rouge">.upgrade</code> file parts</h2>
+
+<p>With Mark Lord’s <code class="highlighter-rouge">upgrader</code> and <code class="highlighter-rouge">car2_v3a11_hijack.upgrade</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ ./upgrader --extract car2_v3a11_hijack.upgrade
+
+/upgrader: Empeg/RioCar Ethernet Upgrade Tool, version 0.95, (c)2003 by Mark Lord
+
+...etc.
+</code></pre></div></div>
+
+<h2 id="write-the-player-software">Write the player software</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ sudo dd if=_dev_hda5 of=/dev/sdd5
+32768+0 records in
+32768+0 records out
+16777216 bytes (17 MB, 16 MiB) copied, 0.699272 s, 24.0 MB/s
+</code></pre></div></div>
+
+<p>With Mark Lord’s <code class="highlighter-rouge">download.c</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ ./download _proc_flash_0c000 0c000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [1100%] erase ok
+Starting program at 0xc000 [100%] program ok
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ ./download _proc_flash_0e000 0e000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [100%] erase ok
+Starting program at 0xe000 [100%] program ok
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ ./download _proc_flash_b0000 b0000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [100%] erase ok
+Starting program at 0xb0000 [100%] program ok
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>roger@roger-pc:~ $ ./download _proc_empeg_kernel 10000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [100%] erase ok
+Starting program at 0x10000 [100%] program ok
+</code></pre></div></div>
+
+<h2 id="put-the-disk-in-the-empeg">Put the disk in the empeg</h2>
+
+<p>…and fire up <em>emplode</em>:</p>
+
+<blockquote>
+  <p>Est. Free Space: 223GB</p>
+</blockquote>
+
+<p>Job done.</p>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

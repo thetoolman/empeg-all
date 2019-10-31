@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Lazy Bastard's Guide to Cloning your empeg</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2002/03/18/lazy-bastards-guide-to-cloning-your-empeg/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Lazy Bastard's Guide to Cloning your empeg</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2002-03-18 07:59:00 +0000">2002-03-18 07:59:00 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <h2 id="problemcontext">Problem/Context</h2>
+
+<ul>
+  <li>You’ve taken advantage of the recent “fire sale” at <a href="http://www.sonicblue.com/">SONICblue</a> to acquire a shiny new empeg. You’d like to clone your existing music collection to it.</li>
+  <li>You didn’t keep the tags up-to-date on your local PC.</li>
+  <li>You don’t have enough disk space to download the contents of your empeg to your local PC – or you do, but can’t be bothered.</li>
+  <li>You can’t get <code class="highlighter-rouge">empegClone</code> to work – your serial numbers are the wrong way round perhaps.</li>
+  <li>You can’t be bothered to install <code class="highlighter-rouge">hijack</code> to get an ftp server – besides, you can’t remember how to get <code class="highlighter-rouge">ftp</code> to not ask you for every file when using <code class="highlighter-rouge">mget</code>, and installing <code class="highlighter-rouge">ncftp</code> on your empeg is a faff.</li>
+  <li>You’ve got a Linux box, or a copy of cygwin.</li>
+  <li>Your new empeg has the same number of disks in it as your old empeg, and they’re the same size or larger. Without this, it gets complicated.</li>
+  <li>You’re a lazy bastard, like me.</li>
+</ul>
+
+<h2 id="before-you-start">Before You Start</h2>
+
+<h3 id="run-fsck-on-the-player">Run fsck on the player</h3>
+
+<p>Before you start, it’s probably worth running fsck on both the source and destination players. This is to ensure that the disks are in a consistent state. To do this, check the instructions in the <a href="http://www.riocar.org/modules.php?op=modload&amp;name=FAQ&amp;file=index&amp;myfaq=yes&amp;id_cat=8&amp;categories=Known+problems+and+troubleshooting+questions#162">FAQ</a> at <a href="http://www.riocar.org/">riocar.org</a>.</p>
+
+<h2 id="solution">Solution</h2>
+
+<h3 id="download-the-arm-binary-of-netcat">Download the ARM binary of netcat</h3>
+
+<p>Go along to <a href="http://ftp.us.debian.org/debian/dists/stable/main/binary-arm/net/">http://ftp.us.debian.org/debian/dists/stable/main/binary-arm/net/</a>, (or your local mirror) and grab a copy of <a href="http://ftp.us.debian.org/debian/dists/stable/main/binary-arm/net/netcat_1.10-12.1.deb">netcat_1.10-12.1.deb</a>.</p>
+
+<h3 id="install-netcat">Install netcat</h3>
+
+<ol>
+  <li>
+    <p><code class="highlighter-rouge">.deb</code> files are just <code class="highlighter-rouge">ar</code> archives, containing a couple of <code class="highlighter-rouge">.tar.gz</code> files, and a tag file. You need to get the “data.tar.gz” file. Do this:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>not-the-empeg:~$ ar p netcat_1.10-12.1.deb data.tar.gz &gt; netcat_1.10-12.1.tar.gz
+</code></pre></div>    </div>
+
+    <p>This extracts the <code class="highlighter-rouge">data.tar.gz</code> file and saves it under a sensible name.</p>
+  </li>
+  <li>
+    <p>Transfer the file that you created above (<code class="highlighter-rouge">netcat_1.10-12.1.tar.gz</code>) using your favourite serial terminal’s ZModem command to <code class="highlighter-rouge">/drive0</code>, then extract the files:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>empeg:/# rwm ; rw
+empeg:/# cd /drive0
+</code></pre></div>    </div>
+
+    <p>(Transfer the file using ZModem)</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>empeg:/drive0# cd /
+empeg:/# tar xvfz drive0/netcat_1.10-12.1.tar.gz
+</code></pre></div>    </div>
+
+    <p>You should see the some files being extracted from the .tar.gz file.</p>
+  </li>
+  <li>
+    <p>Repeat, but for the other empeg.</p>
+  </li>
+</ol>
+
+<p><strong>Note:</strong> For the Linux-challenged amongst you, I’ve put the netcat_1.10-12.1-minimal.tar.gz file <a href="/node/view/227">here</a>. Copy it to the empeg in step 2, above, changing the ‘tar xvfz’ command to suit.</p>
+
+<h3 id="transfer-the-data-files">Transfer the data files</h3>
+
+<ol>
+  <li>
+    <p>Run netcat in “listen mode” on the destination (new) empeg:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dest-empeg:/# cd /drive0
+dest-empeg:/drive0# rwm
+dest-empeg:/drive0# nc -l -p 2999 | tar xvf -
+</code></pre></div>    </div>
+
+    <p>This runs netcat in listen mode, on port 2999, and then sends any output it has through tar, to be extracted.</p>
+  </li>
+  <li>
+    <p>Tar up the files on the source (old) empeg, and send the output to netcat:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>source-empeg:/# cd /drive0
+source-empeg:/drive0# tar cvf - fids foo | nc dest-empeg 2999
+</code></pre></div>    </div>
+
+    <p>This archives the files in <code class="highlighter-rouge">/drive0/fids</code> and uses netcat to send them to the other empeg. Because netcat only exits at end-of-file, we must press Ctrl+C to stop it. So that we know when this is, we add a spurious ‘foo’ to the list of files to be transferred – when tar complains, we’re finished.</p>
+
+    <p>While this process is going on (it’ll take a long time), you should see the filenames go past, like this:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fids/100
+fids/101
+fids/110
+fids/111
+</code></pre></div>    </div>
+
+    <p>If you see anything markedly different, you’ve done something wrong.</p>
+
+    <p>Wait until it’s finished (tar complains about “foo”. Press Ctrl+C on both empegs to stop the transfer. Check that the files were transferred correctly:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dest-empeg:/drive0# ls fids
+</code></pre></div>    </div>
+
+    <p>You should see a lot of filenames whizz past.</p>
+  </li>
+  <li>
+    <p>Repeat, but for <code class="highlighter-rouge">/drive1</code></p>
+  </li>
+</ol>
+
+<h3 id="rebuild-the-database">Rebuild the database</h3>
+
+<ol>
+  <li>
+    <p>On the destination (new) empeg, delete the existing database:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dest-empeg:/# cd /empeg/var
+dest-empeg:/empeg/var# rwm
+dest-empeg:/empeg/var# rm tags database playlists
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Restart the player:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dest-empeg:/empeg/var# exit
+</code></pre></div>    </div>
+
+    <p>Note that we <em>don’t</em> remount the disks read-only. This allows the player to save the database once it has rebuilt it. In order to ensure that the disks are mounted read-only before you yank the power, exit the player (using ‘q’), or run emplode against it.</p>
+  </li>
+  <li>
+    <p>Run emplode against both players. It will rebuild the database.</p>
+  </li>
+</ol>
+
+<h2 id="resulting-context">Resulting Context</h2>
+
+<p>A properly cloned player. Almost. The dynamic data partition (EQ, bookmarks, etc.) isn’t cloned. This should be easy enough, but I’ve got nothing on there that I’m bothered about, so I didn’t bother.</p>
+
+<p>How fast is it? Approximately 1Gb/hour. I cloned 32Gb, it took a little over 32 hours. However, I did this with the ‘z’ option to tar. I’ve updated the page to remove this, because it’s apparently faster without.</p>
+
+<h2 id="more-information">More Information</h2>
+
+<p>You might also want to check out my page on <a href="/blog/2002/03/07/using-rsync-to-synchronise-empegs/">using rsync to clone your empeg</a>.</p>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>
