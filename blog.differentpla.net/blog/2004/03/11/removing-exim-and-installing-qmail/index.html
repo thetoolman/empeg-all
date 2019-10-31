@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Removing exim and installing qmail</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Removing exim and installing qmail</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-11 09:26:00 +0000">2004-03-11 09:26:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>The second part of a multi-part series on installing <a href="../../../../../node/view/165">Installing qmail and vpopmail</a>.</p>
+
+<h2 id="removing-exim">Removing exim</h2>
+
+<p>The first thing to do is to remove exim. Because of Debian’s package management system, you can’t remove exim without installing another package that provides mail-transfer-agent. Because qmail isn’t available as a binary Debian package, this is a little trickier than it needs to be. The answer to this conundrum is in the <code class="highlighter-rouge">equivs</code> package, so we install that:</p>
+
+<pre>apt-get install equivs</pre>
+
+<p>Then, to create the dummy mail-transport-agent package:</p>
+
+<pre># cd /tmp
+# cp /usr/share/doc/equivs/examples/mail-transport-agent.ctl .
+# equivs-build mail-transport-agent.ctl</pre>
+
+<p>This results in a <code class="highlighter-rouge">/tmp/mta-local_1.0_all.deb</code> file being created. We can now install this with <code class="highlighter-rouge">dpkg</code>:</p>
+<pre># dpkg -i /tmp/mta-local_1.0_all.deb</pre>
+
+<p>…which replaces exim with the dummy package.
+Be careful while removing exim, otherwise you might find that you’ve managed to uninstall <code class="highlighter-rouge">at</code>, <code class="highlighter-rouge">cron</code> and a bunch of other stuff.</p>
+
+<h2 id="installing-qmail">Installing qmail</h2>
+
+<p>This is going to be a pure vanilla <a href="http://www.lifewithqmail.org/">Life with qmail</a> installation, so you should head over there and read that now. If I do anything different, I’ll mention it here.</p>
+
+<p>While creating the user IDs, I notice that the <code class="highlighter-rouge">IDS</code> script creates the qmail user accounts with <code class="highlighter-rouge">/bin/bash</code> as a login shell. This ought to be <code class="highlighter-rouge">/bin/true</code>, so I’ve changed it with <code class="highlighter-rouge">vipw</code>.</p>
+
+<p>The <code class="highlighter-rouge">./config</code> script didn’t work, either, so I had to use <code class="highlighter-rouge">config-fast</code>:</p>
+
+<pre>./config-fast flimsy.home.differentpla.net</pre>
+
+<p>I opted for <code class="highlighter-rouge">Maildir</code> delivery, using the LWQ script and <code class="highlighter-rouge">control/defaultdelivery</code>.</p>
+
+<h2 id="aside-configuring-internal-dns">Aside: configuring internal DNS</h2>
+
+<p>The <code class="highlighter-rouge">TEST.deliver</code> file asks that we test local-remote delivery. Unfortunately, this doesn’t work: the MX for <code class="highlighter-rouge">differentpla.net</code> is on my internal network. My router will not correctly forward traffic addressed to it that arrives on its internal interface.</p>
+
+<p>To fix this, I’ve had to configure internal DNS, so that machines on the internal network refer to machines by their internal IP addresses. I have to configure the MX record correctly as well:</p>
+
+<pre>differentpla.net.   IN MX 10 peculiar.differentpla.net.</pre>
+
+<p>To test it:</p>
+<pre>$ nslookup
+&gt; set type=MX
+&gt; differentpla.net</pre>
+
+<h2 id="configuring-pop3">Configuring POP3</h2>
+
+<p>This is done in the same way as given in Life with qmail, so go and read that. I didn’t do anything different.</p>
+
+<p>Next: <a href="../../../../../node/view/167">Installing SMTP AUTH with qmail</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

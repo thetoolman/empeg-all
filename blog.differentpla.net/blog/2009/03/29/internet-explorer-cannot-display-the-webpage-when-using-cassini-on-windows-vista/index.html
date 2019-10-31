@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>"Internet Explorer cannot display the webpage" when using Cassini on Windows Vista</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>"Internet Explorer cannot display the webpage" when using Cassini on Windows Vista</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2009-03-29 09:08:33 +0000">2009-03-29 09:08:33 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I was doing some ASP.NET MVC this weekend, and I couldn’t get the project to start: all I got was “Internet Explorer cannot display the webpage”, when using Visual Studio’s built-in development web server (Cassini).</p>
+
+<p>I think it’s because Cassini doesn’t support IPv6, and on Vista, “localhost” refers to the IPv6 address <code class="highlighter-rouge">::1</code>, rather than the IPv4 address <code class="highlighter-rouge">127.0.0.1</code>.</p>
+
+<p>If you use http://127.0.0.1:12345/Home/, then it works fine.</p>
+
+<p>To resolve this, you can go to the project settings and set the Start URL explicitly.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

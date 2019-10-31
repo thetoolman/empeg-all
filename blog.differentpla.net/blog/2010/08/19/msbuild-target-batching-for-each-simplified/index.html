@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>MSBuild Target Batching (For Each) Simplified</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>MSBuild Target Batching (For Each) Simplified</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2010-08-19 09:44:53 +0000">2010-08-19 09:44:53 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/msbuild">msbuild</a></span>
+        
+    </div>
+    <p></p>
+    <p>It’s actually quite simple:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;Project</span> <span class="na">xmlns=</span><span class="s">"http://schemas.microsoft.com/developer/msbuild/2003"</span> <span class="na">ToolsVersion=</span><span class="s">"4.0"</span> <span class="na">DefaultTargets=</span><span class="s">"Default"</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;ItemGroup&gt;</span>
+      <span class="nt">&lt;ProjectsToPublish</span> <span class="na">Include=</span><span class="s">"AdminConsole\AdminConsole.csproj"</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;ProjectsToPublish</span> <span class="na">Include=</span><span class="s">"AdminService\AdminService.csproj"</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;/ItemGroup&gt;</span>
+
+   <span class="nt">&lt;Target</span> <span class="na">Name=</span><span class="s">"Default"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;CallTarget</span> <span class="na">Targets=</span><span class="s">"PublishProjectOutput"</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;/Target&gt;</span>
+
+   <span class="nt">&lt;Target</span> <span class="na">Name=</span><span class="s">"PublishProjectOutput"</span> <span class="na">Inputs=</span><span class="s">"@(ProjectsToPublish)"</span> <span class="na">Outputs=</span><span class="s">"%(Identity).Dummy"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;Message</span> <span class="na">Text=</span><span class="s">"@(ProjectsToPublish)"</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;/Target&gt;</span>
+<span class="nt">&lt;/Project&gt;</span>
+</code></pre></div></div>
+
+<p>We set up an item group containing the items that we’d like to process. Our “Default” target is just to demonstrate that we don’t need to do anything clever with <code class="highlighter-rouge">CallTarget</code>.</p>
+
+<p>In order to get MSBuild to run the <code class="highlighter-rouge">PublishProjectOutput</code> target for each item in the item group, the necessary magic is in the <code class="highlighter-rouge">Inputs</code> and <code class="highlighter-rouge">Outputs</code> stuff. The trick is that the value in <code class="highlighter-rouge">Outputs</code> is the item <strong>metadata</strong> of the value in <code class="highlighter-rouge">Inputs</code>. That is: <code class="highlighter-rouge">%(Identity)</code> is actually treated as if it was <code class="highlighter-rouge">%(ProjectsToPublish.Identity)</code>. MSBuild batches where the metadata values match. Since <code class="highlighter-rouge">Identity</code> is unique, each batch will contain a single item, giving us the “for each” behaviour we’re looking for.</p>
+
+<p>In order to get MSBuild to run the target <em>at all</em>, we need to specify the output <em>files</em> that will be generated. If we were to specify just <code class="highlighter-rouge">%(Identity)</code>, MSBuild would decide that the outputs were up-to-date and would skip the target. So we dirty up the output by adding a fake extension to the filename. What this is doesn’t particularly matter. <code class="highlighter-rouge">%(Identity).Quack</code> would work just as well (as long as you don’t habitually have files called <code class="highlighter-rouge">Foo.csproj.Quack</code>, of course).</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

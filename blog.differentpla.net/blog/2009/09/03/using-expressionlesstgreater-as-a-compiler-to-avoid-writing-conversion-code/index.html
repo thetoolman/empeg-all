@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using Expression<T> as a Compiler, to avoid writing conversion code</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using Expression<T> as a Compiler, to avoid writing conversion code</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2009-09-03 15:22:33 +0000">2009-09-03 15:22:33 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Marc Gravell wrote about [using Expression<T> as a compiler](http://www.infoq.com/articles/expression-compiler). It was a bit of an eye-opener.</T></p>
+
+<p>There’s a bit in it where he says:</p>
+
+<blockquote>
+  <p>A similar approach [to using Expression for shallow cloning an object] might be used, for example, to map data between DTO entities and entity objects…</p>
+</blockquote>
+
+<p>Say no more:</p>
+
+<pre>    static class Conversion&lt;TInput, TOutput&gt;
+    {
+        private static readonly Func&lt;TInput, TOutput&gt; Converter;
+
+        static Conversion()
+        {
+            Converter = CreateConverter();
+        }
+
+        public static Func&lt;TInput, TOutput&gt; CreateConverter()
+        {
+            var input = Expression.Parameter(typeof(TInput), "input");
+
+            // For each property that exists in the destination object, is there a property with the same name in the source object?
+            var destinationProperties = typeof(TOutput)
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(prop =&gt; prop.CanWrite);
+            var sourceProperties = typeof(TInput)
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(prop =&gt; prop.CanRead);
+
+            var memberBindings = sourceProperties.Join(destinationProperties,
+                sourceProperty =&gt; sourceProperty.Name,
+                destinationProperty =&gt; destinationProperty.Name,
+                (sourceProperty, destinationProperty) =&gt;
+                    (MemberBinding)Expression.Bind(destinationProperty,
+                        Expression.Property(input, sourceProperty)));
+
+            var body = Expression.MemberInit(Expression.New(typeof(TOutput)), memberBindings);
+            var lambda = Expression.Lambda&lt;Func&lt;TInput, TOutput&gt;&gt;(body, input);
+            return lambda.Compile();
+        }
+
+        public static TOutput From(TInput input)
+        {
+            return Converter(input);
+        }
+    }</pre>
+
+<p>Use it like this:</p>
+
+<pre>    CustomerDto customerDto = CustomerService.GetCustomerById(1);
+    Customer customer = Conversion&lt;CustomerDto, Customer&gt;.From(customerDto);</pre>
+
+<p>I also threw a fluent interface together as well…</p>
+
+<pre>    static class Conversion
+    {
+        internal class ConversionFrom<TInput>
+        {
+            private readonly TInput _input;
+
+            public ConversionFrom(TInput input)
+            {
+                _input = input;
+            }
+
+            public TOutput To<TOutput>()
+            {
+                return Conversion&lt;TInput, TOutput&gt;.From(_input);
+            }
+        }
+
+        internal class ConversionTo<TOutput>
+        {
+            public TOutput From<TInput>(TInput input)
+            {
+                return Conversion&lt;TInput, TOutput&gt;.From(input);
+            }
+        }
+
+        public static ConversionFrom<TInput> From<TInput>(TInput input)
+        {
+            return new ConversionFrom<TInput>(input);
+        }
+
+        public static ConversionTo<TOutput> To<TOutput>()
+        {
+            return new ConversionTo<TOutput>();
+        }
+    }&lt;/pre&gt;
+
+Use it like this:
+
+<pre>Customer customer = Conversion.From(customerDto).To<Customer>();&lt;/pre&gt;
+
+...or like this:
+
+<pre>Customer customer = Conversion.To<Customer>().From(customerDto);&lt;/pre&gt;
+</Customer></pre></Customer></pre></TOutput></TOutput></TOutput></TInput></TInput></TInput></TInput></TOutput></TOutput></TInput></pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

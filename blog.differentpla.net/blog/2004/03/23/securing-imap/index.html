@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Securing IMAP</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Securing IMAP</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-23 11:39:00 +0000">2004-03-23 11:39:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Part 12 of <a href="../../../../../node/view/165">Installing qmail and vpopmail</a>. This article talks about configuring secure IMAP.</p>
+
+<p>BincIMAP supports IMAPS for communication. It can either do this if you compile in SSL support, or if you use an SSL tunnel, such as <a href="http://www.stunnel.org/">stunnel</a> or <a href="http://www.superscript.com/ucspi-ssl/intro.html">ucspi-ssl</a>.</p>
+
+<p>I’m going to use the built-in SSL support. This got included when I <a href="../../../../../node/view/171">installed BincIMAP earlier</a>. To make it work, you need to create a <code class="highlighter-rouge">/etc/opt/bincimap/bincimap.pem</code> file containing your server key and server certificate. Since you’ll have already generated a key and certificate for <a href="../../../../../node/view/179">using with SquirrelMail</a>, you can just use this:</p>
+
+<pre># cat /etc/apache/ssl.key/server.key /etc/apache/ssl.crt &gt; /etc/opt/bincimap/bincimap.pem
+# chmod 400 /etc/opt/bincimap/bincimap.pem</pre>
+
+<p>Now you can configure your email client to require secure IMAP connections. In Outlook XP, you can just check the box marked “This server requires an SSL-secured connection (SSL):</p>
+
+<p><img src="http://blog.differentpla.net/images/a470728f1b7c8c6154cbf7bc74425fdd-191.png" alt="" /></p>
+
+<p>And it’ll just work.</p>
+
+<h2 id="ssl-certificates-common-names">SSL Certificates: Common Names</h2>
+
+<p>When we created the certificate for <code class="highlighter-rouge">flimsy</code>, the common name used was <code class="highlighter-rouge">flimsy.home.differentpla.net</code>. Connections to anything else will result in a “The name on the security certificate is invalid or does not match the name of the site” error, or words to that effect.</p>
+
+<p>This could cause some problems: webmail users will typically be connecting to <code class="highlighter-rouge">www.somewhere.com</code>. This looks a bit daft for IMAP users. They’d rather connect to <code class="highlighter-rouge">imap.somewhere.com</code> or <code class="highlighter-rouge">mail.somewhere.com</code>.</p>
+
+<p>If you plunk down more cash, you can buy what’s called a <a href="http://www.sslreview.com/content/wildcard-ssl.html">wildcard certificate</a>.</p>
+
+<p>It doesn’t appear that you can generate self-signed wildcard certificates, so we’ll just have to create two certificates: one for HTTPS and one for IMAPS:</p>
+
+<pre>$ openssl genrsa -out www.differentpla.test.key 1024
+$ openssl req -new -key www.differentpla.test.key -out www.differentpla.test.csr
+$ openssl genrsa -out imap.differentpla.test.key 1024
+$ openssl req -new -key imap.differentpla.test.key -out imap.differentpla.test.csr</pre>
+
+<p>Then send those off to be signed, or sign them with your own CA.</p>
+
+<p>When they come back, install them as you did before, but this time, you’ll keep the HTTPS and IMAPS certificates separate.</p>
+
+<p><strong>Important:</strong> Remember that they’re not protected with a passphrase, so make sure that they’re readable only by <code class="highlighter-rouge">root</code>.</p>
+
+<p>Now, users should be able to connect to <code class="highlighter-rouge">imap.differentpla.test</code> using IMAPS, be presented with no warning messages and be able to bask in the warm feeling of secure IMAP.</p>
+
+<p>Next: <a href="../../../../../node/view/196">Securing SMTP</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

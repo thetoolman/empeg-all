@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Constructing a Medium-sized Project with Jam</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Constructing a Medium-sized Project with Jam</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-01-09 10:27:00 +0000">2004-01-09 10:27:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="introduction">Introduction</h2>
+
+<p>Jam is a replacement for <code class="highlighter-rouge">make(1)</code>. See <a href="http://www.perforce.com/jam/jam.html">here</a> for more details.</p>
+
+<p>I’m attempting to use jam to build our Windows code, but in order to keep the scale of this discussion down, I’m just going to explain the aspects of our codebase that caused difficulty, and then I’m going to fake them up in a mock build tree. This will enable me to explain things in isolation.</p>
+
+<h2 id="introduction-1">Introduction</h2>
+
+<ul>
+  <li><a href="../building-jam-on-windows-nt/index.html">Building jam on Windows NT</a>.</li>
+</ul>
+
+<h2 id="tutorial">Tutorial</h2>
+
+<p>I’ve written this article in the form of a tutorial, because I think better when trying to formulate reproducible instructions for this kind of thing.</p>
+
+<ul>
+  <li><a href="../../../../2001/07/14/building-an-mfc-application-with-jam/index.html">Building an MFC program</a>.</li>
+  <li><a href="../../../../2001/07/04/building-shared-libraries-dlls/index.html">Building a shared library (DLL)</a>.</li>
+  <li><a href="http://blog.differentpla.net/drupal-4.7.3/tutorial/sub_dir/">Bringing it together with the SubDir rule</a>.</li>
+  <li><a href="http://blog.differentpla.net/drupal-4.7.3/tutorial/link_dll/">Linking with a shared library</a>.</li>
+  <li><a href="http://blog.differentpla.net/drupal-4.7.3/tutorial/static_lib/">Building (and linking with) static libraries</a>.</li>
+  <li><a href="http://blog.differentpla.net/content/2004/01/jam-resource-file-dependencies">Resource script dependencies</a>.</li>
+  <li><a href="../../../../2002/02/01/jam-separate-releasedebug-target-directories/index.html">Separate Debug/Release directories</a>.</li>
+</ul>
+
+<h2 id="other-stuff">Other Stuff</h2>
+
+<ul>
+  <li><a href="../conflicting-lib-target/index.html">Conflicting ‘lib’ target</a>.</li>
+  <li><a href="../linker-command-line-length/index.html">Linker command line length</a>.</li>
+</ul>
+
+<h2 id="miscellaneous">Miscellaneous</h2>
+
+<p>This is some stuff I wrote earlier. I’m going to try to factor it into the main discussion, but for now, you can find it here:</p>
+
+<ul>
+  <li><a href="../../../07/04/jam-linking-with-system-libraries/index.html">Linking with system libraries</a>.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

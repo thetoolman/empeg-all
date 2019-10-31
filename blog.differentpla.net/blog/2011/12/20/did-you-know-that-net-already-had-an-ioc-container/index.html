@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Did you know that .NET already had an IoC container?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Did you know that .NET already had an IoC container?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2011-12-20 16:30:49 +0000">2011-12-20 16:30:49 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Talking to <a href="https://twitter.com/#!/ptrelford">@ptrelford</a> at the <a href="http://www.codemanship.co.uk/">TDD &amp; Refactoring workshop</a> run by <a href="https://twitter.com/#!/jasongorman">Jason Gorman</a>, Phil mentioned that he’d implemented a really simple IoC container in F#. “But there’s a really simple one already built into .NET” says I…</p>
+
+<p>In <code class="highlighter-rouge">System.ComponentModel.Design</code>, you can find the <code class="highlighter-rouge">IServiceContainer</code> and <code class="highlighter-rouge">IServiceProvider</code> interfaces along with the <code class="highlighter-rouge">ServiceContainer</code> implementation. It’s really easy to use:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>IServiceContainer container = new ServiceContainer();
+container.AddService(typeof(IRepository), (c, type) =&gt; new NHibernateRepository());
+container.AddService(typeof(IEmailSender), (c, type) =&gt; new SmtpEmailSender());
+container.AddService(typeof(LoginController),
+    (c, type) =&gt;
+        new LoginController(
+             (IRepository)c.GetService(typeof(IRepository)),
+             (IEmailSender)c.GetService(typeof(IEmailSender))));
+
+LoginController controller = (LoginController)container.GetService(typeof(LoginController));
+</code></pre></div></div>
+
+<p>Done. IoC container in zero lines of code. Take that <a href="http://ayende.com/blog/2886/building-an-ioc-container-in-15-lines-of-code">Ayende</a> :-)</p>
+
+<p>Of course, this can be cleaned up with some extension methods:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static class ServiceContainerExtensions
+{
+   public static void AddService&lt;T&gt;(this IServiceContainer container, Func&lt;IServiceProvider, T&gt; factory)
+   {
+      container.AddService(typeof(T), (c, type) =&gt; factory(c));
+   }
+}
+
+public static class ServiceProviderExtensions
+{
+   public static T GetService&lt;T&gt;(this IServiceProvider provider)
+   {
+      return (T)provider.GetService(typeof(T));
+   }
+}
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="original-comments">Original Comments</h3>
+
+<p>Mark Seemann:</p>
+
+<p><em>ServiceContainer isn’t a DI Container - it doesn’t do composition or lifetime
+management, which must be regarded as an absolutely essential minimal feature
+set before we can call anything a DI Container.</em></p>
+
+<p><em>In fact, it’s totally useless in relation to DI because the only thing you do
+with it is to use it as a <a href="http://blog.ploeh.dk/2010/02/03/ServiceLocatorIsAnAntiPattern.aspx">Service
+Locator</a>.</em></p>
+
+<p>Roger:</p>
+
+<p><em>It’s definitely more than just a service locator. For me the service locator
+anti-pattern is about handing around the <code class="highlighter-rouge">IServiceProvider</code> as a kind of bag of
+holding. You don’t know what’s in there, and you don’t know what people are
+going to pull out of it.</em></p>
+
+<p><em>In this case, you don’t need to pass the <code class="highlighter-rouge">IServiceProvider</code> around the system,
+because you can simply pull out the root service that you require at program
+kick-off.  Composition and wiring is then dealt with in the registration steps
+(in the factory passed to <code class="highlighter-rouge">AddService</code>.</em></p>
+
+<p><em>Yeah, it’s not auto-wiring (which isn’t that hard to add, really, and I’ve
+already got a 15 line head start on Ayende).</em></p>
+
+<p><em>And, no, it doesn’t do lifetime management, in the sense that you can’t
+release  services when you’re done with them. Nor does it do lifestyle
+management – everything’s a singleton (w.r.t. the particular container) – and
+there’s no thread (or session) affinity.</em></p>
+
+<p><em>I contend that it’s still a DI Container – it contains things, and lets you
+inject them as dependencies.</em></p>
+
+<p><em>Not a tremendously useful one, though.</em></p>
+
+<hr />
+
+<h3 id="auto-wiring">Auto-wiring</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static void AddType&lt;TService, TConcrete&gt;(this IServiceContainer container)
+{
+   container.AddService(typeof(TService),
+      (c, type) =&gt;
+      {
+         object[] args = ResolveConstructorArguments&lt;TConcrete&gt;(c);
+         return Activator.CreateInstance(typeof(TConcrete), args);
+      });
+}
+
+public static void AddType&lt;TConcrete&gt;(this IServiceContainer container)
+{
+   container.AddService(typeof(TConcrete),
+      (c, type) =&gt;
+      {
+         object[] args = ResolveConstructorArguments&lt;TConcrete&gt;(c);
+         return Activator.CreateInstance(typeof(TConcrete), args);
+      });
+}
+
+private static object[] ResolveConstructorArguments&lt;T&gt;(IServiceContainer container)
+{
+   var constructor = typeof (T).GetConstructors().First();
+
+   var arguments = new List&lt;object&gt;();
+   var parameters = constructor.GetParameters();
+   foreach (var parameter in parameters)
+   {
+      arguments.Add(container.GetService(parameter.ParameterType));
+   }
+
+   return arguments.ToArray();
+}
+</code></pre></div></div>
+
+<p><em>Edited to add:</em> I should be totally clear here. This is meant as an
+educational (even tongue-in-cheek) example. <strong>Don’t use it in production</strong>.
+Mark’s comments are totally valid (even though I’m going to argue
+semantics). Use <a href="http://www.hanselman.com/blog/ListOfNETDependencyInjectionContainersIOC.aspx">something – anything –
+else</a>.
+Please.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

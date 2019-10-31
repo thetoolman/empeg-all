@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Creating ZIP files in Erlang</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Creating ZIP files in Erlang</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-03-05 16:30:57 +0000">2014-03-05 16:30:57 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+    </div>
+    <p></p>
+    <p>It’s pretty simple to create a ZIP file on disk.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Name = "foo.zip".
+{ok, FileName} = zip:create(Name, ["foo.txt"]).
+</code></pre></div></div>
+
+<p>What if you want to create a ZIP file completely in memory? Also pretty simple:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Files = [{"foo.txt", &lt;&lt;"Contents of foo"&gt;&gt;},
+         {"bar.txt", &lt;&lt;"Contents of bar"&gt;&gt;}].
+{ok, {"mem", ZipBin}} = zip:create("mem", Files, [memory]).
+</code></pre></div></div>
+
+<p>Then, if you want to write <em>that</em> to a file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>file:write_file("foobar.zip", ZipBin).
+</code></pre></div></div>
+
+<p>Why would you want to do this? Well, you might be creating an escript:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>escript:create('binary', [shebang, {archive, ZipBin}]).
+</code></pre></div></div>
+
+<p>Note that you need a module named for the script that exports a <code class="highlighter-rouge">main</code>
+function, as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-export([main/1]).
+main(Args) -&gt;
+    % Whatever.
+    ok.
+</code></pre></div></div>
+
+<p>To clarify that last bit: if your script is named “awesome”, escript will look
+for an entry point named <code class="highlighter-rouge">awesome:main/1</code>.</p>
+
+<p>This has the useful side-effect that you can copy (or symlink) the script to
+different names and use different entry points.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

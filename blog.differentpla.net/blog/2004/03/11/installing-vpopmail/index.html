@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing vpopmail</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing vpopmail</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-11 09:33:00 +0000">2004-03-11 09:33:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Part 4 of <a href="../../../../../node/view/165">Installing qmail and vpopmail</a>.</p>
+
+<h2 id="installing-vpopmail">Installing vpopmail</h2>
+
+<p>vpopmail is available from <a href="http://www.inter7.com/vpopmail.html">http://www.inter7.com/vpopmail.html</a>. The latest version available at the time of this article was 5.4.0, so I grabbed that.</p>
+
+<p>Installation proceeded exactly as laid out in the INSTALL file:</p>
+
+<pre># groupadd -g 89 vchkpw
+# useradd -g vchkpw -u 89 vpopmail
+# mkdir -p /home/vpopmail
+# chown vpopmail.vchkpw /home/vpopmail
+# cd /usr/local/src/vpopmail-5.4.0
+# ./configure
+# make
+# make install-strip</pre>
+
+<h2 id="configuring-the-first-virtual-domain">Configuring the first virtual domain</h2>
+
+<p>As mentioned above, <code class="highlighter-rouge">peculiar</code> handles the email for a bunch of different domains. I’d like to configure each one of these as a different virtual domain. In order to mirror the real system, these are:</p>
+
+<ul>
+  <li>differentpla.test (for differentpla.net)</li>
+  <li>beerology.test (for beerology.net)</li>
+</ul>
+
+<p>Adding the first domain is easy:</p>
+
+<pre># cd /home/vpopmail/bin
+# ./vadddomain beerology.test</pre>
+
+<p>It’ll prompt for the postmaster password. For now, I’ll just use “password”. I’ll be using something more secure on the live system.</p>
+<h2 id="configuring-the-first-virtual-user">Configuring the first virtual user</h2>
+
+<p>Adding the first user is also easy:</p>
+
+<pre># cd /home/vpopmail/bin
+# ./vadduser roger@beerology.test password</pre>
+
+<p>Again, I’m using “password” as the password.</p>
+<h2 id="configuring-internal-dns">Configuring internal DNS</h2>
+
+<p>Rather than break my existing setup, I’m going to tweak my internal DNS to point some fake domains at the test box. In /etc/bind/named.conf:</p>
+
+<pre>// Test domains go here
+
+zone "beerology.test" {
+        type master;
+        file "/etc/bind/db.beerology.test";
+};
+</pre>
+
+<p>In /etc/bind/db.beerology.test:</p>
+
+<pre>@       IN      SOA     vague.differentpla.net hostmaster.differentpla.net. (
+                        200403101       ; serial, todays date+todays serial
+                        7200            ; refresh, seconds
+                        7200            ; retry, seconds
+                        3600000         ; expire, seconds
+                        86400 )         ; minimum, seconds
+
+                NS      vague.differentpla.net.
+
+flimsy          A       192.168.0.6
+
+beerology.test. IN MX 10 flimsy.beerology.test.</pre>
+
+<p>Then we can restart bind and test it:</p>
+
+<pre># /etc/init.d/bind stop
+# /etc/init.d/bind start
+# nslookup
+&gt; flimsy.beerology.test
+Server:         192.168.0.2
+Address:        192.168.0.2#53
+
+Name:   flimsy.beerology.test
+Address: 192.168.0.6
+&gt; set type=MX
+&gt; beerology.test
+Server:         192.168.0.2
+Address:        192.168.0.2#53
+
+beerology.test  mail exchanger = 10 flimsy.beerology.test.</pre>
+
+<h2 id="testing-it">Testing it</h2>
+
+<p>So, with vpopmail installed and configured and with DNS configured correctly, I can send an email from my normal address to roger@beerology.test. It turns up in <code class="highlighter-rouge">/home/vpopmail/domains/beerology.test/roger/Maildir</code> correctly. Hurrah!</p>
+
+<h2 id="pop3-with-vpopmail">POP3 with vpopmail</h2>
+
+<p>Now to configure POP3 access. Again, this is explained in the vpopmail INSTALL file. My <code class="highlighter-rouge">/var/qmail/supervise/qmail-pop3d/run</code> file looks like this:</p>
+
+<pre>#!/bin/sh
+FQDN=`hostname`.`dnsdomainname`
+exec /usr/local/bin/softlimit -m 3000000 \
+    /usr/local/bin/tcpserver -v -R -H -l 0 0 110 \
+    /var/qmail/bin/qmail-popup $FQDN \
+    /home/vpopmail/bin/vchkpw \
+    /var/qmail/bin/qmail-pop3d Maildir 2&gt;&amp;1</pre>
+
+<p>To test that from Outlook Express, I set up another account as follows:</p>
+
+<table border="1">
+<tbody>
+<tr>
+<td>Display Name:</td>
+
+<td>Roger Lipscombe</td>
+
+</tr>
+
+<tr>
+<td>Email Address:</td>
+
+<td>roger@beerology.test</td>
+
+</tr>
+
+<tr>
+<td>POP3 Server:</td>
+
+<td>flimsy.beerology.test</td>
+
+</tr>
+
+<tr>
+<td>SMTP Server:</td>
+
+<td>flimsy.beerology.test</td>
+
+</tr>
+
+<tr>
+<td>User ID:</td>
+
+<td>roger@beerology.test</td>
+
+</tr>
+
+<tr>
+<td>Password:</td>
+
+<td>password</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<p>A quick push of the “Send/Receive” button and the message that I sent earlier arrives in my Inbox!</p>
+
+<h2 id="smtp-auth-with-vpopmail">SMTP AUTH with vpopmail</h2>
+
+<p>To use <code class="highlighter-rouge">vchkpw</code> for checking passwords for SMTP AUTH, I had to change my <code class="highlighter-rouge">/var/qmail/supervise/qmail-smtpd/run</code> file, replacing <code class="highlighter-rouge">/bin/checkpassword</code> with <code class="highlighter-rouge">/home/vpopmail/bin/vchkpw</code>.</p>
+
+<p>So that vchkpw can access the password database, I changed the account which qmail-smtpd runs under:</p>
+
+<pre>#!/bin/sh
+
+# QMAILDUID=`id -u qmaild`
+# NOFILESGID=`id -g qmaild`
+VPOPUID=`id -u vpopmail`
+VPOPGID=`id -g vpopmail`
+MAXSMTPD=`cat /var/qmail/control/concurrencyincoming`
+LOCAL=`head -1 /var/qmail/control/me`
+
+if [ -z "$VPOPUID" -o -z "$VPOPGID" -o -z "$MAXSMTPD" -o -z "$LOCAL" ]; then
+    echo VPOPUID, VPOPGID, MAXSMTPD or LOCAL is unset in
+    echo /var/qmail/supervise/qmail-smtpd/run
+    exit 1
+fi
+
+if [ ! -f /var/qmail/control/rcpthosts ]; then
+    echo "No /var/qmail/control/rcpthosts!"
+    echo "Refusing to start SMTP listener because it'll create an open relay"
+    exit 1
+fi
+
+exec /usr/local/bin/softlimit -m 3000000 \
+    /usr/local/bin/tcpserver -v -R -l "$LOCAL" -x /etc/tcp.smtp.cdb \
+        -c "$MAXSMTPD" -u "$VPOPUID" -g "$VPOPGID" 0 smtp \
+        /var/qmail/bin/qmail-smtpd \
+        /home/vpopmail/bin/vchkpw \
+        /bin/true 2&gt;&amp;1</pre>
+
+<p>Testing with Outlook Express shows that this works.</p>
+
+<h2 id="adding-another-domain">Adding another domain</h2>
+
+<p>To test that the accounts truly are separate, I configured another domain, this one <code class="highlighter-rouge">differentpla.test</code>, similarly to the above. Nothing exciting happened; it just worked.</p>
+
+<p>Next: <a href="../../../../../node/view/171">Installing BincIMAP</a></p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

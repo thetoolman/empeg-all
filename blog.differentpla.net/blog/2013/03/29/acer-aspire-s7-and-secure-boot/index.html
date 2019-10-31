@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Acer Aspire S7 and Secure Boot</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Acer Aspire S7 and Secure Boot</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-03-29 13:59:28 +0000">2013-03-29 13:59:28 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I just bought myself a shiny new Acer Aspire S7-391, with a view towards nuking Windows 8 and to install Linux Mint on it. Stupidly, I didn’t consider that Windows 8 logo certification now requires a UEFI BIOS and Secure Boot.</p>
+
+<p>Fortunately, on the S7, Secure Boot is disabled by default.</p>
+
+<p>You can verify this by pressing F2 (Fn+2) when the laptop boots up. When you get into the BIOS setup screen, and go to the “Boot” page, you’ll see that “Secure Boot” is set to “Disabled”.</p>
+
+<p><em>Note that the S7 puts the function keys F1-F12 on the same keys as the numbers. You have to press Fn+1 for F1, Fn+2 for F2, etc.</em></p>
+
+<p>If, for some reason, you want to enable Secure Boot, you need to first set a supervisor password: on the “Security” page, select “Set Supervisor Password” and press Enter. The password can be up to 8 characters (A-Za-z0-9). You’ll be prompted for this password every time you enter the BIOS configuration screen in future. Make sure you remember what it is, since you get 3 attempts before bricking the laptop.</p>
+
+<p>Once you’ve set a supervisor password, you can go to the “Boot” page and set “Secure Boot” to “Enabled”. After you do this, the “Security” page will allow you to configure the Secure Boot parameters.</p>
+
+<p>That said, I’ve not attempted to install Linux Mint just yet – I thought I’d try Windows 8 for a few days first.</p>
+
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

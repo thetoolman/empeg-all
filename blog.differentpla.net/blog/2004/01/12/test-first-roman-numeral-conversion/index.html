@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Test First: Roman Numeral Conversion</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Test First: Roman Numeral Conversion</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-01-12 12:07:00 +0000">2004-01-12 12:07:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Question: Everyone “knows” that you should write a decimal to Roman number
+converter using a table. What happens if you try it test-first?</p>
+
+<p>A while ago someone on the <a href="http://groups.yahoo.com/group/extremeprogramming/">Extreme Programming (XP) mailing
+list</a> asked if it was
+possible to write a Roman numeral conversion program using TFD (or TDD). I
+tried it. Here’s what happened.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/* toroman.cpp - convert decimal to Roman numerals.
+ * Roman numerals are I=1; V=5; X=10; L=50; C=100; D=500; M=1000
+ */
+
+int main(void)
+{
+    assert(toRoman(1) == "I");
+    return 0;
+}
+</code></pre></div></div>
+
+<p>Not surprisingly, this piece of code doesn’t compile. The compiler doesn’t know
+what assert or toRoman are. We’ll add some code to fix this.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/* toroman.cpp - convert decimal to Roman numerals.
+ * Roman numerals are I=1; V=5; X=10; L=50; C=100; D=500; M=1000
+ */
+
+#include &lt;assert.h&gt;
+std::string toRoman(int n);
+
+int main(void)
+{
+    assert(toRoman(1) == "I");
+    return 0;
+}
+</code></pre></div></div>
+
+<p>This doesn’t compile either. I forgot to include the <string> header file.
+Better fix that...</string></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;assert.h&gt;
+#include &lt;string&gt;
+</code></pre></div></div>
+
+<p>This time it compiles, but fails to link. I don’t actually have a function
+called <code class="highlighter-rouge">toRoman()</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    return "I";
+}
+</code></pre></div></div>
+
+<p>This passes the first test case, despite the code being as simple as you like.
+We’d better add another test case.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int main(void)
+{
+    assert(toRoman(1) == "I");
+    assert(toRoman(2) == "II");
+
+    return 0;
+}
+</code></pre></div></div>
+
+<p>This fails the second test case, so we’ll add some code to handle this.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int main(void)
+{
+    assert(toRoman(0) == "");
+    assert(toRoman(1) == "I");
+    assert(toRoman(2) == "II");
+
+    return 0;
+}
+
+std::string toRoman(int n)
+{
+    if (n == 1)
+        return "I";
+    else if (n == 2)
+        return "II";
+
+    return "";
+}
+</code></pre></div></div>
+
+<p>This passes all the test cases. Because I added some code rather than have a
+dangling <code class="highlighter-rouge">if</code>/<code class="highlighter-rouge">else</code>, I added a test case for it. Since it passes, it’s time to
+add another test.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(0) == "");
+assert(toRoman(1) == "I");
+assert(toRoman(2) == "II");
+assert(toRoman(3) == "III");
+</code></pre></div></div>
+
+<p>Unsurprisingly this fails. We’ll add some code to handle it.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    if (n == 1)
+        return "I";
+    else if (n == 2)
+        return "II";
+    else if (n == 3)
+        return "III";
+
+    return "";
+}
+</code></pre></div></div>
+
+<p>All of the tests pass, so we’ll try a little refactoring:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+    while (n--)
+        r += "I";
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>To check that we’ve not broken anything, we run the tests again. Since they all
+pass, we know that we’ve not broken anything. So we’ll add another test case.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(4) == "IV");
+</code></pre></div></div>
+
+<p>This fails, so we’ll add some code to handle this case.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    if (n &lt;= 3)
+    {
+        while (n--)
+            r += "I";
+    }
+    else
+    {
+        r = "IV";
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>Despite being the most worthless code ever, this works. We’re happy with it.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(5) == "V");
+</code></pre></div></div>
+
+<p>This needs the following changes in order to pass:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 4)
+{
+    r = "IV";
+}
+**else if (n == 5)
+{
+    r = "V";
+}**
+
+return r; }
+</code></pre></div></div>
+
+<p>This works for all test cases. I think I’ve spotted a possible refactoring that
+will help me pass the next couple of test cases, so I’ll add the tests now.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(6) == "VI");
+assert(toRoman(7) == "VII");
+assert(toRoman(8) == "VIII");
+</code></pre></div></div>
+
+<p>Not surprisingly, that doesn’t work. We’ll add some more code.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    if (n &lt;= 3)
+    {
+        while (n--)
+            r += "I";
+    }
+    else if (n == 4)
+    {
+        r = "IV";
+    }
+    else if (n &gt;= 5)
+    {
+        r = "V";
+        n -= 5;
+        while (n--)
+            r += "I";
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>That works. We’re kinda in violation of
+<a href="http://www.c2.com/cgi/wiki?OnceAndOnlyOnce">OAOO</a> with the <code class="highlighter-rouge">while (n--)</code> loop,
+but we’ll leave it alone for the moment. We’ll see where the code takes us.
+Time to add some more tests.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(9) == "IX");
+assert(toRoman(10) == "X");
+</code></pre></div></div>
+
+<p>Running the program reveals (perhaps unsurprisingly) that these new tests fail.
+We’ll add some special-case code for now.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    if (n &lt;= 3)
+    {
+        while (n--)
+            r += "I";
+    }
+    else if (n == 4)
+    {
+        r = "IV";
+    }
+    else if (n == 9)
+    {
+        r = "IX";
+    }
+    else if (n == 10)
+    {
+        r = "X";
+    }
+    else if (n &gt;= 5)
+    {
+        r = "V";
+        n -= 5;
+        while (n--)
+            r += "I";
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>The tests pass. I can’t see a good refactoring for this yet, so we’ll add some
+more tests.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(11) == "XI");
+assert(toRoman(12) == "XII");
+assert(toRoman(13) == "XIII");
+</code></pre></div></div>
+
+<p>They fail. Let’s try this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// replace n == 10 clause
+else if (n &gt;= 10)
+{
+    r = "X";
+    n -= 10;
+    while (n--)
+        r += "I";
+}
+</code></pre></div></div>
+
+<p>Yeah, that works. It’s starting to show some kind of pattern. Time for some
+more tests.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(14) == "XIV");
+assert(toRoman(15) == "XV");
+assert(toRoman(16) == "XVI");
+assert(toRoman(17) == "XVII");
+assert(toRoman(18) == "XVIII");
+assert(toRoman(19) == "XIX");
+assert(toRoman(20) == "XX");
+</code></pre></div></div>
+
+<p>The code that makes 14 work is showing a different pattern - it looks quite a
+lot like the code for 4 and 9:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 9)
+{
+    r = "IX";
+}
+// add this
+else if (n == 14)
+{
+    r = "XIV";
+}
+else if (n &gt;= 10)
+</code></pre></div></div>
+
+<p>15 still doesn’t work. Now, these are very similar to the cases for 1,2,3 and 5,6,7. I’ll code it up like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 14)
+{
+    r = "XIV";
+}
+else if (n &gt;= 15)
+{
+    r = "XV";
+    n -= 15;
+    while (n--)
+        r += "I";
+}
+else if (n &gt;= 10)
+</code></pre></div></div>
+
+<p>This is getting a little ugly. Can I factor the last 3 into something?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    if (n &lt;= 3)
+    {
+        while (n--)
+            r += "I";
+    }
+    else if (n == 4)
+    {
+        r = "IV";
+    }
+    else if (n == 9)
+    {
+        r = "IX";
+    }
+    else if (n == 14)
+    {
+        r = "XIV";
+    }
+    // Refactoring:
+    else
+    {
+        while (n &gt;= 10)
+        {
+            n -= 10;
+            r += "X";
+        }
+
+        while (n &gt;= 5)
+        {
+            n -= 5;
+            r += "V";
+        }
+
+        while (n--)
+            r += "I";
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>Looks good. Code’s cleaner. Still works for the same test cases. Still fails
+for the others. Let’s try to fix them.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 14)
+{
+    r = "XIV";
+}
+else if (n == 19)
+{
+    r = "XIX";
+}
+else
+{
+    while (n &gt;= 10)
+</code></pre></div></div>
+
+<p>This works fine for 19. 20 was already covered. We wouldn’t have known without
+the test case.</p>
+
+<p>I’m starting to see some commonality in the 4,9,14 and 19 cases, and I think
+that the n &lt;=3 case is handled by the piece of code at the bottom. Since we’re
+taking baby steps, we’ll deal with the n &lt;=3 case first:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    if (n == 4)
+    {
+        r = "IV";
+    }
+    else if (n == 9)
+    {
+        r = "IX";
+    }
+    else if (n == 14)
+    {
+        r = "XIV";
+    }
+    else if (n == 19)
+    {
+        r = "XIX";
+    }
+    else
+    {
+        while (n &gt;= 10)
+        {
+            n -= 10;
+            r += "X";
+        }
+
+        while (n &gt;= 5)
+        {
+            n -= 5;
+            r += "V";
+        }
+
+        while (n--)
+            r += "I";
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>That’s got rid of the n&lt;=3 code, and it still works. Looking good. Now, lets
+add some more test cases. We’ll come back to the 4,9,14,19 case later. Let’s
+see if we can get some tests in for the other roman numerals.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(30) == "XXX");
+assert(toRoman(40) == "XXXX");
+assert(toRoman(50) == "L");
+</code></pre></div></div>
+
+<p>This fails on 50 == L. We’ll add some code to handle this.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 19)
+{
+    r = "XIX";
+}
+else
+{
+    while (n &gt;= 50)
+    {
+        n -= 50;
+        r += "L";
+    }
+
+    while (n &gt;= 10)
+</code></pre></div></div>
+
+<p>Works fine. More test cases.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>assert(toRoman(60) == "LX");
+</code></pre></div></div>
+
+<h2 id="refactor-the-test-cases">Refactor the test cases</h2>
+
+<p>Also works fine. The test cases are getting a little long-winded, though. Let’s refactor them a little bit:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;assert.h&gt;
+#include &lt;string&gt;
+
+std::string toRoman(int n);
+
+#define TR(n, s) \
+    { n, s, }
+
+int main(void)
+{
+    struct test_case_t {
+        int n;
+        const char *s;
+    } test_cases[] = {
+        TR(0, ""),
+        TR(1, "I"),
+        TR(2, "II"),
+        TR(3, "III"),
+        TR(4, "IV"),
+        TR(5, "V"),
+        TR(6, "VI"),
+        TR(7, "VII"),
+        TR(8, "VIII"),
+        TR(9, "IX"),
+        TR(10, "X"),
+        TR(11, "XI"),
+        TR(12, "XII"),
+        TR(13, "XIII"),
+        TR(14, "XIV"),
+        TR(15, "XV"),
+        TR(16, "XVI"),
+        TR(17, "XVII"),
+        TR(18, "XVIII"),
+        TR(19, "XIX"),
+        TR(20, "XX"),
+        TR(30, "XXX"),
+        TR(40, "XXXX"),
+        TR(50, "L"),
+        TR(60, "LXI"),
+    };
+
+    for (int q = 0; q &lt; sizeof(test_cases) / sizeof(test_cases[0]); ++q)
+    {
+        int n = test_cases[q].n;
+        std::string got = toRoman(n);
+        std::string expected(test_cases[q].s);
+
+        if (got != expected)
+        {
+            fprintf(stderr, "n = %d, expected '%s', got '%s'\n", n,
+                    expected.c_str(), got.c_str());
+        }
+    }
+
+    return 0;
+}
+</code></pre></div></div>
+
+<p>Notice that we’ve deliberately broken one of the test cases. This is to see
+whether the test case is actually getting run. We’ll put it back, and add some
+more. We also note that the correct result for 40 is actually XL, not XXXX, so
+we fix the test case.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TR(40, "XL"),
+TR(50, "L"),
+TR(60, "LX"),
+TR(70, "LXX"),
+TR(80, "LXXX"),
+TR(90, "XC"),
+TR(100, "C"),
+</code></pre></div></div>
+
+<p>Now 40,90,100 fail. 40 and 90 look very similar to the 4 and 9 cases. We’ll
+special-case them for now. On the other hand, 100 looks a lot like the 10 and
+50 cases, so we’ll add some code for that.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 19)
+{
+    r = "XIX";
+}
+else if (n == 40)
+{
+    r = "XL";
+}
+else if (n == 90)
+{
+    r = "XC";
+}
+else
+{
+    while (n &gt;= 100)
+    {
+        n -= 100;
+        r += "C";
+    }
+
+    while (n &gt;= 50)
+</code></pre></div></div>
+
+<p>I’m now thinking that I could reuse the bottom of that function by bumping the
+values up by what’s missing, and falling through. For example, we’d spot the 4,
+put I in the result, and then add one, allowing the following code to put the
+correct V on the result. We’ll see. For now, more test cases.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TR(200, "CC"),
+TR(300, "CCC"),
+TR(400, "CD"),
+TR(500, "D"),
+TR(600, "DC"),
+TR(700, "DCC"),
+TR(800, "DCCC"),
+TR(900, "CM"),
+TR(1000, "M"),
+</code></pre></div></div>
+
+<p>Not surprisingly, these fail. More code.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else if (n == 90)
+{
+    r = "XC";
+}
+else if (n == 400)
+{
+    r = "CD";
+}
+else if (n == 900)
+{
+    r = "CM";
+}
+else
+{
+    while (n &gt;= 500)
+    {
+        n -= 500;
+        r += "D";
+    }
+
+    while (n &gt;= 100)
+</code></pre></div></div>
+
+<p>That gets us up to 900. I suspect that M will be quite simple.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>else
+{
+    while (n &gt;= 1000)
+    {
+        n -= 1000;
+        r += "M";
+    }
+
+    while (n &gt;= 500)
+</code></pre></div></div>
+
+<p>That gets all of our tests to pass. We’ll add some more test cases, to see where that takes us.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TR(21, "XXI"),
+TR(29, "XXIX"),
+TR(34, "XXXIV"),
+</code></pre></div></div>
+
+<p>21 succeeds. 29 and 34 don’t. This is down to the special-casing.</p>
+
+<p>Let’s see if we can roll it up into a loop. After a quick bit of refactoring
+and debugging, we end up with the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    while (n)
+    {
+        while (n &gt;= 1000)
+        {
+            n -= 1000;
+            r += "M";
+        }
+
+        if (n == 900)
+        {
+            r += "CM";
+            n -= 900;
+        }
+
+        while (n &gt;= 500)
+        {
+            n -= 500;
+            r += "D";
+        }
+
+        if (n == 400)
+        {
+            r += "CD";
+            n -= 400;
+        }
+
+        while (n &gt;= 100)
+        {
+            n -= 100;
+            r += "C";
+        }
+
+        if (n == 90)
+        {
+            r += "XC";
+            n -= 90;
+        }
+
+        while (n &gt;= 50)
+        {
+            n -= 50;
+            r += "L";
+        }
+
+        if (n == 40)
+        {
+            r += "XL";
+            n -= 40;
+        }
+
+        while (n &gt;= 10)
+        {
+            n -= 10;
+            r += "X";
+        }
+
+        if (n == 9)
+        {
+            r += "IX";
+            n -= 9;
+        }
+
+        while (n &gt;= 5)
+        {
+            n -= 5;
+            r += "V";
+        }
+
+        if (n == 4)
+        {
+            r += "IV";
+            n -= 4;
+        }
+
+        while (n &gt;= 1)
+        {
+            n -= 1;
+            r += "I";
+        }
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>This works fine for our existing tests. I was going say something along the
+lines of “and that’s easy to turn into a table-driven solution”, and call it a
+day. Unfortunately, it doesn’t actually work. I added some more esoteric
+numbers:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TR(1900, "MCM"),
+TR(1975, "MCMLXXV"),
+TR(1989, "MCMLXXXIX"),
+TR(1999, "MCMXCIX"),
+TR(2000, "MM"),
+TR(2001, "MMI"),
+</code></pre></div></div>
+
+<p>Some of the tests passed. Some didn’t. Stepping through with the debugger
+revealed that the equality checks in the 4,9,etc. cases were to blame. So I
+changed them all to &gt;=. This made all of the tests pass.</p>
+
+<h2 id="table-driven-solution">Table-driven solution</h2>
+
+<p>It also makes it more obvious how to turn <code class="highlighter-rouge">toRoman</code> into a table-driven
+implementation:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::string toRoman(int n)
+{
+    std::string r;
+
+    struct TO_ROMAN {
+        int num;
+        const char *str;
+    } to_roman[] = {
+        { 1000, "M", },
+        { 900, "CM", },
+        { 500, "D", },
+        { 400, "CD", },
+        { 100, "C", },
+        { 90, "XC", },
+        { 50, "L", },
+        { 40, "XL", },
+        { 10, "X", },
+        { 9, "IX", },
+        { 5, "V", },
+        { 4, "IV", },
+        { 1, "I", },
+    };
+
+    for (int q = 0; q &lt; sizeof(to_roman) / sizeof(to_roman[0]); ++q)
+    {
+        TO_ROMAN *t = &amp;to_roman[q];
+
+        while (n &gt;= t-&gt;num)
+        {
+            n -= t-&gt;num;
+            r += t-&gt;str;
+        }
+    }
+
+    return r;
+}
+</code></pre></div></div>
+
+<p>And I know this works, because I’ve got the tests to prove it.</p>
+
+<p><em>Note that there were some comments here originally; they got lost in the
+website migration</em></p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

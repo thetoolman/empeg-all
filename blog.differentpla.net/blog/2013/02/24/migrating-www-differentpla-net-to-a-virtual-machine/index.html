@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Migrating www.differentpla.net to a virtual machine</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Migrating www.differentpla.net to a virtual machine</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-02-24 16:56:39 +0000">2013-02-24 16:56:39 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>As part of implementing my <em>new</em> blog engine, I want to decommission the box that’s hosting my <em>existing</em> blog. It’s taking up space in the cupboard, and I’ve got a better use in mind for the hardware.</p>
+
+<p>I’ve just spent a few hours attempting to migrate everything piecemeal, in order to get a cleaner image.</p>
+
+<p>However, this is taking far too long, and I’ll never be sure that I’ve done it right. I don’t want to spend too much time on this, because (as I’ve said) I’m going to kill it with fire soon anyway.</p>
+
+<p>Instead, I’m going to do a straight physical-to-virtual migration. This involves (essentially) cloning the existing disk into a virtual disk and bringing it up in Hyper-V (in my case; VMWare or VirtualBox would work just as well).</p>
+
+<p>So, here’s the plan:</p>
+
+<ol>
+  <li>Get the machine out of the cupboard, and put it on my desk, where I can plug a monitor and keyboard into it, just in case.</li>
+  <li>Create a VM in Hyper-V, but don’t install anything on it.</li>
+  <li>Boot a live image of Linux on the VM.</li>
+  <li>Using rsync, copy everything across to the VM.</li>
+  <li>Reboot the VM.</li>
+</ol>
+
+<p>There’ll probably be some messing around with repairing the bootloader, but I think this might be the easiest way.</p>
+
+<p>Here goes…</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

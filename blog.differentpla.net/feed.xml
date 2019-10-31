@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://blog.differentpla.net/feed.xml" rel="self" type="application/atom+xml" /><link href="http://blog.differentpla.net/" rel="alternate" type="text/html" /><updated>2019-10-17T14:34:53+00:00</updated><id>http://blog.differentpla.net/feed.xml</id><title type="html">Roger’s Blog</title><subtitle>Jekyll sources for blog.differentpla.net</subtitle><entry><title type="html">Installing an mSATA disk in an empeg</title><link href="http://blog.differentpla.net/blog/2019/03/29/empeg-msata/" rel="alternate" type="text/html" title="Installing an mSATA disk in an empeg" /><published>2019-03-29T15:25:00+00:00</published><updated>2019-03-29T15:25:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/03/29/empeg-msata</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/03/29/empeg-msata/">&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+
+&lt;p&gt;The hard disk in my spare empeg player died at some point. It’s getting harder to find 2.5” PATA SSDs, so I opted for a Kingston mSATA disk (240G) and a JMicron-based mSATA to PATA adapter.&lt;/p&gt;
+
+&lt;p&gt;But that left me with a problem: I had no way to install the player software. Ordinarily, you’d download the &lt;code class=&quot;highlighter-rouge&quot;&gt;.upgrade&lt;/code&gt; file and apply it over a serial port with &lt;em&gt;empegUpgrade&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;But I don’t have a suitable Windows PC any more. I have a Surface Go, running Windows 10. It only just runs &lt;em&gt;emplode&lt;/em&gt; correctly. I think my odds of getting &lt;em&gt;empegUpgrade&lt;/em&gt; to work on Windows 10, with a USB-serial adapter are slim-to-none.&lt;/p&gt;
+
+&lt;p&gt;So: how to get the player software installed?&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;/me strokes chin&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I &lt;em&gt;do&lt;/em&gt; have a Linux desktop PC, so I bought an mSATA-to-USB 3 adapter, and connected the disk using that.&lt;/p&gt;
+
+&lt;h2 id=&quot;partitioning-the-disk&quot;&gt;Partitioning the disk&lt;/h2&gt;
+
+&lt;p&gt;Connect disk to Linux PC. It appears as &lt;code class=&quot;highlighter-rouge&quot;&gt;/dev/sdd&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Partition it:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo fdisk /dev/sdd
+
+Welcome to fdisk (util-linux 2.27.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Device does not contain a recognised partition table.
+Created a new DOS disklabel with disk identifier 0x7b3200ef.
+
+Command (m for help): n
+Partition type
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended (container for logical partitions)
+Select (default p): e
+Partition number (1-4, default 1): 1
+First sector (2048-468862127, default 2048): &amp;lt;Press Enter&amp;gt;
+Last sector, +sectors or +size{K,M,G,T,P} (2048-468862127, default 468862127): +32M
+
+Created a new partition 1 of type 'Extended' and of size 32 MiB.
+
+Command (m for help): n
+Partition type
+   p   primary (0 primary, 1 extended, 3 free)
+   l   logical (numbered from 5)
+Select (default p): p
+Partition number (2-4, default 2): 2
+First sector (67584-468862127, default 67584): &amp;lt;Press Enter&amp;gt;
+Last sector, +sectors or +size{K,M,G,T,P} (67584-468862127, default 468862127): +32M
+
+Created a new partition 2 of type 'Linux' and of size 32 MiB.
+
+Command (m for help): n
+Partition type
+   p   primary (1 primary, 1 extended, 2 free)
+   l   logical (numbered from 5)
+Select (default p): p
+Partition number (3,4, default 3): 3
+First sector (133120-468862127, default 133120): &amp;lt;Press Enter&amp;gt;
+Last sector, +sectors or +size{K,M,G,T,P} (133120-468862127, default 468862127): +16M
+
+Created a new partition 3 of type 'Linux' and of size 16 MiB.
+
+Command (m for help): t
+Partition number (1-6, default 6): 3
+Partition type (type L to list all types): 10
+
+Changed type of partition 'Linux' to 'OPUS'.
+
+Command (m for help): n
+Partition type
+   p   primary (2 primary, 1 extended, 1 free)
+   l   logical (numbered from 5)
+Select (default p): p
+
+Selected partition 4
+First sector (165888-468862127, default 165888): &amp;lt;Press Enter&amp;gt;
+Last sector, +sectors or +size{K,M,G,T,P} (165888-468862127, default 468862127): &amp;lt;Press Enter&amp;gt;
+
+Created a new partition 4 of type 'Linux' and of size 223.5 GiB.
+
+Command (m for help): n
+All primary partitions are in use.
+Adding logical partition 5
+First sector (4096-67583, default 4096): &amp;lt;Press Enter&amp;gt;
+Last sector, +sectors or +size{K,M,G,T,P} (4096-67583, default 67583): +16M
+
+Created a new partition 5 of type 'Linux' and of size 16 MiB.
+
+Command (m for help): n
+All primary partitions are in use.
+Adding logical partition 6
+First sector (38912-67583, default 38912): &amp;lt;Press Enter&amp;gt;
+Last sector, +sectors or +size{K,M,G,T,P} (38912-67583, default 67583): &amp;lt;Press Enter&amp;gt;
+
+Created a new partition 6 of type 'Linux' and of size 14 MiB.
+
+Command (m for help): t
+Partition number (1-6, default 6): 6
+Partition type (type L to list all types): 82
+
+Changed type of partition 'OPUS' to 'Linux swap / Solaris'.
+
+Command (m for help): p
+Disk /dev/sdd: 223.6 GiB, 240057409536 bytes, 468862128 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 4096 bytes
+I/O size (minimum/optimal): 4096 bytes / 33553920 bytes
+Disklabel type: dos
+Disk identifier: 0x7b3200ef
+
+Device     Boot  Start       End   Sectors   Size Id Type
+/dev/sdd1         2048     67583     65536    32M  5 Extended
+/dev/sdd2        67584    133119     65536    32M 83 Linux
+/dev/sdd3       133120    165887     32768    16M 10 OPUS
+/dev/sdd4       165888 468862127 468696240 223.5G 83 Linux
+/dev/sdd5         4096     36863     32768    16M 83 Linux
+/dev/sdd6        38912     67583     28672    14M 82 Linux swap / Solaris
+
+Partition table entries are not in disk order.
+
+Command (m for help): w
+The partition table has been altered.
+Calling ioctl() to re-read partition table.
+Synching disks.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;create-swap&quot;&gt;Create swap&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo mkswap /dev/sdd6
+Setting up swapspace version 1, size = 14 MiB (14675968 bytes)
+no label, UUID=87268e95-7576-449a-b997-ca1e233b82ea
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;wipe-dynamic-data&quot;&gt;Wipe dynamic data&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo dd if=/dev/zero of=/dev/sdd3
+dd: writing to '/dev/sdd3': No space left on device
+32769+0 records in
+32768+0 records out
+16777216 bytes (17 MB, 16 MiB) copied, 0.685017 s, 24.5 MB/s
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;format-the-music-partition&quot;&gt;Format the music partition&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo mkfs.ext2 -t ext2 -v -b4096 -s 1 -i 262144 -m 0 -I 128 /dev/sdd4
+mke2fs 1.42.13 (17-May-2015)
+fs_types for mke2fs.conf resolution: 'ext2'
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=8191 blocks
+915456 inodes, 58587030 blocks
+0 blocks (0.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=4294967296
+1788 block groups
+32768 blocks per group, 32768 fragments per group
+512 inodes per group
+Filesystem UUID: 32a19196-f352-4573-baf1-088e995d7ac8
+Superblock backups stored on blocks:
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+	4096000, 7962624, 11239424, 20480000, 23887872
+
+Allocating group tables: done
+Writing inode tables: done
+Writing superblocks and filesystem accounting information: done
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo tune2fs -c -1 -i0 /dev/sdd4
+tune2fs 1.42.13 (17-May-2015)
+Setting maximal mount count to -1
+Setting interval between checks to 0 seconds
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo mount /dev/sdd4 /mnt
+roger@roger-pc:~ $ sudo mkdir -p /mnt/fids
+roger@roger-pc:~ $ sudo mkdir -p /mnt/var
+roger@roger-pc:~ $ sudo sh -c &quot;echo '[hijack]' &amp;gt; /mnt/var/config.ini&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo umount /mnt
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;extract-the-upgrade-file-parts&quot;&gt;Extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;.upgrade&lt;/code&gt; file parts&lt;/h2&gt;
+
+&lt;p&gt;With Mark Lord’s &lt;code class=&quot;highlighter-rouge&quot;&gt;upgrader&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;car2_v3a11_hijack.upgrade&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ ./upgrader --extract car2_v3a11_hijack.upgrade
+
+/upgrader: Empeg/RioCar Ethernet Upgrade Tool, version 0.95, (c)2003 by Mark Lord
+
+...etc.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;write-the-player-software&quot;&gt;Write the player software&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ sudo dd if=_dev_hda5 of=/dev/sdd5
+32768+0 records in
+32768+0 records out
+16777216 bytes (17 MB, 16 MiB) copied, 0.699272 s, 24.0 MB/s
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;With Mark Lord’s &lt;code class=&quot;highlighter-rouge&quot;&gt;download.c&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ ./download _proc_flash_0c000 0c000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [1100%] erase ok
+Starting program at 0xc000 [100%] program ok
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ ./download _proc_flash_0e000 0e000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [100%] erase ok
+Starting program at 0xe000 [100%] program ok
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ ./download _proc_flash_b0000 b0000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [100%] erase ok
+Starting program at 0xb0000 [100%] program ok
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;roger@roger-pc:~ $ ./download _proc_empeg_kernel 10000 /dev/ttyUSB1
+Turn on empeg unit now
+Found empeg unit: entering program mode
+Manufacturer=0089, product=88c1
+Starting erase [100%] erase ok
+Starting program at 0x10000 [100%] program ok
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;put-the-disk-in-the-empeg&quot;&gt;Put the disk in the empeg&lt;/h2&gt;
+
+&lt;p&gt;…and fire up &lt;em&gt;emplode&lt;/em&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Est. Free Space: 223GB&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Job done.&lt;/p&gt;</content><author><name></name></author><category term="empeg" /><summary type="html">Background</summary></entry><entry><title type="html">Integrating direnv with nvm</title><link href="http://blog.differentpla.net/blog/2019/01/30/nvm-direnv/" rel="alternate" type="text/html" title="Integrating direnv with nvm" /><published>2019-01-30T17:12:00+00:00</published><updated>2019-01-30T17:12:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/nvm-direnv</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/nvm-direnv/">&lt;p&gt;To integrate &lt;code class=&quot;highlighter-rouge&quot;&gt;direnv&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;nvm&lt;/code&gt;, add the following to &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.direnvrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use_nodejs() {
+    NODE_VERSION=&quot;$1&quot;
+
+    type nvm &amp;gt;/dev/null 2&amp;gt;&amp;amp;1 || . ~/.nvm/nvm.sh
+    nvm use &quot;$NODE_VERSION&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then add (e.g.) the following to your project’s &lt;code class=&quot;highlighter-rouge&quot;&gt;.envrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use nodejs 10.15.0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">To integrate direnv with nvm, add the following to ~/.direnvrc:</summary></entry><entry><title type="html">Integrating direnv with ruby-install</title><link href="http://blog.differentpla.net/blog/2019/01/30/ruby-direnv/" rel="alternate" type="text/html" title="Integrating direnv with ruby-install" /><published>2019-01-30T17:11:00+00:00</published><updated>2019-01-30T17:11:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/ruby-direnv</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/ruby-direnv/">&lt;p&gt;To integrate &lt;code class=&quot;highlighter-rouge&quot;&gt;direnv&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;ruby-install&lt;/code&gt; – installation instructions &lt;a href=&quot;/blog/2019/01/30/ruby-install/&quot;&gt;here&lt;/a&gt; – add the following to &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.direnvrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use_ruby() {
+    RUBY_VERSION=&quot;$1&quot;
+
+    RUBIES_DIR=&quot;$HOME/.rubies&quot;
+    RUBY_PREFIX=&quot;$RUBIES_DIR/ruby-$RUBY_VERSION&quot;
+    if [ -s &quot;$RUBY_PREFIX&quot; ]; then
+        load_prefix &quot;$RUBY_PREFIX&quot;
+    else
+        tput setaf 1
+        echo &quot;Ruby $RUBY_VERSION not available; using default&quot;
+        echo &quot;See http://blog.differentpla.net/blog/2019/01/30/ruby-install/&quot;
+        tput sgr0
+    fi
+}
+
+bundle_check() {
+    # This has to come after 'layout ruby'
+    if [ -f Gemfile ]; then
+        gem list -i '^bundler$' &amp;gt;/dev/null || \
+            gem install --no-ri --no-rdoc bundler &amp;amp;&amp;amp; \
+            bundle check
+    fi
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then add the following (e.g., for Ruby 2.4.4) to your project’s &lt;code class=&quot;highlighter-rouge&quot;&gt;.envrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use ruby 2.4.4
+layout ruby
+bundle_check
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;layout ruby&lt;/code&gt; takes care of setting up a rough equivalent to Python’s virtualenv, but for Ruby. The &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle_check&lt;/code&gt; calls that function from &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.direnvrc&lt;/code&gt;, and checks that your gems are up to date.&lt;/p&gt;</content><author><name></name></author><summary type="html">To integrate direnv with ruby-install – installation instructions here – add the following to ~/.direnvrc:</summary></entry><entry><title type="html">Installing Ruby with ruby-install</title><link href="http://blog.differentpla.net/blog/2019/01/30/ruby-install/" rel="alternate" type="text/html" title="Installing Ruby with ruby-install" /><published>2019-01-30T17:10:00+00:00</published><updated>2019-01-30T17:10:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/ruby-install</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/ruby-install/">&lt;p&gt;Install &lt;code class=&quot;highlighter-rouge&quot;&gt;ruby-install&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir -p ~/.direnv/
+cd ~/.direnv/
+wget -O ruby-install-0.7.0.tar.gz \
+    https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
+
+tar -xzvf ruby-install-0.7.0.tar.gz
+ln -s ruby-install-0.7.0 ruby-install
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Create &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.direnv/bin/ruby-install&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir -p ~/.direnv/bin/
+cat &amp;gt; ~/.direnv/bin/ruby-install &amp;lt;&amp;lt;'EOF'
+#!/bin/sh
+~/.direnv/ruby-install/bin/ruby-install \
+    --no-install-deps --src-dir ~/.rubies/src --cleanup $@
+EOF
+
+chmod +x ~/.direnv/bin/ruby-install
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;--no-install-deps&lt;/code&gt; above prevents &lt;code class=&quot;highlighter-rouge&quot;&gt;ruby-install&lt;/code&gt; from attempting to, well, install dependencies. If you leave this off, it’ll run a &lt;code class=&quot;highlighter-rouge&quot;&gt;sudo apt install&lt;/code&gt; (or whatever) on your behalf, which leaves you with an annoying password prompt.&lt;/p&gt;
+
+&lt;p&gt;The list of dependencies is in the &lt;code class=&quot;highlighter-rouge&quot;&gt;dependencies.txt&lt;/code&gt; file, so we can install them ourselves:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt install $(
+grep '^apt:' \
+    ~/.direnv/ruby-install/share/ruby-install/ruby/dependencies.txt | \
+    cut -d: -f2- )
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then install your chosen Ruby version:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;~/.direnv/bin/ruby-install ruby 2.4.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The above command will install Ruby 2.4.4 to &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.rubies/ruby-2.4.4&lt;/code&gt;, which is where &lt;code class=&quot;highlighter-rouge&quot;&gt;direnv&lt;/code&gt; &lt;a href=&quot;/blog/2019/01/30/ruby-direnv/&quot;&gt;will look for it&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;listing-available-ruby-versions&quot;&gt;Listing available Ruby versions&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ~/.direnv/bin/ruby-install
+Stable ruby versions:
+  ruby:
+    2.3.8
+    2.4.6
+    2.5.5
+    2.6.2
+  jruby:
+    9.2.6.0
+... etc.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;updating-available-ruby-versions&quot;&gt;Updating available Ruby versions&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ ~/.direnv/bin/ruby-install -L
+&amp;gt;&amp;gt;&amp;gt; Downloading latest ruby versions ...
+&amp;gt;&amp;gt;&amp;gt; Downloading latest jruby versions ...
+...etc.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">Install ruby-install:</summary></entry><entry><title type="html">Integrating direnv with python-build</title><link href="http://blog.differentpla.net/blog/2019/01/30/python-direnv/" rel="alternate" type="text/html" title="Integrating direnv with python-build" /><published>2019-01-30T17:09:00+00:00</published><updated>2019-01-30T17:09:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/python-direnv</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/python-direnv/">&lt;p&gt;To integrate &lt;code class=&quot;highlighter-rouge&quot;&gt;direnv&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;python-build&lt;/code&gt; – installation instructions &lt;a href=&quot;/blog/2019/01/30/python-build/&quot;&gt;here&lt;/a&gt; – add the following to &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.direnvrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use_python() {
+    PYTHON_VERSION=&quot;$1&quot;
+
+    PYTHONS_DIR=&quot;$HOME/.pyenv/pythons&quot;
+    PYTHON_PREFIX=&quot;$PYTHONS_DIR/$PYTHON_VERSION&quot;
+    if [ -s &quot;$PYTHON_PREFIX&quot; ]; then
+        load_prefix &quot;$PYTHON_PREFIX&quot;
+    else
+        tput setaf 1
+        echo &quot;Python $PYTHON_VERSION not available; using default&quot;
+        echo &quot;See http://blog.differentpla.net/blog/2019/01/30/python-build/&quot;
+        tput sgr0
+    fi
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then add (e.g.) the following to your project’s &lt;code class=&quot;highlighter-rouge&quot;&gt;.envrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use python 2.7.15
+layout python
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Important:&lt;/strong&gt; Make sure you’ve installed &lt;code class=&quot;highlighter-rouge&quot;&gt;virtualenv&lt;/code&gt;, &lt;em&gt;outside&lt;/em&gt; any virtualenv:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$(/usr/bin/python -m site --user-base)/bin/pip install --user virtualenv
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;em&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;$(...)&lt;/code&gt; bit is to escape from your virtualenv, if you’re already in one. (&lt;a href=&quot;https://github.com/sjml/dotfiles/blob/master/zsh.d.symlink/functions/pip&quot;&gt;h/t&lt;/a&gt;)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;layout python&lt;/code&gt; takes care of setting up a Python virtualenv for you.&lt;/p&gt;
+
+&lt;p&gt;If you’re using a &lt;code class=&quot;highlighter-rouge&quot;&gt;requirements.txt&lt;/code&gt; file to track your Python requirements, you might want to add the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# We have no way to do this automatically, so hint, rather than assert.
+if [ -f requirements.txt ]; then
+    tput setaf 3
+    echo &quot;(Maybe) Install missing python packages with 'pip install -r requirements.txt'&quot;
+    tput sgr0
+fi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note that I find &lt;code class=&quot;highlighter-rouge&quot;&gt;requirements.txt&lt;/code&gt; to be a bit parochial, so at Electric Imp, we use &lt;code class=&quot;highlighter-rouge&quot;&gt;python_requirements.txt&lt;/code&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">To integrate direnv with python-build – installation instructions here – add the following to ~/.direnvrc:</summary></entry><entry><title type="html">Installing Python with python-build</title><link href="http://blog.differentpla.net/blog/2019/01/30/python-build/" rel="alternate" type="text/html" title="Installing Python with python-build" /><published>2019-01-30T17:08:00+00:00</published><updated>2019-01-30T17:08:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/python-build</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/python-build/">&lt;p&gt;Install &lt;code class=&quot;highlighter-rouge&quot;&gt;pyenv&lt;/code&gt;. We’re not going to use it as-is, but it includes the &lt;code class=&quot;highlighter-rouge&quot;&gt;python-build&lt;/code&gt; script that we will use:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir -p ~/.direnv/
+cd ~/.direnv/
+wget -O pyenv-1.2.11.tar.gz \
+    https://github.com/pyenv/pyenv/archive/v1.2.11.tar.gz
+
+tar -xzvf pyenv-1.2.11.tar.gz
+ln -s pyenv-1.2.11 pyenv
+
+mkdir -p ~/.direnv/bin/
+ln -s ~/.direnv/pyenv/plugins/python-build/bin/python-build ~/.direnv/bin/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You might need to install some &lt;a href=&quot;https://github.com/pyenv/pyenv/wiki/common-build-problems&quot;&gt;prerequisites&lt;/a&gt; first.&lt;/p&gt;
+
+&lt;p&gt;tl;dr:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then install your chosen Python version:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;~/.direnv/bin/python-build 2.7.15 ~/.pyenv/pythons/2.7.15
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;To get a list of available Python definitions, use:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;~/.direnv/bin/python-build --definitions
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;To update the list of Python definitions, you need to download and install a newer copy of pyenv. Just follow the instructions above, changing the version number.&lt;/p&gt;</content><author><name></name></author><summary type="html">Install pyenv. We’re not going to use it as-is, but it includes the python-build script that we will use:</summary></entry><entry><title type="html">Integrating direnv with kiex</title><link href="http://blog.differentpla.net/blog/2019/01/30/integrating-kiex-direnv/" rel="alternate" type="text/html" title="Integrating direnv with kiex" /><published>2019-01-30T17:07:00+00:00</published><updated>2019-01-30T17:07:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/integrating-kiex-direnv</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/integrating-kiex-direnv/">&lt;p&gt;To integrate &lt;code class=&quot;highlighter-rouge&quot;&gt;direnv&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;kiex&lt;/code&gt;, add the following to &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.direnvrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use_elixir() {
+    ELIXIR_VERSION=&quot;$1&quot;
+    if has kiex; then
+        if [ -s &quot;$HOME/.kiex/elixirs/elixir-$ELIXIR_VERSION.env&quot; ]; then
+            tput setaf 2
+            echo &quot;Using Elixir $ELIXIR_VERSION via kiex&quot;
+            tput sgr0
+            . &quot;$HOME/.kiex/elixirs/elixir-$ELIXIR_VERSION.env&quot;
+        else
+            tput setaf 1
+            echo &quot;Elixir $ELIXIR_VERSION not available via kiex; using default&quot;
+            tput sgr0
+        fi
+    else
+        tput setaf 1
+        echo &quot;kiex not available; using default Elixir&quot;
+        tput sgr0
+    fi
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then add (e.g.) the following to your project’s &lt;code class=&quot;highlighter-rouge&quot;&gt;.envrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;use elixir 1.8.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">To integrate direnv with kiex, add the following to ~/.direnvrc:</summary></entry><entry><title type="html">Installing Elixir with kiex</title><link href="http://blog.differentpla.net/blog/2019/01/30/installing-elixir-with-kiex/" rel="alternate" type="text/html" title="Installing Elixir with kiex" /><published>2019-01-30T17:06:00+00:00</published><updated>2019-01-30T17:06:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/installing-elixir-with-kiex</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/installing-elixir-with-kiex/">&lt;p&gt;At Electric Imp, we manage our Elixir versions with kiex.&lt;/p&gt;
+
+&lt;p&gt;Assuming you have &lt;code class=&quot;highlighter-rouge&quot;&gt;kiex&lt;/code&gt; available in your path, installing a version of Elixir is simple:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kiex install 1.8.1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This installs to &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.kiex/elixirs&lt;/code&gt;, and can be activated with the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;source $HOME/.kiex/elixirs/elixir-1.8.1.env
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If you’ve got the &lt;code class=&quot;highlighter-rouge&quot;&gt;kiex&lt;/code&gt; function defined in your shell (source &lt;code class=&quot;highlighter-rouge&quot;&gt;~/.kiex/scripts/kiex&lt;/code&gt;), then you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;kiex use 1.8.1&lt;/code&gt;.&lt;/p&gt;</content><author><name></name></author><summary type="html">At Electric Imp, we manage our Elixir versions with kiex.</summary></entry><entry><title type="html">Installing kiex</title><link href="http://blog.differentpla.net/blog/2019/01/30/installing-kiex/" rel="alternate" type="text/html" title="Installing kiex" /><published>2019-01-30T17:05:00+00:00</published><updated>2019-01-30T17:05:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/installing-kiex</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/installing-kiex/">&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;\curl -sSL https://raw.githubusercontent.com/taylor/kiex/master/install | bash -s
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then ensure it’s in your path. I copied it to &lt;code class=&quot;highlighter-rouge&quot;&gt;/usr/local/bin&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo cp ~/.kiex/bin/kiex /usr/local/bin
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Or you could follow the instructions that &lt;code class=&quot;highlighter-rouge&quot;&gt;install&lt;/code&gt; gives you:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Add the following to your shell’s config file (.bashrc/.zshrc/.cshrc):&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;test -s &quot;$HOME/.kiex/scripts/kiex&quot; &amp;amp;&amp;amp; source &quot;$HOME/.kiex/scripts/kiex&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><summary type="html">\curl -sSL https://raw.githubusercontent.com/taylor/kiex/master/install | bash -s</summary></entry><entry><title type="html">Getting Erlang version</title><link href="http://blog.differentpla.net/blog/2019/01/30/erlang-version/" rel="alternate" type="text/html" title="Getting Erlang version" /><published>2019-01-30T17:04:00+00:00</published><updated>2019-01-30T17:04:00+00:00</updated><id>http://blog.differentpla.net/blog/2019/01/30/erlang-version</id><content type="html" xml:base="http://blog.differentpla.net/blog/2019/01/30/erlang-version/">&lt;p&gt;Use this helper function:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;erlang_version() {
+    erl -eval '
+        {ok, Version} = file:read_file(
+                            filename:join(
+                                [code:root_dir(),
+                                 &quot;releases&quot;,
+                                 erlang:system_info(otp_release),
+                                 &quot;OTP_VERSION&quot;])),
+        io:format(&quot;Erlang/OTP ~s&quot;, [Version]),
+        halt().' -noshell
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="erlang" /><summary type="html">Use this helper function:</summary></entry></feed>

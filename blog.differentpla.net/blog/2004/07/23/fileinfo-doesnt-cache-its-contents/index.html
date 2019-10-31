@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>FileInfo doesn't cache its contents</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>FileInfo doesn't cache its contents</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-07-23 08:21:00 +0000">2004-07-23 08:21:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Imagine this code:</p>
+
+<pre>FileInfo oldInfo = new FileInfo(path);
+RemoveID3TagsFromFile(path);
+FileInfo newInfo = new FileInfo(path);
+Trace.Assert(newInfo.Length &lt; oldInfo.Length);</pre>
+
+<p>So, we’ve got some code that removes the ID3 tags from a file, thus shortening it. To check that it’s working correctly, we use <code class="highlighter-rouge">FileInfo</code> to make sure that the new file is smaller than the old one.</p>
+
+<p>The assert triggers anyway, even if the file is smaller. What’s going on?</p>
+
+<p>The answer: <code class="highlighter-rouge">FileInfo</code> doesn’t actually look up the length until you ask for it, so <code class="highlighter-rouge">oldInfo.Length</code> and <code class="highlighter-rouge">newInfo.Length</code> are the same: the new length of the file.</p>
+
+<p>Do this instead:</p>
+
+<pre>FileInfo oldInfo = new FileInfo(path);
+long oldLength = oldInfo.Length;
+RemoveID3TagsFromFile(path);
+FileInfo newInfo = new FileInfo(path);
+long newLength = newInfo.Length;
+Trace.Assert(newLength &lt; oldLength);</pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

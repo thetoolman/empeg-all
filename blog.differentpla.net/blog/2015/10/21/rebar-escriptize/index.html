@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>How does rebar escriptize work?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>How does rebar escriptize work?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2015-10-21 08:29:00 +0000">2015-10-21 08:29:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+    </div>
+    <p></p>
+    <h2 id="hello-world">Hello World</h2>
+
+<p>You can create Erlang scripts quite simply. Just create a file something like the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/usr/bin/env escript
+
+main(_Args) -&gt;
+    io:format("Hello World~n").
+</code></pre></div></div>
+
+<p>Then run it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>escript hello
+</code></pre></div></div>
+
+<p>Or:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod +x hello
+./hello
+</code></pre></div></div>
+
+<h2 id="rebar-escriptize">rebar escriptize</h2>
+
+<p>If you want to include multiple Erlang modules in your script, you can take
+advantage of the fact that <code class="highlighter-rouge">escript</code> allows loading from an embedded ZIP
+resource.</p>
+
+<p>This is what the <code class="highlighter-rouge">rebar escriptize</code> command does. You can create a skeleton application using rebar:</p>
+
+<p><strong>Note:</strong> I’m using rebar 2 in these examples.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Create the skeleton application:
+rebar create-app appid=hello
+
+# Remove the boilerplate:
+rm src/hello_app.erl src/hello_sup.erl
+
+# Remove the {mod, {hello_app, ...}} line from the .app.src file:
+sed -i '/{mod.*}/d' src/hello.app.src
+</code></pre></div></div>
+
+<p>You need to create an entry point in <code class="highlighter-rouge">src/hello.erl</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(hello).
+-export([main/1]).
+
+main(_Args) -&gt;
+    io:format(hello_greetings:world()).
+</code></pre></div></div>
+
+<p>For demonstration purposes, I’ve created another module:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(hello_greetings).
+-export([world/0]).
+
+world() -&gt;
+    "Hello World!~n".
+</code></pre></div></div>
+
+<p>Compile it using <code class="highlighter-rouge">rebar compile escriptize</code>; run it with <code class="highlighter-rouge">./hello</code>.</p>
+
+<h2 id="dependencies">Dependencies</h2>
+
+<p>The useful part about using <code class="highlighter-rouge">rebar</code> is that it can manage dependencies for you.
+For example, if we needed to load some JSON, we might want to use <em>mochijson2</em>.
+To do this, create <code class="highlighter-rouge">rebar.config</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{deps,
+ [
+  {mochijson2, ".*",
+   {git, "https://github.com/rlipscombe/mochijson2.git"}}
+ ]}.
+
+{escript_incl_apps, [mochijson2]}.
+</code></pre></div></div>
+
+<p>Update <code class="highlighter-rouge">hello.erl</code> to use a new module:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(hello).
+-export([main/1]).
+
+main([Path] = _Args) -&gt;
+    io:format("~s~n", [hello_json:from_file(Path)]).
+</code></pre></div></div>
+
+<p>Create the <code class="highlighter-rouge">hello_json.erl</code> file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(hello_json).
+-export([from_file/1]).
+
+from_file(Path) -&gt;
+    {ok, JSON} = file:read_file(Path),
+    {struct, Props} = mochijson2:decode(JSON),
+    proplists:get_value(&lt;&lt;"greeting"&gt;&gt;, Props).
+</code></pre></div></div>
+
+<p>And, to save typing, a Makefile:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all:
+    rebar get-deps compile escriptize
+</code></pre></div></div>
+
+<p>Create a sample <code class="highlighter-rouge">world.json</code> file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{"greeting": "Hello World!"}
+</code></pre></div></div>
+
+<p>Compile and run it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make &amp;&amp; ./hello world.json
+</code></pre></div></div>
+
+<h2 id="how-does-that-work-then">How does that work, then?</h2>
+
+<p>The <code class="highlighter-rouge">hello</code> script actually looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/usr/bin/env escript
+%%
+%%! -pa hello/hello/ebin
+PK...
+</code></pre></div></div>
+
+<p>…where <code class="highlighter-rouge">PK</code> is the ZIP file magic number. That is: it’s got a shebang header,
+some escript directives and then everything else is attached as a ZIP file.
+What’s in the ZIP file?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ unzip -l hello
+Archive:  hello
+warning [hello]:  51 extra bytes at beginning or within zipfile
+  (attempting to process anyway)
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+        0  2015-10-21 10:13   hello/
+        0  2015-10-21 10:13   hello/ebin/
+      240  2015-10-21 10:13   hello/ebin/hello.app
+      944  2015-10-21 10:13   hello/ebin/hello.beam
+      812  2015-10-21 10:13   hello/ebin/hello_greetings.beam
+     1144  2015-10-21 10:13   hello/ebin/hello_json.beam
+        0  2015-10-21 10:13   mochijson2/
+        0  2015-10-21 10:13   mochijson2/ebin/
+      234  2015-10-21 10:13   mochijson2/ebin/mochijson2.app
+    43544  2015-10-21 10:13   mochijson2/ebin/mochijson2.beam
+    16100  2015-10-21 10:13   mochijson2/ebin/mochinum.beam
+---------                     -------
+    63018                     11 files
+</code></pre></div></div>
+
+<h2 id="we-can-do-that-ourselves">We can do that ourselves!</h2>
+
+<p>You don’t need <code class="highlighter-rouge">rebar escriptize</code> to do this; it’s quite simple to write an
+<code class="highlighter-rouge">escriptize</code> script. See <a href="https://github.com/rlipscombe/escriptize">https://github.com/rlipscombe/escriptize</a> for example.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

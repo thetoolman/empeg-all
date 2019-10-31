@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Replacing dnsmasq on OpenWRT</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Replacing dnsmasq on OpenWRT</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-10-30 11:34:11 +0000">2013-10-30 11:34:11 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="overview">Overview</h2>
+
+<p>My home router runs <a href="https://openwrt.org/">OpenWRT</a>, which uses <strong>dnsmasq</strong> by
+default. However, I want to enable <a href="http://en.wikipedia.org/wiki/Split-horizon_DNS">split-horizon
+DNS</a>, so that different clients
+get different IP addresses for particular names.</p>
+
+<p>This isn’t a feature of dnsmasq, so I need to install <strong>dhcpd</strong> and <strong>bind</strong>
+instead of <strong>dnsmasq</strong>.</p>
+
+<p><strong>Note:</strong> I have a guest WiFi network configured; this is the one that I’ll be
+messing around with, but it shouldn’t make any major difference to the
+following.</p>
+
+<p>This is how I replaced <strong>dnsmasq</strong>; I’ll blog about configuring BIND’s DNS
+views later.</p>
+
+<h2 id="connect-using-ssh">Connect using ssh</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh openwrt-01
+</code></pre></div></div>
+
+<h2 id="removing-dnsmasq">Removing dnsmasq</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/etc/init.d/dnsmasq stop
+opkg remove dnsmasq
+</code></pre></div></div>
+
+<h2 id="installing-dhcpd">Installing dhcpd</h2>
+
+<p>At the moment, I’m not running IPv6 – I’ll get to it at some point – so I
+chose to install the IPv4-only build of the ISC DHCP server:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opkg install isc-dhcp-server-ipv4
+</code></pre></div></div>
+
+<h3 id="configuring-dhcpd">Configuring dhcpd</h3>
+
+<p>By default, <strong>dhcpd</strong> is configured to hand out addresses in the <code class="highlighter-rouge">192.168.1.1</code>
+range. This doesn’t coincide with any of my configured interfaces, which means
+that I get the error message:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>No subnet declaration for br-lan (10.0.0.140).
+** Ignoring requests on br-lan.  If this is not what
+   you want, please write a subnet declaration
+   in your dhcpd.conf file for the network segment
+   to which interface br-lan is attached. **
+
+No subnet declaration for wlan0-1 (192.168.58.1).
+** Ignoring requests on wlan0-1.  If this is not what...
+
+
+Not configured to listen on any interfaces!
+</code></pre></div></div>
+
+<p>To fix this, I edit <code class="highlighter-rouge">/etc/dhcpd.conf</code>, changing the <code class="highlighter-rouge">192.168.1.0</code> section
+appropriately.</p>
+
+<p>I <strong>don’t</strong> want <strong>dhcpd</strong> answering requests on the <code class="highlighter-rouge">br-lan</code> interface; this
+is my internal network, and there’s a Windows Server already handling DHCP and
+DNS for that network.</p>
+
+<p>Note that <code class="highlighter-rouge">wlan0-1</code> is my guest WiFi interface; my internal WiFi interface is
+bridged to the <code class="highlighter-rouge">br-lan</code> interface.</p>
+
+<h2 id="installing-bind">Installing bind</h2>
+
+<p>The next step is to install BIND, to handle DNS lookups:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opkg install bind-server
+</code></pre></div></div>
+
+<h2 id="configuring-bind--forwarders">Configuring bind – forwarders</h2>
+
+<p>At the very least, we need to configure BIND to forward requests it doesn’t
+understand to a normal DNS server.</p>
+
+<p>Because this is my guest network, I’m going to use my ISPs name servers here,
+rather than my internal Windows DNS server.</p>
+
+<p>To do this, edit the <code class="highlighter-rouge">/etc/bind/named.conf</code> file, and uncomment the
+<code class="highlighter-rouge">forwarders</code> section. Put your ISP’s name servers in here.</p>
+
+<h2 id="configuring-bind--authoritative-domains">Configuring bind – authoritative domains</h2>
+
+<p>This is the point at which you’d configure BIND for the domains that you want
+it to be authoritative for.</p>
+
+<p>For details, read the BIND documentation; it’s quite involved.</p>
+
+<h2 id="cleaning-up">Cleaning up</h2>
+
+<p>Definitely:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rm /var/dhcp.leases         # dhcpd uses /var/dhcpd.leases, with a different format.
+</code></pre></div></div>
+
+<p>Optionally, but this might break LuCi:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rm /etc/config/dhcp
+rm /var/etc/dnsmasq.conf    # automatically generated from /etc/config/dhcp
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

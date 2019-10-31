@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>A Visual Studio Extension in a Weekend</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>A Visual Studio Extension in a Weekend</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-29 15:05:42 +0000">2013-05-29 15:05:42 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I wanted to write a Visual Studio extension (for VS2012) that, when you open a
+solution, renders and displays Markdown documentation in Visual Studio.</p>
+
+<p>This enables you to include welcome documentation for developers who’ve just
+joined the project</p>
+
+<p>My aim was to write this in a single weekend. I made a load of notes as I went
+along, and I’ve just finished writing them up as a series of blog posts, which
+you will find here.</p>
+
+<h2 id="architecture">Architecture</h2>
+
+<p>A <strong>VSIX-deployed</strong> Visual Studio extension, written in C#. When you open a
+solution, it will start <strong>IIS Express</strong>, running a small web application
+(using <strong>Nancy</strong>) to render the markdown into HTML. It will open the built-in
+web browser page in Visual Studio, pointing at this application.</p>
+
+<p>Why IIS Express? Initially, simplicity.</p>
+
+<p>I considered adding a document window in Visual Studio, hosting a WebBrowser
+control, because this would give me more control over what was rendered, and 
+would allow bi-directional communication between the rendered view and the
+extension. I decided not to do this, because I only had a weekend, and I don’t
+have the first idea how to host a custom document window inside Visual Studio.</p>
+
+<h2 id="the-blog-posts">The blog posts</h2>
+
+<ul>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/a-visual-studio-extension-in-a-weekend">A Visual Studio Extension in a Weekend: Introduction</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/running-iis-express">Running IIS Express</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/spike:-providing-parameters-to-iis-express-hosted-applications">Spike: Providing parameters to IIS Express-hosted applications</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/displaying-a-web-page-in-visual-studio">Displaying a web page in Visual Studio</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/rendering-markdown-in-net">Rendering Markdown in .NET</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/creating-a-visual-studio-extension">Creating a Visual Studio Extension</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/killing-iis-express">Killing IIS Express</a></li>
+  <li><a href="http://blog.differentpla.net/b/2013/41/29/packaging-vs-welcome-page">Packaging vs-welcome-page</a></li>
+  <li>A week later: <a href="http://blog.differentpla.net/b/2013/41/29/using-iis-express-in-vs-welcome-page">Using IIS Express in vs-welcome-page</a> – revisiting this decision.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

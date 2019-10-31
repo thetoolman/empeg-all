@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Which programming languages do we use at Electric Imp?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Which programming languages do we use at Electric Imp?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-10-21 10:57:12 +0000">2014-10-21 10:57:12 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/electric-imp">electric-imp</a></span>
+        
+    </div>
+    <p></p>
+    <p>This question just came up on Twitter:</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/electricimp">@electricimp</a> i am looking to do an
+internship with you, i was just wondering what would be the best programming
+languages for me to develop?</p>
+</blockquote>
+
+<p>– Callum Orr (@OrrCallum) <a href="https://twitter.com/OrrCallum/status/524156992127250432">12:15 PM - 20 Oct 2014</a></p>
+
+<p>As with so many things in computing, the correct answer is always “it depends”.
+If you’re someone, like Callum, looking at an internship, it depends mostly on
+what you want to get out of that internship.</p>
+
+<p><strong>Note that opinions expressed herein are mine, not Electric Imp’s.</strong></p>
+
+<p>Based on a quick look through our source repositories, it would appear that we
+primarily use the following languages:</p>
+
+<ul>
+  <li>C++</li>
+  <li>Erlang</li>
+  <li>Python</li>
+  <li>JavaScript</li>
+  <li>Squirrel</li>
+  <li>Objective-C</li>
+  <li>Java</li>
+</ul>
+
+<p>I’m not entirely sure how to rank them, but each of these has its place.</p>
+
+<p>For instance, the embedded improm is mostly written in C++, but makes use of a
+large quantity of C code, such as eCos. So, if you want to work with that team,
+you’d want to learn <strong>C++</strong>.</p>
+
+<p>The back-end is <a href="http://blog.electricimp.com/post/85932940180/electric-imp-moves-to-erlang-programming-language">mostly written in
+<strong>Erlang</strong></a>,
+but we know that Erlang programmers aren’t exactly common, so we’d be looking
+for someone who’s familiar with concurrent programming and has experience of
+another functional language.</p>
+
+<p>We use <strong>Python</strong> extensively for <a href="https://community.electricimp.com/blog/how-electric-imp-tests-software/">testing our
+software</a>,
+both for the improm and for the back-end.</p>
+
+<p>The <a href="http://ide.electricimp.com">IDE</a> is written in <strong>JavaScript</strong>, using
+jQuery, Backbone, handlebars, and a bunch of other stuff.</p>
+
+<p>We also have some <strong>node.js</strong> stuff still kicking around, though that’s generally
+treated as legacy these days.</p>
+
+<p>Our internal ops console is written using <strong>Django</strong> (<strong>Python</strong> again). Other
+internal scripts and tools are written in whichever language seemed like a good
+idea at the time. Some are written in <strong>Python</strong>, some in <strong>node.js</strong>, some in
+<strong>Ruby</strong>. One in particular is written in <strong>Go</strong>.</p>
+
+<p>The mobile apps and SDK are written in <strong>Objective-C</strong> (iOS) and <strong>Java</strong>
+(Android).</p>
+
+<p>The imp platform provides a <strong>Squirrel</strong> runtime. If you already know another
+mainstream language, such as C++, C# or JavaScript, you’ll be fine.</p>
+
+<p>So, to recap, for an internship at Electric Imp, I would suggest that it makes
+sense to learn some Python and some JavaScript. These are both reasonable
+introductions to general-purpose programming languages; they both have wider
+application than Squirrel.</p>
+
+<p>If any of this sounds interesting to you – internship or otherwise – you
+should check out our <a href="http://electricimp.com/aboutus/jobs/">jobs page</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

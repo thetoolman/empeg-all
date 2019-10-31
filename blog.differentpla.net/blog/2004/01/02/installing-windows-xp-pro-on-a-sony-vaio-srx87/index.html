@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing Windows XP Pro on a Sony Vaio SRX87</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing Windows XP Pro on a Sony Vaio SRX87</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-01-02 16:52:00 +0000">2004-01-02 16:52:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="introduction">Introduction</h2>
+
+<p>I’ve recently acquired a shiny new Hitachi 7K60 hard disk to go into my laptop. The disk is 60Gb, which will hopefully give me enough space to dual-boot Windows XP and Linux. I ran out of space on the 20Gb disk that the Sony comes with, and I had to remove Linux. The other nice thing about this disk is that it’s a 7200 rpm disk, which should make those away-from-home hacking sessions go much more smoothly.</p>
+
+<p>Unfortunately, while the Sony Vaio comes with Windows XP, it only comes in the form of a “System Recovery CD” which, in addition to installing any amount of junk (e. g. “Everquest”), only comes with support for the hard disk sizes originally shipped in these laptops.</p>
+
+<p>This article will explain how I went about reinstalling a full copy of Windows XP Professional on this laptop.</p>
+
+<p>Note that the SRX87 comes with a copy of Windows XP Home, while the SRX87P comes with a copy of Windows XP Professional.</p>
+
+<p>Fortunately, I’ve got two copies of Windows XP Professional that I was given the last time that I visited Microsoft’s Redmond campus.</p>
+
+<h2 id="windows-xp-setup-disk">Windows XP Setup Disk</h2>
+
+<p>When I last reinstalled Windows XP on my main desktop PC, I created a “slipstreamed” installation CD. This installs Windows XP already patched with Service Pack 1. See <a href="http://www.windows-help.net/WindowsXP/winxp-sp1-bootcd. html">this page</a> for more information. I needed to do this for my desktop PC because it has a 250Gb hard disk, and the original setup disk for Windows XP doesn’t support disks this large.</p>
+
+<p>I made sure to use the serial number from my second copy of Windows XP, however.</p>
+
+<h2 id="extracting-application-recovery-cd">Extracting Application Recovery CD</h2>
+
+<p>The Sony comes with an “Application Recovery CD”, allowing you to separately reinstall all of the junk that comes on the “System Recovery CD”. This also comes with some really annoying front end software. You can’t get around this software, because everything on the disk is in a single file called <code class="highlighter-rouge">SONY.PAC</code>. Fortunately, I found some instructions on unpacking these files:</p>
+
+<p><a href="http://pub173.ezboard.com/funofficialsonyfrm26.showMessage?topicID=27.topic">http://pub173.ezboard.com/funofficialsonyfrm26.showMessage?topicID=27.topic</a></p>
+
+<p><a href="http://www.myplc.com/sony/sony_apps.htm">http://www.myplc.com/sony/sony_apps.htm</a></p>
+
+<p>To make life easier in future, I created a DVD containing the individual applications from the “Application Recovery CD”; I renamed Sony’s cryptic directories to something more sensible. I’ve also put the relevant downloaded drivers (from Sony support) and some other applications and utilities on the DVD.</p>
+
+<h2 id="partitioning-the-hard-disk">Partitioning the Hard Disk</h2>
+
+<p>Because I’m planning to install Linux on this laptop as well, I needed to partition the hard disk to allow room. This is easily done from inside the Windows XP setup program. I opted for a 36Gb partition for Windows, leaving the rest for Linux.</p>
+
+<h2 id="configuring-the-network">Configuring the Network</h2>
+
+<p>By default, Windows XP doesn’t come with drivers for the network adapter in the Vaio, so I selected “Custom settings” when prompted to configure network settings. The first adapter found was the Orinoco Wireless card, for which I turned off File and Printer sharing.</p>
+
+<p>I was then asked to select a workgroup. Since this laptop is primarily being used at home, I went with the default workgroup name “WORKGROUP”.</p>
+
+<h2 id="installing-network-drivers">Installing Network Drivers</h2>
+
+<p>Since Windows XP doesn’t come with support for the Intel network card in the Vaio, it’s necessary to install the drivers. These are (now) on my groovy recovery DVD, which makes life easier. Unfortunately, they require a reboot afterwards.</p>
+
+<h2 id="installing-other-drivers">Installing Other Drivers</h2>
+
+<p>While we’re in the process of installing drivers, we might as well install the others:</p>
+
+<ul>
+  <li>ALPS touchpad driver; reboot.</li>
+  <li>LCD driver; reboot.</li>
+  <li>Modem driver; reboot.</li>
+  <li>Orinoco wireless driver; reboot.</li>
+  <li>Sony Cardbus driver (as distinct from the 16-bit Cardbus driver, see below); reboot.</li>
+  <li>Video driver; reboot.</li>
+  <li>Audio driver; reboot.</li>
+</ul>
+
+<p>It’s entirely possible that some of these don’t actually need the reboot. It’s better to be safe than sorry, though.</p>
+
+<p>There are a couple of things on the Sony support site that I didn’t install:</p>
+
+<ul>
+  <li>The 16-bit Cardbus drivers. The last time I reinstalled Windows on this laptop, they didn’t install. I don’t remember why.</li>
+  <li>The BIOS update. It requires a floppy disk - presumably it creates a bootable DOS floppy with the BIOS updater on it. I don’t have a floppy disk drive for this laptop.</li>
+  <li>SonicStage 1. 2 Update. I haven’t installed SonicStage, and don’t plan to. Installing the update would be pointless.</li>
+  <li>Sony DVgate Update Utility. Again, I haven’t installed DVgate and don’t plan to.</li>
+  <li>Sony USB mouse driver. I don’t have a USB mouse. Well, actually I do, but I don’t plan on using it with the laptop.</li>
+  <li>Vaio clock screensaver update. I haven’t installed it, I don’t plan to.</li>
+</ul>
+
+<p>It’s worth noting that this collection of updates were downloaded from the Sony support site a while ago. There may be newer versions on there now. It’s worth checking.</p>
+
+<p><a href="http://www.ita.sel.sony.com/support/">http://www.ita.sel.sony.com/support/</a></p>
+
+<h2 id="installing-applications">Installing Applications</h2>
+
+<p>It’s time to install other applications from the Application Recovery CD. Obviously, I’ll actually be using the DVD I created earlier.</p>
+
+<ul>
+  <li>Sony Shared Library; reboot.</li>
+  <li>Sony Utilities Library. Some of the other applications require these, so we’ll install them first. This one doesn’t ask for a reboot.</li>
+  <li>Hotkey utility. This is what makes the Fn key work. It doesn’t ask for a reboot. It appears to need a reboot before it’ll run, though.</li>
+  <li>Jogdial utility. The SRX87 has a small jogdial attached to the touchpad. This is what makes it work. Reboot. The jogdial utility also needs configuring: “Show Jog Dial only when in use”.</li>
+  <li>JogGUI Plugin; reboot.</li>
+  <li>Notebook Setup. Doesn’t ask for a reboot.</li>
+  <li>PowerPanel. Doesn’t ask for a reboot.</li>
+  <li>UI Designer Selector. Doesn’t ask for a reboot.</li>
+</ul>
+
+<p>And that’s it. I don’t need most of the other junk.</p>
+
+<h2 id="dvd-playback-software">DVD Playback Software</h2>
+
+<p>The Sony comes with a DVD drive, so it’d be nice to be able to play back DVD movies occasionally. By default, Windows Media Player 9 doesn’t include DVD playback – you can install one. I installed WinDVD 2000 off of the Application Recovery CD. It doesn’t enable DVD playback for WMP9, but it does allow watching DVDs on the laptop.</p>
+
+<p>At some point, I’ll be looking at a DVD-&gt;DivX solution, so that I don’t need to take the DVD drive with me when I go travelling.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

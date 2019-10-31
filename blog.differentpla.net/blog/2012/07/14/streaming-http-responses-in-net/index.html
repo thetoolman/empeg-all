@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Streaming HTTP responses in .NET</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Streaming HTTP responses in .NET</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2012-07-14 19:11:10 +0000">2012-07-14 19:11:10 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Sometimes you have a web service or web application, and, for one request, you need to transfer an unknown (and potentially unbounded) amount of data in the response.</p>
+
+<p>In this post, I’ll show some code for doing this with various parts of the .NET stack.</p>
+
+<h2 id="a-brief-history-of-http">A brief history of HTTP</h2>
+
+<p>First, however, a diversion. How does this actually work under the hood?</p>
+
+<p>HTTP is implemented on top of TCP/IP, and TCP/IP already supports streaming of data. You write something; the client reads something; you write some more; the client reads some more. Brilliant. This is streaming.</p>
+
+<p>Back in the early days of HTTP, this was perfect. A client would open a connection, the server would write some data, and then the server would close the connection, flagging the end of the data. Awesome.</p>
+
+<p>However, opening and closing connections takes time, so HTTP added persistent connections (flagged by <code class="highlighter-rouge">Connection: Keep-Alive</code>). The point of this is that the client can send more than one request and the server can send more than one response without closing the connection. But how does the client know when the data for a single response is finished?</p>
+
+<p>Enter the <code class="highlighter-rouge">Content-Length</code> header. This header is added to the start (it’s a header, after all) of the response. It tells the client how much data to expect in that response.</p>
+
+<p>The problem with <code class="highlighter-rouge">Content-Length</code> is that the server needs to know, ahead of time, how much data is in the response. This is fine for static files (it can just ask the filesystem) and it’s fine for small responses (it can buffer the response and calculate the size).</p>
+
+<p>Unfortunately, it breaks streaming, because the server (as mentioned) needs to buffer the response to calculate the size. This means that the server can’t start sending the response until the entire response has been generated.</p>
+
+<p>There are two ways to solve this problem: (1) go back to the old <code class="highlighter-rouge">Connection: close</code> behaviour, or (2) use chunked encoding.</p>
+
+<p>Chunked encoding (flagged by <code class="highlighter-rouge">Transfer-Encoding: chunked</code>) allows the server to send pieces of the response as they’re ready, without needing to know the total length of the response up front.</p>
+
+<p>This works by sending each piece (chunk) of the response separately, each with a length prefix. The end of the response is flagged by a zero-length chunk.</p>
+
+<h2 id="httplistener">HttpListener</h2>
+
+<p>On with the code.</p>
+
+<p>So: using a basic HttpListener-based program, how can we implement this?</p>
+
+<pre>byte[] buffer = Encoding.UTF8.GetBytes("Hello World\n");
+context.Response.ContentType = "text/plain"
+context.Response.SendChunked = true;
+
+for (int i = 0; i &lt; 10; ++i)
+{
+    context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+    context.Response.OutputStream.Flush();
+    Thread.Sleep(500);    // Difficult calculation goes here.
+}
+context.Response.Close();
+</pre>
+
+<p>To get this to work, set <code class="highlighter-rouge">SendChunked = true</code>, and remember to <code class="highlighter-rouge">Flush()</code> the output stream after each chunk.</p>
+
+<h2 id="aspnet-ihttphandler">ASP.NET IHttpHandler</h2>
+
+<p>More code:</p>
+
+<pre>    public class StreamingHandler : IHttpHandler
+    {
+        public void ProcessRequest(HttpContext context)
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes("Hello World");
+            context.Response.AddHeader("Connection", "close");
+            context.Response.ContentType = "text/plain";
+            context.Response.BufferOutput = false;
+
+            for (int i = 0; i &lt; 10; ++i)
+            {
+                context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+                context.Response.OutputStream.Flush();
+                Thread.Sleep(500);    // Difficult calculation goes here.
+            }
+
+            context.Response.Close();
+        }
+
+        public bool IsReusable
+        {
+            get { return false; }
+        }
+    }
+</pre>
+
+<p>This one’s an <code class="highlighter-rouge">IHttpHandler</code>, which can be dropped into the ASP.NET pipeline by registering it in <code class="highlighter-rouge">Web.config</code>, as follows:</p>
+
+<pre>  <system.webServer>
+    <handlers>
+      <add name="Streaming-Handler" verb="*" path="*" type="web_streaming.StreamingHandler, web-streaming" />
+    </handlers>
+  </system.webServer>
+</pre>
+
+<h2 id="nancyfx">NancyFX</h2>
+
+<p>So: why am I writing this blog post?</p>
+
+<p>Because I’m trying to get chunked encoding working in <a href="http://nancyfx.org/">Nancy</a>, and I can’t do it without a (minor) change to Nancy. I think I’ve figured out why…</p>
+
+<p>First, here’s my code:</p>
+
+<pre>        public HomeModule()
+        {
+            Get["/slow"] = _ =&gt; new SlowStreamResponse();
+        }
+
+        private class SlowStreamResponse : Response
+        {
+            public SlowStreamResponse()
+            {
+                ContentType = "text/plain";
+                Contents = s =&gt; {
+                    byte[] bytes = Encoding.UTF8.GetBytes("Hello World\n");
+                    for (int i = 0; i &lt; 10; ++i)
+                    {
+                        s.Write(bytes, 0, bytes.Length);
+                        s.Flush();
+                        Thread.Sleep(500);
+                    }
+                };
+            }
+        }
+</pre>
+
+<p>This is basically the same as the other two examples; it takes advantage of the fact that Nancy passes us the output stream directly: <code class="highlighter-rouge">response.Contents.Invoke(context.Response.OutputStream)</code></p>
+
+<p>Which means that we can <code class="highlighter-rouge">Write()</code> and <code class="highlighter-rouge">Flush()</code> to our heart’s content. Unfortunately, it doesn’t work, because we’re missing one thing.</p>
+
+<p><code class="highlighter-rouge">OutputStream</code> is an instance of <code class="highlighter-rouge">HttpResponseStream</code>, which delegates to an <code class="highlighter-rouge">HttpWriter</code>. When you call <code class="highlighter-rouge">Flush()</code> on the stream, it does nothing.</p>
+
+<p>The clever bit actually happens when you call <code class="highlighter-rouge">Write()</code>. This actually calls <code class="highlighter-rouge">HttpWriter.WriteFromStream</code>. If response buffering is off, this calls <code class="highlighter-rouge">HttpResponse.Flush</code>, which is where the chunked encoding magic happens.</p>
+
+<p>So: how does response buffering get turned off? This is done when you set the <code class="highlighter-rouge">HttpResponse.BufferOutput</code> property, or when <code class="highlighter-rouge">HttpWriter</code> is constructed, which is all <code class="highlighter-rouge">internal</code>.</p>
+
+<p>Unfortunately, Nancy doesn’t provide a way to set this flag, meaning that we can’t turn on chunked encoding.</p>
+
+<p>I’m going to put together a patch and submit it.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

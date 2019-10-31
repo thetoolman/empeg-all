@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing Erlang with kerl</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>Installing Erlang with kerl</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2019-01-30 17:02:00 +0000">2019-01-30 17:02:00 +0000</span>
+        </div>
+        <p></p>
+        <p>At Electric Imp, on developer PCs, we manage our Erlang versions with <a href="https://github.com/yrashk/kerl">kerl</a>.</p>
+
+<p>Assuming you have <code class="highlighter-rouge">kerl</code> available in your path (and you’ve installed the <a href="../erlang-build-prerequisites/index.html">prerequisites</a>), installing a version of Erlang is simple:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kerl update releases
+kerl build 21.2 21.2
+kerl install 21.2 $HOME/.kerl/erlangs/21.2
+</code></pre></div></div>
+
+<p>You can tweak the Erlang build by setting the <code class="highlighter-rouge">KERL_CONFIGURE_OPTIONS</code>
+environment variable. We don’t bother. If we did, we’d probably put a suffix on
+the build name and install directory.</p>
+
+<p>The installation directory (<code class="highlighter-rouge">~/.kerl/erlangs</code>) was chosen to be similar to
+where kiex installs Elixir versions.</p>
+
+<p>We prefer building from github, using a tag:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kerl build git https://github.com/erlang/otp.git OTP-21.2.4 OTP-21.2.4
+kerl install OTP-21.2.4 $HOME/.kerl/erlangs/OTP-21.2.4
+</code></pre></div></div>
+
+<p>This gives us the option of installing a patched fork, which has been necessary
+in the past.</p>
+
+<p>Note that you can set (e.g.) <code class="highlighter-rouge">MAKEFLAGS=-j6 kerl build ...</code> which will make the
+build quicker.</p>
+
+<p>In this case, the build name and installation directory are named after the tag
+(<code class="highlighter-rouge">OTP-21.2.4</code>), which makes it easier to tell which versions were built from
+releases or from tags.</p>
+
+<p>To activate the installation, you can do as kerl says:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>. $HOME/.kerl/erlangs/OTP-21.2.4/activate
+</code></pre></div></div>
+
+<p>…or you can use <code class="highlighter-rouge">direnv</code>…</p>
+
+<p>If you’re running short of disk space, you can delete old builds:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kerl cleanup all
+</code></pre></div></div>
+
+<p>This doesn’t delete the installed versions.</p>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../direnv-tool-versions/index.html">Using direnv to manage tool versions</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-direnv/index.html">Installing direnv</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-kerl/index.html">Installing kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">Installing Erlang with kerl</a></li>
+        
+        
+        
+        
+        
+            <li><a href="../erlang-build-prerequisites/index.html">Building Erlang: Prerequisites (Ubuntu)</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../integrating-kerl-direnv/index.html">Integrating direnv with kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../erlang-version/index.html">Getting Erlang version</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-kiex/index.html">Installing kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-elixir-with-kiex/index.html">Installing Elixir with kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../integrating-kiex-direnv/index.html">Integrating direnv with kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../python-build/index.html">Installing Python with python-build</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../python-direnv/index.html">Integrating direnv with python-build</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../ruby-install/index.html">Installing Ruby with ruby-install</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../ruby-direnv/index.html">Integrating direnv with ruby-install</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../nvm-direnv/index.html">Integrating direnv with nvm</a></li></li>
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

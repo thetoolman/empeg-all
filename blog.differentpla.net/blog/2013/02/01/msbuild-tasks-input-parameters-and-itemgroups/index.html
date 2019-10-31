@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>MSBuild Tasks, Input Parameters and ItemGroups</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>MSBuild Tasks, Input Parameters and ItemGroups</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-02-01 16:20:00 +0000">2013-02-01 16:20:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/msbuild">msbuild</a></span>
+        
+    </div>
+    <p></p>
+    <p>While looking through some MSBuild scripts recently at work, I came across some stuff to do with Task output parameters that I thought might be worth blogging about. First, however, I need to talk about Task input parameters.</p>
+
+<p>Let’s take the following example MSBuild script:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;ItemGroup&gt;
+	&lt;Service Include="Foo"&gt;
+		&lt;DependsOn&gt;Bar&lt;/DependsOn&gt;
+	&lt;/Service&gt;
+	&lt;Service Include="Bar" /&gt;
+&lt;/ItemGroup&gt;
+
+&lt;Target Name="Start"&gt;
+	&lt;StartService Services="@(Service)" /&gt;
+&lt;/Target&gt;
+</code></pre></div></div>
+
+<p>We also define a custom task that looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class StartService : Task
+{
+	[Required]
+	public string Services { get; set; }
+
+	public override bool Execute()
+	{
+		Console.WriteLine(Services);
+		return true;
+	}
+}
+</code></pre></div></div>
+
+<p>MSBuild will pass the item group (an array of items with metadata) to the <code class="highlighter-rouge">string</code> property as a semicolon-delimited string, discarding the metadata.</p>
+
+<p>Note that MSBuild doesn’t look at the <code class="highlighter-rouge">string</code> and call the task for each item. If you want that to happen, you need to look at http://blog.differentpla.net/blog/2010/08/19/msbuild-target-batching-for-each-simplified.</p>
+
+<p>A better way to do this is to declare the property as a string array:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class StartService : Task
+{
+	[Required]
+	public string[] Service { get; set; }
+
+	public override bool Execute()
+	{
+		foreach (var s in Service)
+			Console.WriteLine(s);
+		return true;
+	}
+}
+</code></pre></div></div>
+
+<p>By doing this, each item is placed in the array separately.</p>
+
+<p>Note that if you attempt to declare an item as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;Service Include="Baz;Quuz" /&gt;
+</code></pre></div></div>
+
+<p>…you actually get two separate items, “Baz” and “Quux”.</p>
+
+<p>If you need the metadata, you should declare the property as <code class="highlighter-rouge">ITaskItem[]</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Required]
+public ITaskItem[] Service { get; set; }
+</code></pre></div></div>
+
+<p>This will allow you to access the metadata attached to the items:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">item.ItemSpec</code> is the “name” or “Identity” value of the item.</li>
+  <li><code class="highlighter-rouge">item.MetadataNames</code> contains a list of the metadata items attached to the item. MSBuild attaches a bunch of file-related metadata, such as “FullPath” and “RootDir”, even if the item is not a file.</li>
+</ul>
+
+<p>Note that MSBuild 4.0 actually passes <code class="highlighter-rouge">ITaskItem2</code> instances, but you must still declare the property as <code class="highlighter-rouge">ITaskItem[]</code>.</p>
+
+<p>Here is where you can see your metadata:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public override bool Execute()
+{
+	foreach (var s in Service)
+    	Console.WriteLine("{0} -&gt; {1}", s.ItemSpec, s.GetMetadata("DependsOn"));
+    return true;
+}
+</code></pre></div></div>
+
+<p>As a quick aside, MSBuild won’t let you have an empty <code class="highlighter-rouge">Include</code> attribute, so this is invalid, and causes an error:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;Service Include="" /&gt;
+</code></pre></div></div>
+
+<p>It will trim whitespace, so the following will be treated as “Meh”:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;Service Include="    Meh     " /&gt;
+</code></pre></div></div>
+
+<p>If you do the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;Service Include="     p   q   r   " /&gt;
+</code></pre></div></div>
+
+<p>…you get an item named “p   q   r”.</p>
+
+<p>On the other hand, if you do the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;Service Include="       " /&gt;
+</code></pre></div></div>
+
+<p>…the item is discarded with no warning or error.</p>
+
+<p>With that out of the way, we can move on to part 2: “MSBuild Tasks, Output Parameters and Item Groups”.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

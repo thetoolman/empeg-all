@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Shell_NotifyIcon: Displaying a balloon from a hidden notification icon</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Shell_NotifyIcon: Displaying a balloon from a hidden notification icon</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-10-01 08:05:56 +0000">2007-10-01 08:05:56 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>You should hide your notification icon unless you’ve got something important to tell the user. More and more applications insist on putting mysterious icons in the notification area, and most users have no idea what they’re for.</p>
+
+<p>The clue’s in the name: “notification icon”. They’re used for notification. For configuration options for your program, create a Control Panel applet, or add a property page to somewhere sensible.</p>
+
+<p>When a notification icon is hidden, it cannot bring up balloon notifications, so you’ll need to show it first and hide it later.</p>
+
+<p>You can hide a notification icon like this:</p>
+
+<pre>nid.uFlags |= NIF_STATE;
+nid.dwState = NIS_HIDDEN;
+nid.dwStateMask = NIS_HIDDEN;</pre>
+
+<p>…either when sending NIM_ADD, or by using NIM_MODIFY.
+You can show the icon like this:</p>
+
+<pre>nid.uFlags |= NIF_STATE;
+nid.dwState = 0;
+nid.dwStateMask = NIS_HIDDEN;</pre>
+
+<p>…as part of NIM_MODIFY.
+This only works on Shell and Common Controls version 5.0 (Windows 2000 or Internet Explorer 5.0) or newer. On earlier versions of Windows, you’ll need to use NIM_DELETE and NIM_ADD as appropriate.</p>
+
+<p>You can show a balloon by using the NIF_INFO flag with NIM_MODIFY:</p>
+
+<pre>nid.uFlags = NIF_INFO;
+nid.dwInfoFlags = NIIF_INFO;
+_tcscpy_s(nid.szInfoTitle, _T("Title"));
+_tcscpy_s(nid.szInfo, _T("Some text goes here"));
+</pre>
+
+<p>So, you should show your icon (and balloon) when you need to tell the user something, and then hide it again in response to the NIN_BALLOONHIDE, NIN_BALLOONTIMEOUT and NIN_BALLOONUSERCLICK notifications.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

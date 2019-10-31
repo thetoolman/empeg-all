@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Enabling Concurrent Remote Desktop Sessions in Vista</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Enabling Concurrent Remote Desktop Sessions in Vista</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-04-22 20:26:08 +0000">2007-04-22 20:26:08 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>At work, I do all of my development on a Windows 2003 box. I generally log in as a normal user, and then use Remote Desktop to concurrently log in as Administrator. This means that I’m relatively safe from malware when doing day-to-day stuff, but that I can still get hold of Administrator privileges when I need them.</p>
+
+<p>This feature is only enabled on server editions of Windows. When you try to connect to Windows Vista (for example), you have to disconnect the currently logged-on user.</p>
+
+<p>This is taken more-or-less, directly from <a href="http://www.missingremote.com/index.php?option=com_content&amp;task=view&amp;id=1220&amp;Itemid=1">here</a>, so I can’t take any credit.</p>
+
+<p>You’ll need a hacked termsrv.dll, as follows:</p>
+
+<pre>fc /b %SYSTEMROOT%\System32\termsrv.dll termsrv_new.dll
+Comparing files C:\WINDOWS\SYSTEM32\termsrv.dll and TERMSRV_NEW.DLL
+000150D8: 3B BA
+000150D9: 91 00
+000150DA: 20 01
+000150DB: 03 00
+000150DD: 00 90
+000150DF: 0F 89
+000150E0: 84 91
+000150E1: 0C 20
+000150E2: CA 03
+000154BF: 43 90</pre>
+
+<p>(This one’s for Windows Vista Ultimate, x86 (i.e. 32-bit).
+And then you’ll need to install it, as follows:</p>
+
+<pre>cd /d %SYSTEMROOT%\System32
+sc stop UmRdpService
+sc stop TermService
+takeown /f termsrv.dll
+cacls termsrv.dll /G DOMAIN\User:F
+ren termsrv.dll termsrv.dll.orig
+copy path\to\termsrv_new.dll termsrv.dll
+sc start TermService
+sc start UmRdpService</pre>
+
+<p>Done.</p>
+
+<p>Note that if you want to connect to localhost, you’ll need to run some kind of port forwarding utility, and you’ll need to connect to it via 127.0.0.2.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing Ruby with ruby-install</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>Installing Ruby with ruby-install</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2019-01-30 17:10:00 +0000">2019-01-30 17:10:00 +0000</span>
+        </div>
+        <p></p>
+        <p>Install <code class="highlighter-rouge">ruby-install</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir -p ~/.direnv/
+cd ~/.direnv/
+wget -O ruby-install-0.7.0.tar.gz \
+    https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
+
+tar -xzvf ruby-install-0.7.0.tar.gz
+ln -s ruby-install-0.7.0 ruby-install
+</code></pre></div></div>
+
+<p>Create <code class="highlighter-rouge">~/.direnv/bin/ruby-install</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir -p ~/.direnv/bin/
+cat &gt; ~/.direnv/bin/ruby-install &lt;&lt;'EOF'
+#!/bin/sh
+~/.direnv/ruby-install/bin/ruby-install \
+    --no-install-deps --src-dir ~/.rubies/src --cleanup $@
+EOF
+
+chmod +x ~/.direnv/bin/ruby-install
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">--no-install-deps</code> above prevents <code class="highlighter-rouge">ruby-install</code> from attempting to, well, install dependencies. If you leave this off, it’ll run a <code class="highlighter-rouge">sudo apt install</code> (or whatever) on your behalf, which leaves you with an annoying password prompt.</p>
+
+<p>The list of dependencies is in the <code class="highlighter-rouge">dependencies.txt</code> file, so we can install them ourselves:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt install $(
+grep '^apt:' \
+    ~/.direnv/ruby-install/share/ruby-install/ruby/dependencies.txt | \
+    cut -d: -f2- )
+</code></pre></div></div>
+
+<p>Then install your chosen Ruby version:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.direnv/bin/ruby-install ruby 2.4.4
+</code></pre></div></div>
+
+<p>The above command will install Ruby 2.4.4 to <code class="highlighter-rouge">~/.rubies/ruby-2.4.4</code>, which is where <code class="highlighter-rouge">direnv</code> <a href="../ruby-direnv/index.html">will look for it</a>.</p>
+
+<h2 id="listing-available-ruby-versions">Listing available Ruby versions</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ~/.direnv/bin/ruby-install
+Stable ruby versions:
+  ruby:
+    2.3.8
+    2.4.6
+    2.5.5
+    2.6.2
+  jruby:
+    9.2.6.0
+... etc.
+</code></pre></div></div>
+
+<h2 id="updating-available-ruby-versions">Updating available Ruby versions</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ~/.direnv/bin/ruby-install -L
+&gt;&gt;&gt; Downloading latest ruby versions ...
+&gt;&gt;&gt; Downloading latest jruby versions ...
+...etc.
+</code></pre></div></div>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../direnv-tool-versions/index.html">Using direnv to manage tool versions</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-direnv/index.html">Installing direnv</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-kerl/index.html">Installing kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-erlang-with-kerl/index.html">Installing Erlang with kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../erlang-build-prerequisites/index.html">Building Erlang: Prerequisites (Ubuntu)</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../integrating-kerl-direnv/index.html">Integrating direnv with kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../erlang-version/index.html">Getting Erlang version</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-kiex/index.html">Installing kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-elixir-with-kiex/index.html">Installing Elixir with kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../integrating-kiex-direnv/index.html">Integrating direnv with kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../python-build/index.html">Installing Python with python-build</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../python-direnv/index.html">Integrating direnv with python-build</a></li></li>
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">Installing Ruby with ruby-install</a></li>
+        
+        
+        
+        
+        
+            <li><a href="../ruby-direnv/index.html">Integrating direnv with ruby-install</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../nvm-direnv/index.html">Integrating direnv with nvm</a></li></li>
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

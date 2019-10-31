@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Asus A7V Windows Box</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Asus A7V Windows Box</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2000-12-08 00:01:00 +0000">2000-12-08 00:01:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>As mentioned <a href="http://blog.differentpla.net/node/view/3">here</a>, my Pentium II-400 got fried by an ocuk power supply. As they say, however: Every cloud has a silver lining. With a dead computer, I could finally persuade my girlfriend that some long-overdue upgrades were necessary.</p>
+
+<p>So, I got out my credit card and went shopping…</p>
+
+<ul>
+  <li>Asus A7V motherboard</li>
+  <li>AMD Athlon T900</li>
+  <li>Adaptec 19160 SCSI card</li>
+  <li>256Mb of RAM</li>
+  <li>Soundblaster Live</li>
+</ul>
+
+<p>The motherboard, CPU and SCSI card I bought from <a href="http://www.scan.co.uk/">Scan</a>. The memory came from <a href="http://www.crucial.co.uk/">Crucial</a> - they sell Micron memory, which has always proved reliable in the past. The Soundblaster was picked up from <a href="http://www.cambridge-computers.co.uk/">Cambridge Computers</a>.</p>
+
+<p>Items that survived include:</p>
+
+<ul>
+  <li>IBM UltraStar 36LZX - 18Gb of U160 goodness.</li>
+  <li>Yamaha CRW4416S</li>
+</ul>
+
+<h2 id="installing-linux">Installing Linux</h2>
+
+<p>My primary desktop OS is Windows 2000 (I run Debian 2.2 on my webserver, and my firewall box at home), but I thought that I’d install Linux to give the machine a bit of a workout - if it crashes, Linux is more likely to tell you something useful before falling over.</p>
+
+<p>The first thing I have to say is: “Wow”. This thing’s fast. I tried compiling g++, and it didn’t even touch the sides. The 256Mb of memory ensured that it didn’t swap much, if at all.</p>
+
+<p>It was quite an eye-opener compared to the lowly P133 that I run Linux on normally. I’m almost convinced to go out and buy another T900 to replace it.</p>
+
+<p><em>Update 2000-12-08:</em> <a href="../asus-a7v-linux-box/index.html">I did</a>.</p>
+
+<h2 id="adaptec-19160-and-linux">Adaptec 19160 and Linux</h2>
+
+<p>When I was considering what to buy, I noticed that there was little or no information about whether the 19160 would work under Linux. Adaptec list Linux support for their other cards, but not for this one, which is almost an explicit statement that they don’t support it.</p>
+
+<p>While I can’t say that it definitely works, it worked correctly for the few tests I tried. Linux identifies it as an AIC-7892.</p>
+
+<h2 id="disk-corruption">Disk corruption</h2>
+
+<p>Having said all that, I’m a little suspicious of the adapter now. I’ve had Windows 2000 installed on this box for a little while now, and I’ve started getting messages in the Event Log about filesystem corruption, and <code class="highlighter-rouge">chkdsk /f</code> has had to do nasty sounding things to the filesystem in order to fix it.</p>
+
+<p>I’m not 100% sure that it’s down to the SCSI card, but I’ve got a tech support query in with Adaptec. We’ll see what they can suggest.</p>
+
+<h2 id="disk-corruption-update">Disk corruption update</h2>
+
+<p>Finally got a response from Adaptec. They reckon it could be down to the IBM disk supplying SCSI termination power. Apparently, Adaptec cards don’t like this. I’ve not got around to fixing it yet, though. We’ll see what happens if I do.</p>
+
+<h2 id="another-disk-corruption-update">Another disk corruption update</h2>
+
+<p>I checked that the disk wasn’t supplying termination power. It’s not. This is not good. I’m going to trash the disk completely, and reformat it from the Adaptec SCSI BIOS software. We’ll see if that improves matters.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

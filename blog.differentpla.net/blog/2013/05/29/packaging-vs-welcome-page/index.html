@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Packaging vs-welcome-page</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Packaging vs-welcome-page</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-29 17:25:57 +0000">2013-05-29 17:25:57 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Next problem: packaging the <code class="highlighter-rouge">vs-welcome-page</code> extension.</p>
+
+<p>How to get the web application installed with the VS package? There doesn’t appear to be an easy way to add arbitrary files to a VSIX package. You can do it by adding references to dependencies, but that doesn’t help with the content (CSS, HTML files, etc).</p>
+
+<p>So: what to do? I could use an MSI-based installation, but:</p>
+
+<ul>
+  <li>It seems like overkill for an extension this simple.</li>
+  <li>If we need an elevated installation, why not simply use the opportunity to register the URL ACL? If you remember, this is why I decided to use IIS Express in the first place.</li>
+</ul>
+
+<p>I’d like this extension to be available on the VS gallery. Does this have any implications?</p>
+
+<h3 id="spike-looking-at-some-vsix-packages">Spike: Looking at some VSIX packages</h3>
+
+<p>I had a quick look at what’s on the VS gallery, and almost everything appears to be a VSIX file.</p>
+
+<p>Some questions on Stack Overflow suggest that it’s not really possible. Therefore: a couple of options occur:</p>
+
+<ol>
+  <li>Embed the whole thing in the package extension and extract it (in the step where we would have been copying it).</li>
+  <li>Embed the resources and use a reference to include the DLL. This might need some finesse w.r.t. Web.config.</li>
+</ol>
+
+<p>OK. How do we pull the files into the VSIX? Let’s try it with a simple reference. That sorta-works: all of the DLLs and content end up in the installation folder. Where that goes wrong is that the DLLs don’t end up in a <code class="highlighter-rouge">bin</code> folder, and ASP.NET can’t find them. Adding a probing/privatePath=. doesn’t seem to work.</p>
+
+<p>OK. Let’s include the whole thing. Options:</p>
+
+<ol>
+  <li>Put the whole lot in a ZIP file and embed it as a resource.</li>
+  <li>See if we can merely include the ZIP file as content and have it turn up in the VSIX file.</li>
+</ol>
+
+<p>OK. Can we do the second? Doesn’t look like it. Attempted to add a file as Copy to output directory – it didn’t turn up in the output.</p>
+
+<h2 id="assets">Assets</h2>
+
+<p>After some more investigation, it appears that you can include custom assets in the VSIX.</p>
+
+<p>To do this, go to the Assets tab in the manifest editor and add a new one. You can use a custom type, specify a file, and it gets included in the VSIX.</p>
+
+<p>This isn’t massively scalable – how do we include an entire project output?</p>
+
+<p>If you include a project in the current solution, the whole lot turns up. This is basically equivalent to the reference, and because it ignores the directory, the whole lot turns up in the working directory, which was a problem before.</p>
+
+<p>More poking around: if you add an asset from outside the current project, it gets copied into the current folder. This implies that we’ll have difficulty with keeping things up to date.</p>
+
+<p>So: it looks like we need to:</p>
+
+<ol>
+  <li>Get the web application zipped up.</li>
+  <li>Copy that (as a build step) to the project directory.</li>
+  <li>Include that as an asset.</li>
+</ol>
+
+<p>So: how to ZIP everything up?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msbuild .\StartPage.WebApplication.csproj /p:DeployOnBuild=true /p:PublishProfile='Publish'
+</code></pre></div></div>
+
+<p>Then ZIP it (or merely include it in the other project)</p>
+
+<p>OK, we know how to publish it from the command line – how to get that into the VS build process?</p>
+
+<p>Getting it to build is relatively easy – getting the other project to build afterwards is the hard part.</p>
+
+<p>OK. That’s done – dependencies and zipping.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

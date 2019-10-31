@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Which programming languages do we use at Electric Imp?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Which programming languages do we use at Electric Imp?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2019-01-30 14:53:00 +0000">2019-01-30 14:53:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/electric-imp">electric-imp</a></span>
+        
+    </div>
+    <p></p>
+    <p>I last posted on this topic about <a href="../../../../2014/10/21/electricimp-languages/index.html">4 years ago</a>. It’s time for an update.</p>
+
+<p><strong>Note that opinions expressed herein are mine, not Electric Imp’s.</strong></p>
+
+<p>Based on a quick look through our source repositories, it would appear that we have code in the following languages:</p>
+
+<ul>
+  <li>bash – for various scripting tasks.</li>
+  <li>C++ –  for impOS and the agent runtime.</li>
+  <li>Clojure – a one-off tool (runs as an AWS Lambda), because why not?</li>
+  <li>Erlang – most of the “core” backend.</li>
+  <li>Elixir – some of the “core” backend.</li>
+  <li>Expect – scripting.</li>
+  <li>Go – various microservices.</li>
+  <li>Java – BlinkUp SDK for Android.</li>
+  <li>JavaScript – impCentral (the IDE).</li>
+  <li>Lua – nginx integration.</li>
+  <li>Node.js – the API, some microservices.</li>
+  <li>Objective-C – BlinkUp SDK for iOS.</li>
+  <li>Perl – various scripts.</li>
+  <li>Python – system tests, ops tools.</li>
+  <li>RobotFramework – system tests.</li>
+  <li>Ruby – we use chef, other ops tools.</li>
+  <li>Squirrel – this is what customers use on our platform.</li>
+  <li>Swift – BlinkUp SDK for iOS</li>
+  <li>Tcl – we use Vera to enforce C++ conventions; it’s scripted using Tcl, and we have some custom scripts.</li>
+  <li>TypeScript – internal tools.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

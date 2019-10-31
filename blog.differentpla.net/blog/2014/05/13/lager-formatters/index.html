@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>lager formatters</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>lager formatters</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-05-13 12:49:00 +0000">2014-05-13 12:49:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+        <span class="label label-default"><a href="../../../../../tag/lager">lager</a></span>
+        
+    </div>
+    <p></p>
+    <h2 id="overview">Overview</h2>
+
+<p>If you’re using <a href="https://github.com/basho/lager/">lager</a> for your Erlang logging,
+you’ve probably left the default formatter well alone, by doing something like
+this in your configuration file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{lager_console_backend, [info, true]},
+</code></pre></div></div>
+
+<p>However, lager’s built-in <code class="highlighter-rouge">lager_default_formatter</code> defines a mini-DSL that allows
+you to customise the formatting. Let’s take a look at the default format, and break
+it down.</p>
+
+<h2 id="default-format">Default Format</h2>
+
+<p>The default format is defined <a href="https://github.com/basho/lager/blob/master/src/lager_default_formatter.erl#L59">in lager_default_formatter.erl</a> and looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[date, " ", time, " ", color, "[", severity, "] ",
+            {pid, ""},
+            {module, [
+                    {pid, ["@"], ""},
+                    module,
+                    {function, [":", function], ""},
+                    {line, [":",line], ""}], ""},
+            " ", message, EOL]
+</code></pre></div></div>
+
+<p>What we have here looks a bit like an Erlang <code class="highlighter-rouge">iolist</code>, where certain atoms (<code class="highlighter-rouge">date</code>, <code class="highlighter-rouge">time</code>, <code class="highlighter-rouge">pid</code>, etc.)
+are replaced with values at runtime.</p>
+
+<p>Actually, apart from a couple of specific atoms (<code class="highlighter-rouge">message</code>, <code class="highlighter-rouge">date</code>, <code class="highlighter-rouge">time</code>, <code class="highlighter-rouge">severity</code>
+– see <a href="https://github.com/basho/lager/blob/master/src/lager_default_formatter.erl#L80">the source</a>),
+these are simply looked up in the metadata associated with the call to <code class="highlighter-rouge">lager:log</code>.</p>
+
+<p>You can set some of this metadata by using <code class="highlighter-rouge">lager:md/1</code>; some of it is set by
+lager’s parse transform when it sees a call to (e.g.) <code class="highlighter-rouge">lager:warning</code>.</p>
+
+<h2 id="default-values">Default Values</h2>
+
+<p>The language also supports <a href="https://github.com/basho/lager/blob/master/src/lager_default_formatter.erl#L92">default values</a>,
+for example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{pid, ""}
+</code></pre></div></div>
+
+<p>…states that the process ID should be output. If it’s not defined, then output
+an empty string instead.</p>
+
+<h2 id="conditionals">Conditionals</h2>
+
+<p>There’s also support for <a href="https://github.com/basho/lager/blob/master/src/lager_default_formatter.erl#L95">conditionals</a>.
+These are specified as <code class="highlighter-rouge">{Prop, Present, Absent}</code>. For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{function, [":", function], ""}
+</code></pre></div></div>
+
+<p>…states that if <code class="highlighter-rouge">function</code> is present in the metadata, then output <code class="highlighter-rouge">[":", function]</code>;
+otherwise output an empty string.</p>
+
+<p>This is taken to an extreme in the <code class="highlighter-rouge">module</code> clause:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{module, [
+    {pid, ["@"], ""},
+    module,
+    {function, [":", function], ""},
+    {line, [":",line], ""}], ""}
+</code></pre></div></div>
+
+<p>…which says: if module is not defined, output an empty string. If module <em>is</em>
+defined, then output <code class="highlighter-rouge">@</code> (if pid is defined – to terminate the pid we might already
+have printed), followed by the module name, followed by the function and line number
+(both with prefixes and defaults).</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>You can probably do all of the custom log formatting without having to write a custom
+backend or a custom formatter, just by using <code class="highlighter-rouge">lager_default_formatter</code> and its formatting DSL.</p>
+
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

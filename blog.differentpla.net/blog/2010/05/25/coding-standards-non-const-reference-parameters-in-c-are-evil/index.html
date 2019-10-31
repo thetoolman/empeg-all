@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Coding Standards: Non-const reference parameters in C++ are evil</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Coding Standards: Non-const reference parameters in C++ are evil</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2010-05-25 14:08:46 +0000">2010-05-25 14:08:46 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>This is just a minor rant:</p>
+
+<p>In C++, const references are useful for parameters, because they avoid copying the arguments to a method. Non-const references, on the other hand, are pure evil, because there’s no way (at the call site) to immediately see that a method might change a variable:</p>
+
+<div id="codeSnippetWrapper">
+<div id="codeSnippet" class="csharpcode">
+<pre class="alt"><span class="kwrd">int</span> expectedVersion = 1;</pre>
+
+<pre class="alteven">ValidateVersion(expectedVersion);</pre>
+
+</div>
+
+</div>
+
+<p>By looking at this, you can’t tell that ValidateVersion is declared as void <code class="highlighter-rouge">ValidateVersion(int &amp;version)</code> and might actually change the value.</p>
+
+<p>Use a pointer instead:</p>
+
+<div id="codeSnippetWrapper">
+<div id="codeSnippet" class="csharpcode">
+<pre class="alt">ValidateVersion(&amp;expectedVersion);</pre>
+
+</div>
+
+</div>
+
+<p>Then, when I’m looking at the call site, I have an expectation that the value might change.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

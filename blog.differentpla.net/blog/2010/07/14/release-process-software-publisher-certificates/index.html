@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Release Process: Software Publisher Certificates</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Release Process: Software Publisher Certificates</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2010-07-14 13:35:11 +0000">2010-07-14 13:35:11 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Since your code signing certificate probably lasts for two years, you’ll have forgotten what to do with it when you receive your new one.</p>
+
+<p>If you’re using <a href="http://www.verisign.com/">Verisign</a>, they’ll send you the certificate and key as two separate files named AcmeCertificate.spc and AcmePrivateKey.pvk (or similar).</p>
+
+<p>In order to use these for code signing without being prompted for the password each time, you’ll need to convert the two files into a PFX file and import it into the Windows certificate store. Think about <a href="http://blog.differentpla.net/content/2010/05/release-process-code-signing-key-security">key security</a> before you do this, though.</p>
+
+<p>To do this, use pvk2pfx, as follows:</p>
+
+<p>pvk2pfx –pvk AcmePrivateKey.pvk –spc AcmeCertificate.spc –pfx AcmeCertificateAndKey.pfx</p>
+
+<p>This will prompt you for the passphrase for the private key. It will create a .PFX file without a passphrase. If you want a passphrase on the PFX file (and you probably do), you should use the –po switch.</p>
+
+<p>Then you can <a href="http://msdn.microsoft.com/en-us/library/ff546307(VS.85).aspx">import the PFX file</a> by using CERTUTIL, as follows:</p>
+
+<p>certutil –user –importPFX AcmeCertificateAndKey.pfx</p>
+
+<p>This stores the certificate and key in the current user’s Personal certificate store, where it can be used for signing.</p>
+
+<p>To use it for signing, use signtool, as follows:</p>
+
+<p>signtool sign /sha1 certificate-thumbprint /d Description /du Url /t http://timestamp.verisign.com/scripts/timstamp.dll Path\To\Application.exe</p>
+
+<p>TODO: Generating your own, test, certificates and keys.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

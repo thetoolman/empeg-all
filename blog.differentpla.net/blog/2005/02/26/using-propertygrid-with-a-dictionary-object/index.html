@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using PropertyGrid with a dictionary object</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using PropertyGrid with a dictionary object</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2005-02-26 16:04:00 +0000">2005-02-26 16:04:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>If you try using IDictionary with the PropertyGrid control, the results aren’t spectacular:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=31</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=640</td>
+      <td>height=640]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Here’s how to do it properly.</p>
+
+<p>The first thing that you need to figure out is that when you associate an object with the PropertyGrid, it asks for that object’s type descriptor, and then asks that about which properties it supports.</p>
+
+<p>To fake out the type descriptor, we’ll need some kind of adapter object. It’ll need to implement ICustomTypeDescriptor:</p>
+
+<pre>class DictionaryPropertyGridAdapter : ICustomTypeDescriptor
+{
+    IDictionary _dictionary;
+
+    public DictionaryPropertyGridAdapter(IDictionary d)
+    {
+        _dictionary = d;
+    }</pre>
+
+<p>Three of the ICustomTypeDescriptor methods are never called by the property grid, but we’ll stub them out properly anyway:</p>
+
+<pre>    public string GetComponentName()
+    {
+        return TypeDescriptor.GetComponentName(this, true);
+    }
+
+    public EventDescriptor GetDefaultEvent()
+    {
+        return TypeDescriptor.GetDefaultEvent(this, true);
+    }
+
+    public string GetClassName()
+    {
+        return TypeDescriptor.GetClassName(this, true);
+    }</pre>
+
+<p>Then there’s a whole slew of methods that are called by PropertyGrid, but we don’t need to do anything interesting in them:</p>
+
+<pre>    public EventDescriptorCollection GetEvents(Attribute[] attributes)
+    {
+        return TypeDescriptor.GetEvents(this, attributes, true);
+    }
+
+    EventDescriptorCollection System.ComponentModel.ICustomTypeDescriptor.GetEvents()
+    {
+        return TypeDescriptor.GetEvents(this, true);
+    }
+
+    public TypeConverter GetConverter()
+    {
+        return TypeDescriptor.GetConverter(this, true);
+    }
+
+    public object GetPropertyOwner(PropertyDescriptor pd)
+    {
+        return _dictionary;
+    }
+
+    public AttributeCollection GetAttributes()
+    {
+        return TypeDescriptor.GetAttributes(this, true);
+    }
+
+    public object GetEditor(Type editorBaseType)
+    {
+        return TypeDescriptor.GetEditor(this, editorBaseType, true);
+    }
+
+    public PropertyDescriptor GetDefaultProperty()
+    {
+        return null;
+    }
+
+    PropertyDescriptorCollection
+        System.ComponentModel.ICustomTypeDescriptor.GetProperties()
+    {
+        return ((ICustomTypeDescriptor)this).GetProperties(new Attribute[0]);
+    }</pre>
+
+<p>Then the interesting bit. We simply iterate over the IDictionary, creating a property descriptor for each entry:</p>
+
+<pre>    public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
+    {
+        ArrayList properties = new ArrayList();
+        foreach (DictionaryEntry e in _dictionary)
+        {
+            properties.Add(new DictionaryPropertyDescriptor(_dictionary, e.Key));
+        }
+
+        PropertyDescriptor[] props =
+            (PropertyDescriptor[])properties.ToArray(typeof(PropertyDescriptor));
+
+        return new PropertyDescriptorCollection(props);
+    }</pre>
+
+<p>Of course, now we need to implement the DictionaryPropertyDescriptor class:</p>
+
+<pre>class DictionaryPropertyDescriptor : PropertyDescriptor
+{
+</pre>
+
+<p>PropertyDescriptor provides 3 constructors. We want the one that takes a string and an array of attributes:</p>
+
+<pre>    IDictionary _dictionary;
+    object _key;
+
+    internal DictionaryPropertyDescriptor(IDictionary d, object key)
+        : base(key.ToString(), null)
+    {
+        _dictionary = d;
+        _key = key;
+    }</pre>
+
+<p>The attributes are used by PropertyGrid to organise the properties into categories, to display help text and so on. We don’t bother with any of that at the moment, so we simply pass null.</p>
+
+<p>The first interesting member is the PropertyType property. We just get the object out of the dictionary and ask it:</p>
+
+<pre>    public override Type PropertyType
+    {
+        get { return _dictionary[_key].GetType(); }
+    }</pre>
+
+<p>If you knew that all of your values were strings, for example, you could just return typeof(string).</p>
+
+<p>Then we implement SetValue and GetValue:</p>
+
+<pre>    public override void SetValue(object component, object value)
+    {
+        _dictionary[_key] = value;
+    }
+
+    public override object GetValue(object component)
+    {
+        return _dictionary[_key];
+    }</pre>
+
+<p>The <code class="highlighter-rouge">component</code> parameter passed to these two methods is whatever value was returned from ICustomTypeDescriptor.GetPropertyOwner. If it weren’t for the fact that we need the dictionary object in PropertyType, we could avoid using the _dictionary member, and just grab it using this mechanism.</p>
+
+<p>And that’s it for interesting things. The rest of the class looks like this:</p>
+
+<pre>    public override bool IsReadOnly
+    {
+        get { return false; }
+    }
+
+    public override Type ComponentType
+    {
+        get { return null; }
+    }
+
+    public override bool CanResetValue(object component)
+    {
+        return false;
+    }
+
+    public override void ResetValue(object component)
+    {
+    }
+
+    public override bool ShouldSerializeValue(object component)
+    {
+        return false;
+    }
+}</pre>
+
+<p>Then you can just use it like this:</p>
+
+<pre>private void Form1_Load(object sender, System.EventArgs e)
+{
+    IDictionary d = new Hashtable();
+    d["Hello"] = "World";
+    d["Meaning"] = 42;
+    d["Shade"] = Color.ForestGreen;
+
+    propertyGrid1.SelectedObject = new DictionaryPropertyGridAdapter(d);
+}</pre>
+
+<p>And it comes out looking like this:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=32</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=640</td>
+      <td>height=640]</td>
+    </tr>
+  </tbody>
+</table>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

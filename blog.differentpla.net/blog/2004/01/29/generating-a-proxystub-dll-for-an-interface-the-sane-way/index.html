@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Generating a Proxy/Stub DLL for an interface, the sane way</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Generating a Proxy/Stub DLL for an interface, the sane way</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-01-29 10:01:00 +0000">2004-01-29 10:01:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Note: This article applies to Visual C++ 6. There might be an easier way to do this in Visual Studio .NET</p>
+
+<p>It seems that the only way to get some boilerplate IDL generated is to use the ATL wizard. Unfortunately, this requires that you create an object that will implement the interface at the same time. This is not necessarily what you want.</p>
+
+<p>Recently, I was experimenting with sending a custom object between processes using Uniform Data Transfer (drag-and-drop or the clipboard), and needed to design an interface for this object. This time, I managed to separate the interface marshalling (the Proxy/Stub DLL) from the implementation. It’s not that hard. You’ll need the following files.</p>
+
+<h2 id="my_interfacedspdsw">my_interface.dsp/.dsw</h2>
+
+<p>The first thing that you’ll need is a project file. Start with a “Win32 Dynamic-Link Library” project. In this example, we’re calling it <code class="highlighter-rouge">my_interface</code>. Make sure that you select “An empty DLL project” from the wizard.</p>
+
+<h2 id="my_interfaceidl">my_interface.idl</h2>
+
+<pre>import "oaidl.idl";
+import "ocidl.idl";
+
+[ object, uuid(12345678-9ABC-DEF0-1234-56789ABCDEF0),
+  helpstring("IMyInterface Interface"),
+  pointer_default(unique) ]
+interface IMyInterface : IUnknown
+{
+    // methods go here
+};</pre>
+
+<p>Add this file to the project. Open the settings dialog and go to the “MIDL” tab. Visual Studio should have automatically added it. Select your IDL file.</p>
+
+<p><img src="http://blog.differentpla.net/images/b409ba5376acdf3a345831bf8a7221e8-211.png" alt="" /></p>
+
+<p>In the “Output file name” box, put the name of the .tlb file that you’d like to generate. In this case, it shouldn’t particularly matter, because we don’t have a “library” section in our IDL file. However, if we have a name in this box, Visual Studio fails to work out its dependencies correctly, and builds things in the wrong order. Unless you <em>do</em> have a “library” section, it’s probably best to leave this empty.</p>
+
+<p>In the “Output header file name” box, put <code class="highlighter-rouge">my_interface.h</code>. This is the name of the file from which both the client and server C++ code will get the interface definition.</p>
+
+<p>You can check the “Stubless Proxies” box if you’re targetting Windows 95 or newer, or Windows NT 4 or newer. This is almost certainly true these days. It’s equivalent to the <code class="highlighter-rouge">/Oicf</code> switch.</p>
+
+<p>In the “UUID File” box, put <code class="highlighter-rouge">my_interface_i.c</code>. This is the name of the file where all of the IID definitions will be stored.</p>
+
+<p>Uncheck the “MkTypLib compatible” box.</p>
+
+<p>Compile your project. You should have a successfully compiled IDL file. This will result in the generation of the following files:</p>
+
+<ul>
+  <li>dlldata.c</li>
+  <li>my_interface.h</li>
+  <li>my_interface_i.c</li>
+  <li>my_interface_p.c</li>
+</ul>
+
+<p>Add them all to your project.
+In this state, your project won’t build, so you’ll need to do a couple of other things.</p>
+
+<p>First, add <code class="highlighter-rouge">_WINNT_WIN32=0x0400</code> to the preprocessor definitions. You’ll need this to use the “Stubless Proxies” setting, above.</p>
+
+<p>Next, add the following libraries to the Link tab:</p>
+
+<ul>
+  <li>rpcndr.lib</li>
+  <li>rpcns4.lib</li>
+  <li>rpcrt4.lib</li>
+</ul>
+
+<p>Finally, add <code class="highlighter-rouge">REGISTER_PROXY_DLL</code> to the preprocessor definitions. You’ll need this if you want <code class="highlighter-rouge">regsvr32.exe</code> to work with your DLL.</p>
+
+<p>Your project should now compile and link.</p>
+
+<h2 id="registering-the-dll">Registering the DLL</h2>
+
+<p>The AppWizard-generated COM DLLs are automatically registered at the end of the build process. To add this, go to the “Custom Build” tab for the project, and enter the following information:</p>
+
+<p><img src="http://blog.differentpla.net/images/e2a082965d1a57593273cf84e835c573-212.png" alt="" /></p>
+
+<p>Done. Source is here: <a href="http://blog.differentpla.net/drupal-4.7.3/my_interface.zip">my_interface.zip</a>.</p>
+
+<p>Late note: You might need to add a .def file to the project. I’m not sure why. It should look like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>; my_interface.def : Declares the module parameters.
+
+LIBRARY      "my_interface.DLL"
+
+EXPORTS
+	DllGetClassObject       @1	PRIVATE
+	DllCanUnloadNow         @2	PRIVATE
+	GetProxyDllInfo         @3	PRIVATE
+	DllRegisterServer		@4	PRIVATE
+	DllUnregisterServer		@5	PRIVATE
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

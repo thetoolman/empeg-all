@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Moving Message Sign</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Moving Message Sign</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2001-06-01 10:41:00 +0000">2001-06-01 10:41:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>A couple of weeks ago, we got an LED message board at work. They had them on offer at Maplin (if I recall correctly). Anyway, the manual with the board is singularly useless. It’s labelled “Moving Message Sign”, and has a picture of the display with “Taiwan Kingpul” on it.</p>
+
+<p>It comes with a serial connector. Unfortunately, you don’t seem to be able to control the LED sequencing yourself, but you can upload messages to it, using the supplied software.</p>
+
+<p>Unfortunately, the supplied software isn’t that good - it’s a 16-bit Windows program. We’d like to run something under Linux to control it. So with the judicious application of a copy of PortMon from <a href="http://www.sysinternals.com/">www.sysinternals.com</a>, we found out how it works.</p>
+
+<p>The connection settings are 2400,N,8,1.</p>
+
+<p>To program it, get it either scrolling a message, or in the program editor, then send it the new message.</p>
+
+<p>The message should be preceded by a preamble consisting of 0xAA,0xAA,0xAA,0xAA,0xAA,0xBB, and terminated by a single 0x80 byte.</p>
+
+<p>Messages are almost in ASCII.</p>
+
+<table border="1">
+<tbody>
+<tr>
+<th>Hex</th>
+
+<th>Character</th>
+
+</tr>
+
+<tr>
+<td>0x03</td>
+
+<td>À</td>
+
+</tr>
+
+<tr>
+<td>0x06</td>
+
+<td>£</td>
+
+</tr>
+
+<tr>
+<td>0x07</td>
+
+<td>¤</td>
+
+</tr>
+
+<tr>
+<td>0x08</td>
+
+<td>Ω</td>
+
+</tr>
+
+<tr>
+<td>0x0F</td>
+
+<td>Ö</td>
+
+</tr>
+
+<tr>
+<td>0x10</td>
+
+<td>φ</td>
+
+</tr>
+
+<tr>
+<td>0x13</td>
+
+<td>à</td>
+
+</tr>
+
+<tr>
+<td>0x14</td>
+
+<td>§</td>
+
+</tr>
+
+<tr>
+<td>0x16</td>
+
+<td>æ</td>
+
+</tr>
+
+<tr>
+<td>0x17</td>
+
+<td>Σ</td>
+
+</tr>
+
+<tr>
+<td>0x18</td>
+
+<td>wineglass</td>
+
+</tr>
+
+<tr>
+<td>0x1F</td>
+
+<td>ö</td>
+
+</tr>
+
+<tr>
+<td>0x20</td>
+
+<td>colon (swapped with space)</td>
+
+</tr>
+
+<tr>
+<td>0x21 to 0x39</td>
+
+<td>(same as ASCII)</td>
+
+</tr>
+
+<tr>
+<td>0x3A</td>
+
+<td>space (swapped with colon)</td>
+
+</tr>
+
+<tr>
+<td>0x3B</td>
+
+<td>Φ</td>
+
+</tr>
+
+<tr>
+<td>0x3C</td>
+
+<td>Æ</td>
+
+</tr>
+
+<tr>
+<td>0x3D to 0x5A</td>
+
+<td>(same as ASCII)</td>
+
+</tr>
+
+<tr>
+<td>0x5B</td>
+
+<td>Ü</td>
+
+</tr>
+
+<tr>
+<td>0x5D</td>
+
+<td>è</td>
+
+</tr>
+
+<tr>
+<td>0x5F</td>
+
+<td>less-than</td>
+
+</tr>
+
+<tr>
+<td>0x60</td>
+
+<td>É</td>
+
+</tr>
+
+<tr>
+<td>0x7B</td>
+
+<td>semicolon</td>
+
+</tr>
+
+<tr>
+<td>0x7C</td>
+
+<td>Ñ</td>
+
+</tr>
+
+<tr>
+<td>0x7D</td>
+
+<td>ñ</td>
+
+</tr>
+
+<tr>
+<td>0x7E</td>
+
+<td>Ä</td>
+
+</tr>
+
+<tr>
+<td>0x7F</td>
+
+<td>ä</td>
+
+</tr>
+
+<tr>
+<td>0x80</td>
+
+<td>end</td>
+
+</tr>
+
+<tr>
+<td>0x81</td>
+
+<td>left</td>
+
+</tr>
+
+<tr>
+<td>0x82</td>
+
+<td>right</td>
+
+</tr>
+
+<tr>
+<td>0x83</td>
+
+<td>up</td>
+
+</tr>
+
+<tr>
+<td>0x84</td>
+
+<td>down</td>
+
+</tr>
+
+<tr>
+<td>0x85</td>
+
+<td>jump</td>
+
+</tr>
+
+<tr>
+<td>0x86</td>
+
+<td>open</td>
+
+</tr>
+
+<tr>
+<td>0x87</td>
+
+<td>close</td>
+
+</tr>
+
+<tr>
+<td>0x88</td>
+
+<td>flash</td>
+
+</tr>
+
+<tr>
+<td>0x89</td>
+
+<td>flshg</td>
+
+</tr>
+
+<tr>
+<td>0x8A</td>
+
+<td>doff</td>
+
+</tr>
+
+<tr>
+<td>0x8B</td>
+
+<td>big</td>
+
+</tr>
+
+<tr>
+<td>0x8C</td>
+
+<td>clear</td>
+
+</tr>
+
+<tr>
+<td>0x8D</td>
+
+<td>speed*</td>
+
+</tr>
+
+<tr>
+<td>0x8E</td>
+
+<td>random</td>
+
+</tr>
+
+<tr>
+<td>0x8F</td>
+
+<td>wait*</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<ul>
+  <li>speed and wait should be immediately followed by a literal numeral (i.e. 0x31 to 0x39), dictating how fast, or how long.
+ There are a bunch more graphical characters, which do things like put a clock up. I don’t know the codes for those.
+<strong>Update:</strong> I no longer have access to this display, so I can’t help you beyond what’s published here.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

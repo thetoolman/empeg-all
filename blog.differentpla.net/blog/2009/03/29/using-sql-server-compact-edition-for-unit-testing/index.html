@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using SQL Server Compact Edition for Unit Testing</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using SQL Server Compact Edition for Unit Testing</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2009-03-29 09:02:11 +0000">2009-03-29 09:02:11 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="using-sql-server-compact-edition-for-unit-testing">Using SQL Server Compact Edition for Unit Testing</h2>
+
+<p>Ayende shows how to use SQLite with an in-memory database for unit testing your NHibernate code (<a href="http://ayende.com/Blog/archive/2006/10/14/UnitTestingWithNHibernateActiveRecord.aspx">here</a>). This is a great idea: your unit tests will run more quickly, and you don’t have to worry about tearing the database down when you’ve finished. On the other hand, it’s not an exact match for Microsoft SQL Server (which is probably what your production website will run against).</p>
+
+<p>Instead, I decided to use SQL Server Compact Edition (SqlServerCe), which is available in Visual Studio 2008. This has the disadvantage that it’s not in-memory so it’s slower (though not as slow as SQL Server Express or proper SQL Server), but still has the advantage that, because the database is stored in a local file, we can set it up and tear it down quickly and easily.</p>
+
+<p>To do that, you need to set up your NHibernate configuration as follows:</p>
+
+<pre class="code">var configurationProperties = new Dictionary&lt;string, string&gt;();
+configurationProperties.Add("hibernate.connection.provider", "NHibernate.Connection.DriverConnectionProvider");
+configurationProperties.Add("hibernate.connection.driver_class", "NHibernate.Driver.SqlServerCeDriver");
+configurationProperties.Add("hibernate.connection.connection_string", "Data Source=Temp.sdf");
+configurationProperties.Add("hibernate.dialect", "NHibernate.Dialect.MsSqlCeDialect");
+</pre>
+
+<p>Note that the connection string names a database file that must exist. We handle this by having the unit test SetUp method create a new one:</p>
+<pre class="code">File.Copy("Template.sdf", "Temp.sdf", true);</pre>
+
+<p>To make this work, you’ll need to create a new SQL Server Compact database file and then add it to your project. Use <strong>Add</strong> / <strong>New Item…</strong> / <strong>Local Database</strong>. Make sure that the database is configured as “Build Action” = “Content”, so that it’s copied to the output directory (i.e. next to the unit test assembly).</p>
+
+<p>We should also get our code to create the database according to the mappings we’ve set up:</p>
+
+<pre class="code">const string assemblyForType = "Projects.Model.NHibernate";
+configuration.AddAssembly(assemblyForType);
+new SchemaExport(configuration).Execute(false, true, false, false);</pre>
+
+<h3 id="using-the-sql-server-ce-driver">Using the SQL Server CE Driver</h3>
+
+<p>You’ll probably see this exception:</p>
+
+<blockquote>
+  <p>NHibernate.HibernateException: Could not create the driver from NHibernate.Driver.SqlServerCeDriver.</p>
+</blockquote>
+
+<blockquote>
+  <p>NHibernate.HibernateException: The IDbCommand and IDbConnection implementation in the assembly System.Data.SqlServerCe could not be found.<br />
+ Ensure that the assembly System.Data.SqlServerCe is located in the application directory or in the Global Assembly Cache.<br />
+ If the assembly is in the GAC, use <qualifyAssembly></qualifyAssembly> element in the application configuration file to specify the full name of the assembly.</p>
+</blockquote>
+
+<p>This exception will be thrown when NHibernate can’t find the relevant driver for SQL Server CE. To fix it, ensure that you’ve added a reference to System.Data.SqlServerCe to your project. You’ll also have to mark it as “Copy Local” = “true” in the reference properties.</p>
+
+<h3 id="sql-server-ce-is-32-bit-only">SQL Server CE is 32-bit only</h3>
+
+<p>You might see the following exception:</p>
+
+<blockquote>
+  <p>System.DllNotFoundException: Unable to load DLL ‘sqlceme35.dll’: The specified module could not be found. (Exception from HRESULT: 0x8007007E)</p>
+</blockquote>
+
+<p>Your program is probably running in 64-bit mode; SQL Server CE is 32-bit only. To fix this, go to your project’s properties. On the “Build” tab, change the “Platform Target” setting to “x86”.</p>
+
+<p>If you’re running your unit tests with NUnit, you might need to use nunit-console-x86.exe instead. If you’re using ReSharper’s NUnit runner (built into Visual Studio 2008), you’ll be OK: Visual Studio is a 32-bit application.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

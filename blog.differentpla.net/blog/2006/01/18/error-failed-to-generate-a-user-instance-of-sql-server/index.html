@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Error: Failed to generate a user instance of SQL Server...</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Error: Failed to generate a user instance of SQL Server...</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2006-01-18 21:55:30 +0000">2006-01-18 21:55:30 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I was just hacking something together in Visual Web Developer Express, and was attempting to add a database to my App_Data directory when I ran into problems.</p>
+
+<p>VWD kept timing out, and giving me a variety of error messages. Event Viewer contained the following: <code class="highlighter-rouge">Failed to generate a user instance of SQL Server due to a failure in starting the process for the user instance. The connection will be closed. [CLIENT: &lt;local machine=""&gt;]&lt;/local&gt;</code></p>
+
+<p>I did some googling, and discovered the solution: you need to delete the <code class="highlighter-rouge">C:\Documents and Settings\_username_\Local Settings\Application Data\Microsoft\Microsoft SQL Server Data\SQLEXPRESS</code> directory.</p>
+
+<p>What everyone else failed to emphasise is that you might need to <strong>restart Windows</strong>. Simply bouncing the SQL Server Express service doesn’t always fix it.</p>
+
+<p>This is what I did:</p>
+
+<ul>
+  <li>Reboot the computer.</li>
+  <li>Log in as Administrator (I run with non-Admin privileges most of the time).</li>
+  <li>Delete the SQLEXPRESS directory for my normal user account.</li>
+  <li>Log back in as my normal user.</li>
+</ul>
+
+<p>You can see if it’s working properly by using the <a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=fa87e828-173f-472e-a85c-27ed01cf6b02&amp;DisplayLang=en">SSEUTIL</a> utility. “sseutil -l” (that’s a lower-case L) should list the databases currently being used by your user account.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

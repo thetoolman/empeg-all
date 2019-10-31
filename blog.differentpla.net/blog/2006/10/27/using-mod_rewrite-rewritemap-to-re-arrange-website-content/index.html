@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using mod_rewrite, RewriteMap to re-arrange website content</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using mod_rewrite, RewriteMap to re-arrange website content</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2006-10-27 12:39:30 +0000">2006-10-27 12:39:30 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>When <a href="../../../../../content/2006/10/differentpla-net-is-moving">moving</a> differentpla.net
+from one server to another, I decided to move the content (currently served
+using drupal) from the root to <code class="highlighter-rouge">/content</code>. I also decided to use more descriptive
+URLs.</p>
+
+<p>But I didn’t want to break too many external links.</p>
+
+<p>Here’s how I used Apache’s mod_rewrite - specifically RewriteMap - to achieve
+this.</p>
+
+<p>As explained in the linked page, I’ve moved differentpla.net from my Linux box
+at home to a Virtual Private Server (VPS), hosted in the US.</p>
+
+<p>I’ll also be moving a few other websites from this machine. In order to better
+implement a shared installation of both Gallery2 and drupal across those
+websites, I decided to move differentpla.net’s content from the root to a
+subdirectory.</p>
+
+<p>Along with this, I decided to make use of drupal’s path remapping support to
+generate more descriptive URLs for the content.</p>
+
+<p>However, I don’t particularly want to break external links to the website, so I
+looked into using mod_rewrite to help with this.</p>
+
+<p>It turns out that mod_rewrite has a feature called RewriteMap, which does
+exactly what I want.</p>
+
+<p>To use it, I simply added the following section to
+<code class="highlighter-rouge">/etc/apache2/sites-available/differentpla.net</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine on
+
+    RewriteLog /var/log/apache2/rewrite.log
+    RewriteLogLevel 0
+
+    # Anything matching /node/X or /node/view/X is remapped
+    # via this text file, which is keyed on X
+    RewriteMap txtmap txt:/home/www/sites/differentpla.net/map.txt
+
+    RewriteCond %{REQUEST_URI}      ^/node/view/
+    RewriteRule ^/node/view/(.*)    /content/${txtmap:$1} [R]
+
+    RewriteCond %{REQUEST_URI}      ^/node/
+    RewriteRule ^/node/(.*)         /content/${txtmap:$1} [R]
+&lt;/IfModule&gt;
+</code></pre></div></div>
+
+<p>It’s enclosed in a condition block, so that it only takes effect if mod_rewrite is enabled.</p>
+
+<p>The first line turns on mod_rewrite. The next two control logging. Level 0 (zero) means that rewrite logging is off.</p>
+
+<p>Then I define the RewriteMap. Currently this is a simple text file. mod_rewrite also has support for <a href="http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html#rewritemap">other types of data source</a>.</p>
+
+<p>Then there are the two things I want to recognise. There are two different ways to access drupal content. You can go to /node/NNN or /node/view/NNN. These two rules extract the NNN, look it up in the map, prefix it with /content/, and then issue a redirect.</p>
+
+<p>Everything else is passed through unchanged.</p>
+
+<p>Here’s a snippet from map.txt:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1       welcome
+10      2002/03/rsync-empegs
+</code></pre></div></div>
+
+<p>So, you can see that /node/1 or /node/view/1 are mapped to /content/welcome;
+and that /node/10 and /node/view/10 are mapped to
+/content/2002/03/rsync-empegs.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

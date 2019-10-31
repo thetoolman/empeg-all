@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing SquirrelMail</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing SquirrelMail</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-11 14:22:00 +0000">2004-03-11 14:22:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Part 9 of <a href="../../../../../node/view/165">Installing qmail and vpopmail</a>.</p>
+
+<h2 id="squirrelmail">SquirrelMail</h2>
+
+<p>One requirement I listed earlier is webmail, so that I can access my email from anywhere. I’m going to take a look at <a href="http://www.squirrelmail.org/">SquirrelMail</a>.</p>
+
+<h2 id="configuring-apache">Configuring Apache</h2>
+
+<p>The first thing that I need to do is install Apache (since this is my test box and it’s not been installed yet). SquirrelMail also has a bunch of <a href="http://www.squirrelmail.org/wiki/SquirrelMailRequirements">other requirements</a>:</p>
+
+<pre># apt-get install apache php4 php4-pear</pre>
+
+<p>Note that, by default, the Debian packages for php4 on woody don’t correctly enable it. You’ll need to go and tweak the <code class="highlighter-rouge">/etc/apache/httpd.conf</code> file:</p>
+
+<pre># LoadModule eaccess_module /usr/lib/apache/1.3/mod_eaccess.so
+**LoadModule php4_module /usr/lib/apache/1.3/libphp4.so**
+# LoadModule roaming_module /usr/lib/apache/1.3/mod_roaming.so</pre>
+
+<pre>    # And for PHP 4.x, use:
+    #
+    **AddType application/x-httpd-php .php**
+    #AddType application/x-httpd-php-source .phps</pre>
+
+<h2 id="installing-squirrelmail">Installing SquirrelMail</h2>
+
+<p>Once Apache and PHP are installed correctly, we can install SquirrelMail. Grab the download from <a href="http://www.squirrelmail.org/download.php">here</a>, and then follow the instructions in the INSTALL file.</p>
+
+<p>The installation instructions aren’t great. Here’s what I did.</p>
+
+<pre># cd /var/www
+# mkdir webmail
+# cp -a /usr/local/src/squirrelmail-1.4.2/* webmail/
+# cd /var/www/webmail
+# chown -R www-data.www-data data</pre>
+
+<h2 id="configuring-squirrelmail">Configuring SquirrelMail</h2>
+
+<p>The defaults are generally OK, but there’s a couple of things that need to be changed:</p>
+
+<pre># config/conf.pl</pre>
+
+<p><code class="highlighter-rouge">Server Settings</code>:</p>
+
+<table border="1">
+<tbody>
+<tr>
+<td>Domain</td>
+
+<td>`differentpla.test`</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<p>We need to change the settings in <code class="highlighter-rouge">Folder Defaults</code> to make it compatible with IMAPdir and Outlook Express:</p>
+
+<table border="1">
+<tbody>
+<tr>
+<td>Trash Folder</td>
+
+<td>Trash</td>
+
+</tr>
+
+<tr>
+<td>Sent Folder</td>
+
+<td>Sent Items</td>
+
+</tr>
+
+<tr>
+<td>Drafts</td>
+
+<td>Drafts</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="configuring-htaccess">Configuring .htaccess</h2>
+
+<p>In order to allow access as http://flimsy/webmail/, I need to bung a <code class="highlighter-rouge">.htaccess</code> file in the <code class="highlighter-rouge">/var/www/webmail</code> directory:</p>
+
+<pre>DirectoryIndex index.php</pre>
+
+<p>And I need to change the <code class="highlighter-rouge">/etc/apache/httpd.conf</code> file:</p>
+<pre>&lt;Directory /var/www/webmail/&gt;
+        AllowOverride All
+&lt;/Directory&gt;
+</pre>
+
+<p>And it just works. I can log in by going to http://flimsy/webmail/. Cool.</p>
+
+<p>Next: <a href="../../../../../node/view/178">Installing ClamAV and Qmail-Scanner</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

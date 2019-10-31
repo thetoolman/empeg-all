@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing qmail and vpopmail</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing qmail and vpopmail</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-11 09:24:00 +0000">2004-03-11 09:24:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>My mail server runs <code class="highlighter-rouge">qmail</code>. This is the first of a multipart series showing how I went about installing <code class="highlighter-rouge">vpopmail</code> for virtual domain support.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>My webserver, on <code class="highlighter-rouge">peculiar.differentpla.net</code> is configured for virtual hosting. Among the different websites that it hosts are <a href="../../../../../index.html">differentpla.net</a> and <a href="http://www.beerology.net/">beerology.net</a>.</p>
+
+<p>It also manages email for those domains. Unfortunately, the email system is not set up to allow virtual hosting. This means that any email to (e.g.) fred@differentpla.net gets delivered to the same place as fred@beerology.net. Now, this might not be a problem if the user accounts referred to the same person. Even here, fred might want to keep the two accounts separate.</p>
+
+<p><code class="highlighter-rouge">peculiar</code> is running qmail to handle email. Since it’s running my “production” email, I’m going to install a test box to try all of this out on.</p>
+
+<h2 id="requirements">Requirements</h2>
+
+<p>This is what I want out of the mail server when I’m finished:</p>
+
+<ul>
+  <li>Separate virtual domains, so that fred@differentpla.net and fred@beerology.net are delivered to different mailboxes.</li>
+  <li>POP3 support, so that my girlfriend can download her email to the desktop PC.</li>
+  <li>SMTP AUTH support, so that I can send mail from my laptop from anywhere.</li>
+  <li>IMAP support, so that I can access my mail from my laptop anywhere.</li>
+  <li>Forwarding. A couple of user accounts on this box are forwarded elsewhere. This must continue to work.</li>
+  <li>Mailing lists (using ezmlm).</li>
+  <li>Webmail, so that I can access my mail without my laptop from anywhere.</li>
+  <li>Virus/spam filtering.</li>
+</ul>
+
+<h2 id="the-test-box">The test box</h2>
+
+<p>Because <code class="highlighter-rouge">peculiar</code> is currently handling my “production” email, I don’t want to accidentally break it while trying out all of this new stuff, so I’m going to set it up on a test box.</p>
+
+<p>For this, I’ve dug up my girlfriend’s old PC (a Pentium-200), which should be adequate for this test system. On it, I’ve installed Debian GNU/Linux v3.0 (woody), which is the same version as running on <code class="highlighter-rouge">peculiar</code>. The machine is called <code class="highlighter-rouge">flimsy</code>.</p>
+
+<h2 id="the-articles">The articles</h2>
+
+<ul>
+  <li>Part 1: This page.</li>
+  <li>Part 2: <a href="../../../../../node/view/166">Removing exim and installing qmail</a>.</li>
+  <li>Part 3: <a href="../../../../../node/view/167">Installing SMTP AUTH with qmail</a>.</li>
+  <li>Part 4: <a href="../../../../../node/view/170">Installing vpopmail</a>.</li>
+  <li>Part 5: <a href="../../../../../node/view/171">Installing BincIMAP</a>.</li>
+  <li>Part 6: <a href="../../../../../node/view/172">Using qmail extension addresses with vpopmail</a>.</li>
+  <li>Part 7: <a href="../../../../../node/view/173">Forwarding addresses to another account using vpopmail</a>.</li>
+  <li>Part 8: <a href="../../../../../node/view/174">Installing ezmlm with vpopmail</a>.</li>
+  <li>Part 9: <a href="../../../../../node/view/175">Installing SquirrelMail</a>.</li>
+  <li>Part 10: <a href="../../../../../node/view/178">Installing ClamAV and Qmail-Scanner</a>.</li>
+  <li>Part 11: <a href="../../../../../node/view/179">Securing SquirrelMail using HTTPS</a>.</li>
+  <li>Part 12: <a href="../../../../../node/view/190">Securing IMAP</a>.</li>
+  <li>Part 13: <a href="../../../../../node/view/196">SMTP over TLS</a>.</li>
+  <li>Part 14: <a href="../../../../../node/view/198">Installing qmailAdmin</a>.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Failed to enumerate SSL bindings</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Failed to enumerate SSL bindings</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-11-11 14:53:04 +0000">2013-11-11 14:53:04 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>In PowerShell, when I attempted to enumerate SSL bindings, I was getting the
+error message:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Failed to enumerate SSL bindings, error code 234.
+</code></pre></div></div>
+
+<p>This is sometimes due to misconfiguration of the SSL certificate bindings in
+the registry, under
+<code class="highlighter-rouge">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\HTTP\Parameters\SslBindingInfo</code>.
+This controls the SSL certificate bindings; either all of the entries in here
+must have a value named <code class="highlighter-rouge">SslCertStoreName</code>, or none of them must.</p>
+
+<p>One of my colleagues found this answer on <a href="http://social.technet.microsoft.com/Forums/windowsserver/en-US/87b1252d-a6a0-4251-bbb6-38e104a8c07a/enumerating-iissslbindings-gives-failure-on-one-machine-works-on-another?forum=winserverpowershell#0425cd3a-0da0-45df-960f-a614bf30aae1">this MSDN forum</a>, but that’s kinda hard to read.</p>
+
+<h2 id="with-powershell">With PowerShell:</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Find those entries which are missing the 'SslCertStoreName' property:    
+# Note, that, for some reason, this includes the `[::1]:443` entry, even if it's not broken,
+# which means that we can't easily script the fix.
+$brokenBindings = dir HKLM:\SYSTEM\CurrentControlSet\services\HTTP\Parameters\SslBindingInfo | 
+        where { !(Get-ItemProperty -Path $_.PSPath -Name SslCertStoreName) }
+
+# Output the certificate thumbprint for the broken ones:
+$brokenBindings | % {
+                $hashBytes = (Get-ItemProperty -Path $_.PSPath -Name SslCertHash).SslCertHash
+                $hashString = [BitConverter]::ToString($hashBytes).Replace('-', '')
+                Write-Output ("{0} -- {1}" -f $_.Name, $hashString)
+}
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

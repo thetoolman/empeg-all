@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Linux on Sony Vaio - Firewire DVD-ROM drive</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Linux on Sony Vaio - Firewire DVD-ROM drive</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-02-04 14:47:00 +0000">2003-02-04 14:47:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>To get the DVD-ROM drive working, you’ll need to compile your kernel with the following options:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CONFIG_SCSI=m (SCSI Support ---&gt; SCSI Support)
+CONFIG_BLK_DEV_SR=m (SCSI Support ---&gt; SCSI CD-ROM support)
+CONFIG_IEEE1394=m (IEEE 1394 ---&gt; IEEE 1394)
+CONFIG_IEEE1394_OHCI1394=m (IEEE 1394 ---&gt; OHCI-1394)
+CONFIG_IEEE1394_SBP2=m (IEEE 1394 ---&gt; SBP-2)
+CONFIG_ISO9660_FS=m (File systems ---&gt; ISO 9660)
+CONFIG_JOLIET=y (File systems ---&gt; Microsoft Joliet)
+CONFIG_ZISOFS=y (File systems ---&gt; Transparent Decompression extension)
+CONFIG_ZISOFS_FS=m (automatic)
+CONFIG_ZLIB_INFLATE=m (automatic)
+</code></pre></div></div>
+
+<p>You don’t need any of the SCSI low-level drivers.</p>
+
+<p>This should be sufficient to support the Firewire controller, and to support the DVD-ROM drive. Build and install your <a href="http://blog.differentpla.net/drupal-4.7.3/make-kpkg.html">new kernel</a>, and reboot.</p>
+
+<p>Connect the DVD-ROM drive and put in a CD-ROM or DVD-ROM (or a DVD video or audio disc).</p>
+
+<p>Then, as root:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># modprobe ohci1394
+# modprobe sbp2
+# mount /dev/scd0 /mnt
+</code></pre></div></div>
+
+<p>Your CD or DVD should now be visible in <code class="highlighter-rouge">/mnt</code>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

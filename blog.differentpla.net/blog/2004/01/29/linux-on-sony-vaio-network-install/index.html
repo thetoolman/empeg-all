@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Linux on Sony Vaio - Network Install</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Linux on Sony Vaio - Network Install</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-01-29 10:01:00 +0000">2004-01-29 10:01:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="configure-the-vaio-for-network-booting">Configure the Vaio for Network booting</h2>
+
+<p>To do this:</p>
+
+<ol>
+  <li>Hit F2 during boot (when the Sony logo is displayed) to get into the BIOS configuration.</li>
+  <li>In the “Advanced” page, set “Network Boot” to “Enabled”.</li>
+  <li>In the “Boot” page, move “Network Boot” to the top of the list. Alternatively, hit F12 to trigger network booting when the “Sony” screen is displayed at startup.</li>
+</ol>
+
+<p><img src="http://blog.differentpla.net/images/26cb8a77ebbe717a193b665d44b7f9d4-163.jpg" alt="" /><img src="http://blog.differentpla.net/images/3f46e31ae2f33794c9708fe8a4e90807-162.jpg" alt="" /></p>
+
+<h2 id="configure-dhcp">Configure DHCP</h2>
+
+<p>I’ve already got DHCP working on my network, so all I had to do was add the <code class="highlighter-rouge">host joplin</code> block to my <code class="highlighter-rouge">/etc/dhcpd.conf</code> file:</p>
+
+<div class="snippet">
+    subnet 192.168.10.0 netmask 255.255.255.0 {
+      range 192.168.10.100 192.168.10.200;
+      option broadcast-address 192.168.10.255;
+      option routers 192.168.10.1;
+      option domain-name-servers 192.168.10.1;
+      option domain-name "home.differentpla.net";
+      option subnet-mask 255.255.255.0;
+      allow bootp;
+
+     **host joplin {
+        hardware ethernet 01:23:45:67:89:ab;
+        fixed-address joplin.home.differentpla.net;
+        server-name "192.168.10.2";
+        next-server 192.168.10.2;
+        filename "/tftpboot/pxelinux.0";
+      }**
+    }
+
+</div>
+
+<p>You’ll probably need the <code class="highlighter-rouge">allow bootp;</code> statement as well. I already had that configured.
+I have two servers – one (my firewall on 192.168.10.1) hands out the DHCP information; the other (my fileserver on 192.168.10.2) will hand out the boot files.</p>
+
+<h2 id="configure-tftp">Configure TFTP</h2>
+
+<p>You’ll need to install a suitable TFTP daemon. <code class="highlighter-rouge">apt-get tftpd-hpa</code> is good for this. It works well with PXE. It’s configured to run from <code class="highlighter-rouge">/etc/inetd.conf</code>.</p>
+
+<p>You’ll also need to install Syslinux to get the default boot images. <code class="highlighter-rouge">apt-get syslinux</code> will work for this. After you’ve done this, you’ll need to copy the <code class="highlighter-rouge">/usr/lib/syslinux/pxelinux.0</code> file to <code class="highlighter-rouge">/tftpboot</code>.</p>
+
+<p>If you want to use a 2.2 kernel, grab:</p>
+
+<ul>
+  <li><a href="http://www.debian.org/debian/dists/woody/main/disks-i386/current/idepci/tftpboot.img">tftpboot.img</a></li>
+  <li><a href="http://www.debian.org/debian/dists/woody/main/disks-i386/current/images-1.44/root.bin">root.bin</a></li>
+</ul>
+
+<p>If you want to use a 2.4 kernel (I didn’t), you’ll need to grab:</p>
+
+<ul>
+  <li><a href="http://www.debian.org/debian/dists/woody/main/disks-i386/current/bf2.4/tftpboot.img">tftpboot.img</a></li>
+  <li><a href="http://www.debian.org/debian/dists/woody/main/disks-i386/current/images-1.44/bf2.4/root.bin">root.bin</a></li>
+</ul>
+
+<p>and put them in <code class="highlighter-rouge">/tftpboot</code>. The problem with using a 2.4 kernel is that (by default) it doesn’t support the eepro100 network card in the Vaio. You’ll have to work out some kind of solution to this yourself.
+Next, create the <code class="highlighter-rouge">/tftpboot/pxelinux.cfg/</code> directory, and put the following into a file <code class="highlighter-rouge">/tftpboot/pxelinux.cfg/default</code>:</p>
+
+<div class="snippet">
+    DEFAULT
+
+    LABEL linux
+     KERNEL tftpboot.img
+     APPEND initrd=root.bin root=/dev/ram
+
+</div>
+
+<h2 id="configuring-nfs">Configuring NFS</h2>
+
+<p>You’ll need an NFS server as well. I’ve already got one correctly configured, so I’m not going to explain it here.</p>
+
+<h2 id="reboot-your-vaio">Reboot your Vaio</h2>
+
+<p>Now, when you power on your Sony Vaio, you should see it grab an IP address and boot from the image files stored on your server.</p>
+
+<h2 id="installing-debian">Installing Debian</h2>
+
+<ol>
+  <li>Select a language. I chose English (U.K.).</li>
+  <li>Configure the keyboard. I chose querty/us.</li>
+  <li>Partition your hard disk. When I <a href="http://blog.differentpla.net/blog/2004/01/29/xp-pro.html">installed Windows XP Pro</a>, I left about 7Gb unpartitioned. I’m allocating my root partition and swap out of that.</li>
+  <li>Initialise and activate a swap partition.</li>
+  <li>Initialise a Linux partition. Because the images you downloaded are for a 2.2 kernel, this will be an ext2, rather than ext3 partition. We’ll convert it later.</li>
+  <li>Next, the installer will ask you to “Install Kernel and Driver Modules”. Select “network” as the method. It’ll think that you’ve not configured your network, so you’ll have to do that. I set the host name to “joplin”. For some reason, once you’ve booted using TFTP, configuring the network interface using DHCP doesn’t work. I had to configure the interface manually. It asks for an IP address, a netmask, a gateway and a DNS server.</li>
+  <li>Once you’ve entered all of this information, it’ll download the kernel and drivers from the specified HTTP server.</li>
+  <li>Then it’ll suggest configuring Device Driver modules. This won’t work – for some reason it’s looking in <code class="highlighter-rouge">/target/lib/modules/2.2.20-idepci</code>, but the modules are in <code class="highlighter-rouge">/target/lib/modules/2.2.20</code>.. You can fix this with a quick symlink, but it’s probably not necessary, unless you’ve got particular drivers that you want to load at this point. If you <em>do</em> try to load any modules, you’ll probably get a load of <code class="highlighter-rouge">depmod: *** Unresolved symbols</code> warnings. I did.</li>
+  <li>Configure PCMCIA support. I’ve no idea what PCMCIA chipset the SRX87 uses, so I ignored it. Looking in <code class="highlighter-rouge">/proc/pci</code> doesn’t give us any clues, so I guess it’s not supported by the 2.2 kernel.</li>
+  <li>Skip directly to “Install the Base System”. Select “network” again. It’ll grab the files from the specified HTTP server. This’ll take a short while. Make a cup of tea.</li>
+  <li>When it’s finished that, it’ll suggest the “Make System Bootable” option. Choose it. I chose to install LILO in the MBR. Because I’ve got Windows XP installed, LILO suggested putting it in the menu. I chose “Include”, which does this.</li>
+  <li>There’s no point in making a boot floppy, because I’ve not got a floppy disk drive, so I just chose “Reboot the System”.</li>
+</ol>
+
+<h2 id="rebooting">Rebooting</h2>
+
+<ol>
+  <li>Go back into the BIOS and turn off Network booting. I did this on both pages in the BIOS.</li>
+  <li>Check that Windows XP still boots. It does, so shut it down again.</li>
+  <li>Back at LILO, boot Linux. It’ll (eventually) run the Debian System Configuration program.</li>
+  <li>Because I’ve got Windows installed, I answered “No” when asked whether the hardware clock was set to GMT.</li>
+  <li>It’ll then ask you to: select a timezone; configure MD5 and shadow passwords; enter a root password; set up a user account. Do these.</li>
+  <li>It then asks to remove the pcmcia packages. I chose “No”. The last time that I tried this, I said “Yes”, and while removing the packages, the kernel panicked. I’m not doing that again.</li>
+  <li>It then asks about using PPP to install the system. Say “No”.</li>
+  <li>Then it wants to configure your <code class="highlighter-rouge">/etc/apt/sources.list</code> file. Unfortunately, your network card won’t be configured correctly, so you’ll have to do that.</li>
+  <li>Switch to another console (press Alt+F2) and log in as root.</li>
+  <li>You’ll need to install the network driver. <code class="highlighter-rouge">modprobe eepro100</code>.</li>
+  <li>You’ll need to configure the interface. I used <code class="highlighter-rouge">ifconfig eth0 192.168.10.12 netmask 255.255.255.0</code>.</li>
+  <li>Check that the network is configured correctly. <code class="highlighter-rouge">ping 192.168.10.1</code>.</li>
+  <li>Configure your routing. <code class="highlighter-rouge">route add default gw 192.168.10.1</code>.</li>
+  <li>See if your routing is configured correctly. <code class="highlighter-rouge">ping 192.25.206.10</code>.</li>
+  <li>Check that your DNS is working. <code class="highlighter-rouge">ping www.debian.org</code>. Your <code class="highlighter-rouge">/etc/resolv,conf</code> file should have been filled in automatically by now, and this should just work.</li>
+  <li>Having done all this, you can go back to the installer (press Alt+F1) and finish configuring <code class="highlighter-rouge">/etc/apt/sources.list</code>. Select http as the method, and choose your nearest/quickest mirror.</li>
+  <li>It’ll download the package lists and then ask if you want to run <code class="highlighter-rouge">tasksel</code>. Your choice – I ran <code class="highlighter-rouge">dselect</code> instead. I installed the default recommended packages. I’ll go back and prune these later. This takes a while. Make another cup of tea.</li>
+  <li>It then walks you through the configuration of various things.</li>
+</ol>
+
+<h2 id="logging-in">Logging In</h2>
+
+<p>After doing all that, you should be left at a login prompt on <code class="highlighter-rouge">tty1</code>. Enjoy.</p>
+
+<h2 id="reboot">Reboot</h2>
+
+<p>Reboot to check that it all comes back up. <code class="highlighter-rouge">exec shutdown -r now</code></p>
+
+<h2 id="configuring-the-network-modules">Configuring the network modules</h2>
+
+<p>During the previous reboot, you’ll notice that it failed to configure the network. This is because it doesn’t know which driver to load. Also, it’s still configured for manual configuration. We should fix this now.</p>
+
+<p>Log in as root again, and add the following line to <code class="highlighter-rouge">/etc/modutils/aliases</code>:</p>
+
+<div class="snippet">
+    alias eth0 eepro100
+
+</div>
+
+<p>Run <code class="highlighter-rouge">update-modules</code> to rebuild <code class="highlighter-rouge">/etc/modules.conf</code>.
+To configure for DHCP, edit <code class="highlighter-rouge">/etc/network/interfaces</code> and replace the <code class="highlighter-rouge">eth0</code> block with the following:</p>
+
+<div class="snippet">
+    auto eth0
+    iface eth0 inet dhcp
+
+</div>
+
+<p>You’ll then need to <code class="highlighter-rouge">ifdown eth0 ; ifup eth0</code>. This step should automatically install the correct network module and use DHCP to configure the network interface. Run <code class="highlighter-rouge">ifconfig</code> to confirm that the network interface was configured correctly.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

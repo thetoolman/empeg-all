@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using make-kpkg to build a custom Linux kernel for your VAIO</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using make-kpkg to build a custom Linux kernel for your VAIO</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-02-04 15:10:00 +0000">2003-02-04 15:10:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Debian provides a powerful utility called <code class="highlighter-rouge">make-kpkg</code> for compiling your own custom kernels. It integrates tightly with dpkg by making <code class="highlighter-rouge">.deb</code> files and you can even use this to prepare your kernel image on a faster system. Later on it will make complex operations, such as compiling in patches and modules, a snap.</p>
+
+<p>To get it:</p>
+
+<div class="snippet">
+    # apt-get install kernel-package libncurses-dev
+
+</div>
+
+<p><code class="highlighter-rouge">libncurses-dev</code> is not strictly necessary, but provides the libraries we will use later for configuring the kernel in the easy to use curses interface (<code class="highlighter-rouge">make menuconfig</code>).</p>
+
+<p>You will also need a copy of the kernel source. You can download it directly from <code class="highlighter-rouge">ftp._xx_.kernel.org/pub/linux/kernel/v2.4</code> (substitute your two-letter country code for <code class="highlighter-rouge">xx</code>) or you can install a debianised version from your local repositary. The Debian package (<code class="highlighter-rouge">kernel-source-2.4.20</code> - or latest since) contains a few extra patches useful for a debian system.</p>
+
+<p>The debian package will install the latest version of the source to the <code class="highlighter-rouge">/usr/src</code> directory. You will need to place it there yourself, if you download it directly off a kernel mirror.</p>
+
+<p>Change to the <code class="highlighter-rouge">/usr/src</code> directory and check the source is there before un-tarring it with:</p>
+
+<div class="snippet">
+    $ tar -zxf kernel-source.2.4.20.tar.gz .
+
+</div>
+
+<p>It is also good form to create a soft link to the default source working directory:</p>
+
+<div class="snippet">
+    $ ln -s kernel-source.2.4.20 linux
+
+</div>
+
+<p>We shall assume you created the link for the rest of the instructions.
+Now change to the <code class="highlighter-rouge">/usr/src/linux</code> directory and being configuring your kernel:</p>
+
+<div class="snippet">
+    $ make menuconfig
+
+</div>
+
+<p>Prepare your kernel for later chapters by <a href="http://blog.differentpla.net/node/view/149">installing the ACPI patches</a>, and by setting the following sets of kernel options now:</p>
+
+<p><a href="http://blog.differentpla.net/node/view/150">Firewire DVD-ROM drive</a>:</p>
+
+<div class="snippet">
+    CONFIG_SCSI=m (SCSI Support ---&gt; SCSI Support)
+    CONFIG_BLK_DEV_SR=m (SCSI Support ---&gt; SCSI CD-ROM support)
+    CONFIG_IEEE1394=m (IEEE 1394 ---&gt; IEEE 1394)
+    CONFIG_IEEE1394_OHCI1394=m (IEEE 1394 ---&gt; OHCI-1394)
+    CONFIG_IEEE1394_SBP2=m (IEEE 1394 ---&gt; SBP-2)
+    CONFIG_ISO9660_FS=m (File systems ---&gt; ISO 9660)
+    CONFIG_JOLIET=y (File systems ---&gt; Microsoft Joliet)
+    CONFIG_ZISOFS=y (File systems ---&gt; Transparent Decompression extension)
+    CONFIG_ZISOFS_FS=m (automatic)
+    CONFIG_ZLIB_INFLATE=m (automatic)
+
+</div>
+
+<p><a href="http://blog.differentpla.net/node/view/157">Wireless Networking</a>:</p>
+
+<div class="snippet">
+    CONFIG_PCMCIA=m
+    CONFIG_NET_RADIO=y
+    CONFIG_HERMES=m
+    CONFIG_PCMCIA_HERMES=m
+    CONFIG_NET_WIRELESS=y
+
+</div>
+
+<p>External Firewire hard disks:</p>
+
+<div class="snippet">
+    CONFIG_BLK_DEV_SD=m (SCSI Support ---&gt; SCSI disk support)
+    CONFIG_SD_EXTRA_DEVS=40 (automatic)
+    CONFIG_CHR_DEV_SG=m (SCSI Support ---&gt; SCSI generic support)
+
+</div>
+
+<p><a href="http://blog.differentpla.net/node/view/151">Apple iPod</a> (experimental support):
+ This is optional. If you don’t have an Apple iPod, then you needn’t set these options.</p>
+
+<div class="snippet">
+    CONFIG_IEEE1394_RAWIO=m (IEEE 1394 ---&gt; Raw IEEE1394 I/O support)
+    CONFIG_PARTITION_ADVANCED=y (File systems ---&gt; Partition Types ---&gt; Advanced partition selection)
+    CONFIG_MAC_PARTITION=y (File systems ---&gt; Partition Types ---&gt; Macintosh partition map support)
+
+</div>
+
+<p><a href="http://blog.differentpla.net/node/view/156">Intel i820 onboard soundcard</a>:</p>
+
+<div class="snippet">
+    CONFIG_SOUND=m (Sound ---&gt; Sound card support)
+    CONFIG_SOUND_OSS=m (Sound ---&gt; OSS sound modules)
+
+</div>
+
+<p>Then, compile the <code class="highlighter-rouge">.deb</code>:</p>
+
+<div class="snippet">
+    $ make-kpkg clean
+    $ fakeroot make-kpkg --revision=whatever kernel_image
+
+</div>
+
+<p>It is essential to run the first command to synchronize the <code class="highlighter-rouge">make-kpkg</code> scripts. A sensible revision naming scheme would be to replace <code class="highlighter-rouge">whatever</code> with a description of the destination machine and an internal version number eg, <code class="highlighter-rouge">srx87.1.0</code>.</p>
+
+<p>Once the kernel has finished compiling it should leave (in the parent directory), a file called <code class="highlighter-rouge">kernel-image-2.4.20_whatever_i386.deb</code>. As root run:</p>
+
+<div class="snippet">
+    # dpkg -i kernel-image-2.4.20_whatever_i386.deb
+
+</div>
+
+<p><strong>Note:</strong> This doesn’t build you an initial ramdisk, so your hard disk driver (IDE) and initial filesystem (ext3) will need to be compiled into the core kernel binary. I (Roger) wasted an entire Sunday rebuilding my Vaio when I forgot this.</p>
+
+<p><strong>Credits:</strong> Caoilte O’Connor wrote this page of the instructions. Thanks for that, Caoilte.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

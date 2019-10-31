@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Bouncy Castle - Being a Certificate Authority</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>Bouncy Castle - Being a Certificate Authority</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2013-03-24 16:14:15 +0000">2013-03-24 16:14:15 +0000</span>
+        </div>
+        <p></p>
+        <p>Over the last few posts, we’ve seen how to create a self-signed server certificate in C#, by using the Bouncy Castle library. How do we create a CA certificate, and how do we issue certificates from that authority?</p>
+
+<h2 id="whats-different-about-a-ca-certificate">What’s different about a CA certificate?</h2>
+
+<p>Two things:</p>
+
+<ul>
+  <li>It claims to be a CA certificate.</li>
+  <li>It’s installed in the “Trusted Root Certificate Authorities” certificate store.</li>
+</ul>
+
+<p>That’s it. A CA certificate is just a self-signed certificate that’s been installed in the correct store.</p>
+
+<h2 id="claiming-to-be-a-ca-certificate">Claiming to be a CA Certificate</h2>
+
+<p>When we created our original self-signed certificate, <a href="../../../../../b/2013/21/20/bouncy-castle---missing-certificate-attributes#basicconstraints">we added</a> a “Basic Constraints” extension. We passed <code class="highlighter-rouge">false</code> as the <code class="highlighter-rouge">cA</code> parameter. For our certificate to assert that it’s a CA certificate, we need to pass <code class="highlighter-rouge">true</code> instead:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>certificateGenerator.AddExtension(
+    X509Extensions.BasicConstraints.Id, true, new BasicConstraints(true));
+</code></pre></div></div>
+
+<p>And that really is all we need to do.</p>
+
+<h2 id="issuing-certificates">Issuing Certificates</h2>
+
+<p>There’s nothing particularly complicated about issuing a certificate. Let’s assume that we have a file, <code class="highlighter-rouge">CA.pfx</code>, which contains our CA certificate and private key.</p>
+
+<p>We need to load the existing certificate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>const string password = "password";
+var issuerCertificate = new X509Certificate2(issuerFileName, password);
+</code></pre></div></div>
+
+<p>We need to get the issuer name from that certificate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var issuerName = issuerCertificate.Subject;
+</code></pre></div></div>
+
+<p>We need to get the key-pair from the issuer certificate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var issuerKeyPair = DotNetUtilities.GetKeyPair(issuerCertificate.PrivateKey);
+</code></pre></div></div>
+
+<p>We need to get the serial number from the issuer certificate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var issuerSerialNumber = new BigInteger(issuerCertificate.GetSerialNumber());
+</code></pre></div></div>
+
+<p>And we’re done.</p>
+
+<h2 id="wheres-the-source">Where’s the source?</h2>
+
+<p>You can find the source code for this series of blog posts <a href="http://github.com/rlipscombe/bouncy-castle-csharp">on github</a>.</p>
+
+<h2 id="how-do-i-use-it">How do I use it?</h2>
+
+<p>To create a self-signed server certificate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CreateCertificate self CN=server server.pfx
+</code></pre></div></div>
+
+<p>To create a CA certificate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CreateCertificate ca CN=DemoCA CA.pfx
+</code></pre></div></div>
+
+<p>To issue a certificate using that CA:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CreateCertificate issue CA.pfx CN=issued issued.pfx
+</code></pre></div></div>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../../18/using-bouncy-castle-from-net/index.html">Using Bouncy Castle from .NET</a></li></li>
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../../18/how-do-i-convert-a-bouncy-castle-certificate-to-a-net-certificate/index.html">How do I convert a Bouncy Castle Certificate to a .NET Certificate?</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../../20/bouncy-castle-missing-certificate-attributes/index.html">Bouncy Castle - Missing Certificate Attributes</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../../23/bouncy-castle-extended-key-usage/index.html">Bouncy Castle - Extended Key Usage</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../bouncy-castle-subject-alternative-names/index.html">Bouncy Castle - Subject Alternative Names</a></li></li>
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">Bouncy Castle - Being a Certificate Authority</a></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

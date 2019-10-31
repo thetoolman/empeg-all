@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Things I found out today while looking at Side-by-Side DLLs</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Things I found out today while looking at Side-by-Side DLLs</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-02-07 16:37:45 +0000">2007-02-07 16:37:45 +0000</span>
+        
+    </div>
+    <p></p>
+    <ul>
+  <li>You can add DLL dependencies to your EXE file’s manifest by using the <code class="highlighter-rouge">/manifestdependency</code> linker switch. As with several other linker switches, this can be done using <code class="highlighter-rouge">#pragma comment(linker, ...)</code>.</li>
+  <li>The Visual C++ 2005 compiler automatically inserts a <code class="highlighter-rouge">/manifestdependency</code> switch into .OBJ files that it creates. It marks them as dependent on the Microsoft.VC80.CRT DLL, version 8.0.50727.762. It does this in the VC\include\crtdefs.h file.</li>
+  <li>You can tell it to use the RTM version (8.0.50608.0) of the runtime by defining the _USE_RTM_VERSION macro. See VC\include\crtassem.h. The behaviour of this macro can be confirmed by opening (e.g.) stdafx.obj in a hex editor.</li>
+  <li>This also adds the /include:__forceCRTManifestRTM switch to the linker. I’ve not yet found out what this does.</li>
+  <li>MFC and ATL do something similar in the VC\atlmfc\include\atlassem.h and MFCassem.h files.</li>
+  <li>In order to allow you to merge your own manifest files, the linker is asked to create the <em>project</em>.exe.intermediate.manifest file, using the /MANIFESTFILE switch.</li>
+  <li>This is then fed to the MT.EXE utility, which can be controlled in the project property pages, under “Manifest Tool”. The .intermediate.manifest file is added to the list implicitly.</li>
+  <li>If you add your own .manifest files to the project, these are also added to the MT.EXE command line implicitly.</li>
+  <li>MT.EXE is almost as bad as MIDL when it comes to error messages. If you include an empty or malformed manifest file in your project, it simply reports “general error c101008f: Failed to compile manifest(s). The parameter is incorrect.”. It doesn’t tell you which file or line caused the problem.</li>
+  <li>As an aside, the “No files were found to look in” misfeature still exists in Visual Studio 2005. Press <a href="http://blogs.ugidotnet.org/franny/archive/2005/12/08/31303.aspx">Ctrl+Scroll Lock</a> to fix it.</li>
+  <li>I don’t actually have a copy of the RTM VC80.CRT DLLs on my Windows XP box, anyway. I have versions 8.0.50727.42 and 8.0.50727.762. One of these would appear to correspond to the RTM version of Visual Studio, and the other to SP1. I’m not sure about this, though.</li>
+  <li>These live in the <code class="highlighter-rouge">C:\Windows\WinSxS</code> folder. They both have extremely long names. For example, the latest one lives in a folder called <code class="highlighter-rouge">x86_Microsoft.VC80.CRT_1fc8b3b9a1e18e3b_8.0.50727.762_x-ww_6b128700</code>.</li>
+  <li><code class="highlighter-rouge">In the C:\Windows\WinSxS\Policies\x86_policy.8.0.Microsoft.VC80.CRT_1fc8b3b9a1e18e3b_x-ww_77c24773</code> directory, there’s a couple of policy files. The first one says that any CRT versions between 8.0.41204.256 and 8.0.50608.0 should be redirected to version 8.0.50727.42. Presumably this covers a range containing all of the CTPs and betas up to the RTM version.</li>
+  <li>The second policy file appears to override this by saying that these same versions, and everything from there to 8.0.50727.762 should use the 8.0.50727.762 version.</li>
+  <li>I found the blog of the <a href="http://blogs.msdn.com/martynl/archive/2005/10/13/480880.aspx">man responsible</a>. He’s not updated it since 2005 :-(</li>
+  <li>There’s a tool called FUSLOGVW.EXE which is supposed to help diagnose problems with Side-by-Side DLLs.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Accepting HTML <form> data sent with POST</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Accepting HTML <form> data sent with POST</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-02-26 10:06:00 +0000">2004-02-26 10:06:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>How to write a CGI script (in Ruby) to accept files uploaded with <code class="highlighter-rouge">POST</code>.</p>
+
+<h2 id="usercgi-bin">~user/cgi-bin</h2>
+
+<p>The first thing that I needed to do in this case was enable CGI processing for the <code class="highlighter-rouge">cgi-bin</code> directory in my <code class="highlighter-rouge">public_html</code> directory.</p>
+
+<p>Something like the following added to <code class="highlighter-rouge">/etc/apache/httpd.conf</code> seemed to do the trick:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;DirectoryMatch ^/home/.*/public_html/cgi-bin&gt;
+    AllowOverride None
+    Options ExecCGI
+    Order allow,deny
+    allow from all
+    SetHandler cgi-script
+&lt;/DirectoryMatch&gt;
+</code></pre></div></div>
+
+<h2 id="the-upload-form">The upload form</h2>
+
+<p>Before the user can upload a file, they’ll need to use an HTML form to specify the file to upload. This, again, is quite easy:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;HTML&gt;
+  &lt;HEAD&gt;&lt;TITLE&gt;Upload File&lt;/TITLE&gt;
+    &lt;LINK href="/~roger/upload.css" rel="stylesheet" type="text/css"&gt;
+  &lt;/HEAD&gt;
+  &lt;BODY&gt;
+    &lt;H1&gt;Upload File&lt;/H1&gt;
+    &lt;P&gt;
+      &lt;FORM METHOD="post" ENCTYPE="multipart/form-data" ACTION="cgi-bin/upload2"&gt;
+        &lt;FIELDSET&gt;&lt;LEGEND&gt;Filename&lt;/LEGEND&gt;
+          &lt;TABLE&gt;
+            &lt;TR&gt;&lt;TD&gt;
+                &lt;INPUT name="upload_file" size="40" TYPE="file"&gt;
+            &lt;/TD&gt;&lt;/TR&gt;
+            &lt;TR&gt;&lt;TD align="right"&gt;
+                &lt;INPUT TYPE="submit" value="Upload File"&gt;
+            &lt;/TD&gt;&lt;/TR&gt;
+          &lt;/TABLE&gt;
+        &lt;/FIELDSET&gt;
+      &lt;/FORM&gt;
+    &lt;/P&gt;
+  &lt;/BODY&gt;
+&lt;/HTML&gt;
+</code></pre></div></div>
+
+<p>The interesting part in here is the <code class="highlighter-rouge">&lt;FORM METHOD="post" ENCTYPE="multipart/form-data" ACTION="cgi-bin/upload2"&gt;</code>. Normally, when you specify “GET” in <code class="highlighter-rouge">METHOD</code>, the values in the form are appended to the URL, after a question mark.</p>
+
+<p>When you’re sending a file, it’ll no longer fit, so we need to use <code class="highlighter-rouge">POST</code>, which packages the values into the request body. Note that the HTML documentation states that you should only use <code class="highlighter-rouge">GET</code> for idempotent queries; that is: issuing the same query twice will not have a lasting effect on the state of the universe.</p>
+
+<p>Because we’re sending multiple values, we need to specify <code class="highlighter-rouge">ENCTYPE="multipart/form-data"</code>, which prescribes a certain formatting of the data. The <code class="highlighter-rouge">ACTION</code> tells the browser which URL to POST the data to. Note that the form is outside the <code class="highlighter-rouge">cgi-bin</code> directory, otherwise Apache will try to run it, so we’ve had to specify a relative path to the upload script.</p>
+
+<p>A common tactic is to have the upload script respond differently depending on whether it’s being accessed with GET or with POST. Maybe I’ll come back to this in a later article.</p>
+
+<h2 id="using-cgirb-to-handle-the-post-data">Using CGI.rb to handle the POST data</h2>
+
+<p>Something like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env ruby</span>
+
+<span class="nb">require</span> <span class="s2">"cgi"</span>
+<span class="nb">require</span> <span class="s2">"ftools"</span>
+<span class="nb">require</span> <span class="s2">"socket"</span>
+
+<span class="k">def</span> <span class="nf">showFileStats</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">tmp</span><span class="p">)</span>
+	<span class="n">html</span><span class="p">.</span><span class="nf">table</span> <span class="p">{</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">tr</span> <span class="p">{</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="s2">"Original Filename:"</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">original_filename</span> <span class="p">}</span>
+		<span class="p">}</span> <span class="o">+</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">tr</span> <span class="p">{</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="s2">"Local Path:"</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">local_path</span> <span class="p">}</span>
+		<span class="p">}</span> <span class="o">+</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">tr</span> <span class="p">{</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="s2">"Local Path:"</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">content_type</span> <span class="p">}</span>
+		<span class="p">}</span> <span class="o">+</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">tr</span> <span class="p">{</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="s2">"File Size:"</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">td</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">stat</span><span class="p">.</span><span class="nf">size</span><span class="p">.</span><span class="nf">to_s</span> <span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">showFileContents</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">tmp</span><span class="p">)</span>
+	<span class="n">html</span><span class="p">.</span><span class="nf">pre</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">read</span> <span class="p">}</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">copyFile</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">tmp</span><span class="p">)</span>
+	<span class="n">toName</span> <span class="o">=</span> <span class="s2">"/tmp/%d.M%dP%d.%s"</span> <span class="o">%</span>
+		<span class="p">[</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">.</span><span class="nf">to_i</span><span class="p">,</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span><span class="p">.</span><span class="nf">usec</span><span class="p">,</span> <span class="vg">$$</span><span class="p">,</span> <span class="no">Socket</span><span class="p">.</span><span class="nf">gethostname</span> <span class="p">]</span>
+	<span class="k">if</span> <span class="no">File</span><span class="p">.</span><span class="nf">syscopy</span><span class="p">(</span><span class="n">tmp</span><span class="p">.</span><span class="nf">local_path</span><span class="p">,</span> <span class="n">toName</span><span class="p">)</span> <span class="k">then</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">p</span> <span class="p">{</span> <span class="s2">"File "</span> <span class="o">+</span> <span class="n">html</span><span class="p">.</span><span class="nf">code</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">local_path</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="s2">" successfully copied to "</span> <span class="o">+</span> <span class="n">html</span><span class="p">.</span><span class="nf">code</span> <span class="p">{</span> <span class="n">toName</span> <span class="p">}</span> <span class="p">}</span>
+	<span class="k">else</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">p</span> <span class="p">{</span> <span class="s2">"Failed to copy "</span> <span class="o">+</span> <span class="n">html</span><span class="p">.</span><span class="nf">code</span> <span class="p">{</span> <span class="n">tmp</span><span class="p">.</span><span class="nf">local_path</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="s2">" to "</span> <span class="o">+</span> <span class="n">html</span><span class="p">.</span><span class="nf">code</span> <span class="p">{</span> <span class="n">toName</span> <span class="p">}</span> <span class="p">}</span>
+	<span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">showHead</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+	<span class="n">html</span><span class="p">.</span><span class="nf">head</span> <span class="p">{</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">title</span> <span class="p">{</span> <span class="s2">"Uploaded File"</span> <span class="p">}</span> <span class="o">+</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">link</span><span class="p">(</span><span class="s2">"rel"</span><span class="o">=&gt;</span><span class="s2">"stylesheet"</span><span class="p">,</span>
+			<span class="s2">"type"</span><span class="o">=&gt;</span><span class="s2">"text/css"</span><span class="p">,</span>
+			<span class="s2">"href"</span><span class="o">=&gt;</span><span class="s2">"/upload.css"</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="nf">showBody</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+	<span class="n">html</span><span class="p">.</span><span class="nf">body</span> <span class="p">{</span>
+		<span class="n">value</span> <span class="o">=</span> <span class="n">query</span><span class="p">[</span><span class="s1">'upload_file'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">if</span> <span class="n">value</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">h1</span> <span class="p">{</span> <span class="s2">"Uploaded File"</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">showFileStats</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">hr</span> <span class="o">+</span>
+<span class="c1">#			showFileContents(html, value) +</span>
+<span class="c1">#			html.hr +</span>
+			<span class="n">copyFile</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+		<span class="k">else</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">h1</span> <span class="p">{</span> <span class="s2">"Error"</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">p</span> <span class="p">{</span> <span class="s2">"You must specify a filename."</span> <span class="p">}</span> <span class="o">+</span>
+			<span class="n">html</span><span class="p">.</span><span class="nf">p</span> <span class="p">{</span> <span class="s2">"Press the Back button "</span> <span class="o">+</span>
+				<span class="s2">"on your browser and try again"</span> <span class="p">}</span>
+		<span class="k">end</span>
+	<span class="p">}</span>
+<span class="k">end</span>
+
+<span class="n">query</span> <span class="o">=</span> <span class="no">CGI</span><span class="p">.</span><span class="nf">new</span>
+<span class="n">html</span> <span class="o">=</span> <span class="no">CGI</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s2">"html4Tr"</span><span class="p">)</span>
+<span class="n">html</span><span class="p">.</span><span class="nf">out</span> <span class="p">{</span>
+	<span class="no">CGI</span><span class="p">.</span><span class="nf">pretty</span> <span class="p">(</span>
+		<span class="n">html</span><span class="p">.</span><span class="nf">html</span> <span class="p">{</span>
+			<span class="n">showHead</span><span class="p">(</span><span class="n">html</span><span class="p">)</span> <span class="o">+</span>
+			<span class="n">showBody</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+		<span class="p">}</span>
+	<span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This script accepts the file data attached to the <code class="highlighter-rouge">upload_file</code> field and saves it in <code class="highlighter-rouge">/tmp</code>, generating a unique filename for it.</p>
+
+<h2 id="security-considerations">Security Considerations</h2>
+
+<p>There’s nothing in this script stopping anyone from uploading anything to your <code class="highlighter-rouge">/tmp</code> directory. They can easily cause a denial of service attack with this. Resolving this is outside the scope of this article.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

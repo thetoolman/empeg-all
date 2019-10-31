@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Running Long-lived Tasks in a Background Thread</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Running Long-lived Tasks in a Background Thread</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-02-27 13:00:00 +0000">2004-02-27 13:00:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>In earlier articles, <a href="../../../01/08/displaying-progress-in-a-wizard/index.html">Displaying Progress in a Wizard</a> and <a href="../cancelling-long-lived-tasks-from-a-wizard/index.html">Cancelling Long-Lived Tasks from a Wizard</a>, I discussed how to run a long-lived task from a wizard and how to display progress in the wizard.</p>
+
+<p>In this article, I’m going to show how to move the long-lived task to a background thread.</p>
+
+<p>At the end of the previous article, I said:</p>
+
+<blockquote>
+  <p>Unfortunately, because the task runs in the foreground thread, and only periodically reports progress, we only service our message loop intermittently. This means that repaints aren’t as quick as they should be; also pressing the Cancel button doesn’t respond immediately.</p>
+</blockquote>
+
+<p>There are a couple of easy fixes to this problem. The first is to make the task report its progress more often. Unfortunately, we often don’t have full control over what it’s doing, so this option isn’t always available.</p>
+
+<p>The second option is to move the task to another thread, leaving the UI thread free to service its message loop.</p>
+
+<p>The first thing we need to do is to change <code class="highlighter-rouge">OnSetActive</code> so that it starts the task on a background thread:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BOOL CProgressPage::OnSetActive()
+{
+	if (!CPropertyPage::OnSetActive())
+		return FALSE;
+
+	// Because the property page isn't fully created and displayed at this point,
+	// we need to use PostMessage to defer the long-lasting task for a short while.
+
+	// First, we'll disable the buttons, to prevent the user from
+	// pressing anything before we get going.
+	static_cast&lt;CPropertySheet *&gt;(GetParent())-&gt;SetWizardButtons(0);
+	CWnd *pCancel = GetParent()-&gt;GetDlgItem(IDCANCEL);
+	if (pCancel)
+		pCancel-&gt;EnableWindow(FALSE);
+	m_bCancel = false;
+
+	ASSERT(!m_pThread);
+	m_pThread = new TaskThread(this);
+	m_pThread-&gt;Start();
+
+	return TRUE;
+}
+</code></pre></div></div>
+
+<p>Because we’re going to start the task in the background, we don’t need to use <code class="highlighter-rouge">PostMessage</code> any more, so we can get rid of a bunch of other code.</p>
+
+<p>We also need to implement <code class="highlighter-rouge">TaskThread</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class TaskThread : public Thread
+{
+	TaskObserver *m_pObserver;
+
+public:
+	TaskThread(TaskObserver *pObserver)
+		: m_pObserver(pObserver)
+	{
+	}
+
+	virtual unsigned Run()
+	{
+		Task task(m_pObserver);
+		task.Run();
+		return 0;
+	}
+};
+</code></pre></div></div>
+
+<p>class <code class="highlighter-rouge">Thread</code> is defined in <a href="http://blog.differentpla.net/node/view/141">this page</a>.</p>
+
+<h2 id="threading-issues">Threading Issues</h2>
+
+<p>As it is, this works (just about). We’re not reenabling the Cancel button, and there’s a memory leak because we’re not deleting the <code class="highlighter-rouge">TaskThread</code> object.</p>
+
+<p>More seriously, however, we’re playing fast and loose with the threading. Because the <code class="highlighter-rouge">Task::Run</code> function is now being executed on a background thread, all of the progress calls will be run on the background thread as well. Eventually these turn into calls to <code class="highlighter-rouge">SendMessage</code>, for example <code class="highlighter-rouge">m_progressCtrl.SetPos(current)</code> calls <code class="highlighter-rouge">SendMessage</code>.</p>
+
+<p>Windows guarantees that a window procedure will be called on the same thread as the window was created on. When we call <code class="highlighter-rouge">SendMessage</code> it has to block until the message is processed. This means that the background thread is blocked until the UI thread processes the message. If, while handling that message, we wait for the background thread to do something, we cause a deadlock.</p>
+
+<p>Moreover, when we fix the memory leak as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void CProgressPage::OnComplete(bool bResult)
+{
+	*m_pbResult = bResult;
+
+	// Wait for the thread to finish before deleting it:
+	m_pThread-&gt;Join();
+	delete m_pThread;
+	m_pThread = NULL;
+
+	static_cast&lt;CPropertySheet *&gt;(GetParent())-&gt;PressButton(PSBTN_NEXT);
+}
+</code></pre></div></div>
+
+<p>…we’ll cause an immediate deadlock, because <code class="highlighter-rouge">OnComplete</code> is called <em>on</em> the thread that we’re attempting to <code class="highlighter-rouge">Join</code>, so <code class="highlighter-rouge">Join</code> will never return because the thread’s stuck in <code class="highlighter-rouge">Join</code>!</p>
+
+<h2 id="postmessage-to-the-rescue">PostMessage to the Rescue</h2>
+
+<p>Now, since we’re not actually bothered that the progress callback be notified immediately, we can use <code class="highlighter-rouge">PostMessage</code> to decouple the two threads. See, for example, <code class="highlighter-rouge">OnComplete</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void CProgressPage::OnComplete(bool bResult)
+{
+	PostMessage(MY_WM_COMPLETE, bResult);
+}
+
+LRESULT CProgressPage::OnCompleteStub(WPARAM wParam, LPARAM lParam)
+{
+	bool bResult = wParam ? true : false;
+
+	*m_pbResult = bResult;
+
+	// Wait for the thread to finish before deleting it:
+	m_pThread-&gt;Join();
+	delete m_pThread;
+	m_pThread = NULL;
+
+	static_cast&lt;CPropertySheet *&gt;(GetParent())-&gt;PressButton(PSBTN_NEXT);
+
+	return 0;
+}
+</code></pre></div></div>
+
+<p>Now, because of the <code class="highlighter-rouge">PostMessage</code>, the call to <code class="highlighter-rouge">Join</code> will happen on the foreground thread, so we’ve avoided the deadlock.
+Note that the parameters that were originally passed to <code class="highlighter-rouge">OnComplete</code> still need to be passed to <code class="highlighter-rouge">OnCompleteStub</code>. Here, we package them in <code class="highlighter-rouge">wParam</code> and <code class="highlighter-rouge">lParam</code>. If we needed to pass anything more complicated, we could pass a pointer to a (heap-allocated) structure in <code class="highlighter-rouge">lParam</code>.</p>
+
+<p>Reporting progress is just as simple, except that <code class="highlighter-rouge">OnProgress</code> is supposed to return <code class="highlighter-rouge">false</code> to signal cancellation. By the time we receive the posted message, it’s too late to return a value. How do we fix this?</p>
+
+<p>It’s easy. We just check <code class="highlighter-rouge">m_bCancel</code> from the background thread:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bool CProgressPage::OnProgress(int current, int maximum)
+{
+	PostMessage(MY_WM_PROGRESS, current, maximum);
+	if (m_bCancel)
+		return false;	// Stop
+
+	return true;	// Keep going
+}
+
+LRESULT CProgressPage::OnProgressStub(WPARAM wParam, LPARAM lParam)
+{
+	int current = (int)wParam;
+	int maximum = (int)lParam;
+
+	m_progressCtrl.SetRange32(0, maximum);
+	m_progressCtrl.SetPos(current);
+
+	return 0;
+}
+</code></pre></div></div>
+
+<p>Is this safe? Yes: <code class="highlighter-rouge">m_bCancel</code> is only ever set by the UI thread and only ever accessed by the background thread, and it’s a boolean, so we’re safe. It’ll never be in an inconsistent state.</p>
+
+<p>If we were concerned, or we needed something more complicated, we could use a critical section to set and read the value, or one of the <code class="highlighter-rouge">Interlocked</code> family of functions.</p>
+
+<h2 id="enabling-the-cancel-button">Enabling the Cancel button</h2>
+
+<p>Note that we managed to remove the code that enables the Cancel button. A good way to solve this is to add another method to the observer interface:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void CProgressPage::OnBegin()
+{
+	PostMessage(MY_WM_BEGIN);
+}
+
+LRESULT CProgressPage::OnBeginStub(WPARAM wParam, LPARAM lParam)
+{
+	CWnd *pCancel = GetParent()-&gt;GetDlgItem(IDCANCEL);
+	if (pCancel)
+		pCancel-&gt;EnableWindow(TRUE);
+	return 0;
+}
+</code></pre></div></div>
+
+<p>As usual, source code is <a href="http://blog.differentpla.net/node/view/143">here</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

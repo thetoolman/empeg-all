@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Capturing network traces with OpenWRT</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Capturing network traces with OpenWRT</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-11-13 09:42:22 +0000">2013-11-13 09:42:22 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/openwrt">openwrt</a></span>
+        
+    </div>
+    <p></p>
+    <p>This is mostly a reminder to myself.</p>
+
+<h2 id="install-tcpdump">Install tcpdump</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opkg install tcpdump
+</code></pre></div></div>
+
+<h2 id="external-usb-modules">External USB Modules</h2>
+
+<p>I don’t want to waste internal storage on the capture files, so install the USB
+storage modules:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opkg install kmod-usb-storage block-mount
+</code></pre></div></div>
+
+<p>You’ll also need a filesystem driver:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opkg install kmod-fs-vfat
+</code></pre></div></div>
+
+<p>Use ‘vfat’ because – let’s face it – you’ll be using a Windows-formatted USB
+stick, whether you’re on Windows, Linux or Mac OS X.</p>
+
+<p>And you’ll need some code page modules:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>opkg install kmod-nls-cp437 kmod-nls-iso8859-1
+</code></pre></div></div>
+
+<p>If you don’t do this, then you’ll get:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mount: mounting /dev/sda1 on /mnt failed: Invalid argument
+</code></pre></div></div>
+
+<p>…when you attempt to mount the device later; and your log (use <code class="highlighter-rouge">logread -f &amp;</code>)
+will have one or both of the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FAT-fs (sda1): codepage cp437 not found
+FAT-fs (sda1): IO charset iso8859-1 not found
+</code></pre></div></div>
+
+<p>You might see different codepage or charset warnings; just install the relevant
+modules.</p>
+
+<h2 id="then-what">Then what?</h2>
+
+<p>…then plug in a USB stick. Make sure there’s plenty of space on it.</p>
+
+<p>You’ll need to mount it (assuming it’s on <code class="highlighter-rouge">/dev/sda1</code>):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mount /dev/sda1 /mnt -t vfat
+</code></pre></div></div>
+
+<h2 id="capture-some-traces">Capture some traces</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tcpdump -i wlan0-1 -w /mnt/dump.cap
+</code></pre></div></div>
+
+<p>Here <code class="highlighter-rouge">wlan0-1</code> is my guest WiFi. Yours might well be called something different.</p>
+
+<h2 id="yoink-it-back-to-a-proper-pc">Yoink it back to a proper PC</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>scp openwrt:/mnt/dump.cap .
+</code></pre></div></div>
+
+<h2 id="examine-it-in-wireshark">Examine it in Wireshark</h2>
+
+<p><em>Left as an exercise for the reader</em></p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>When does terminate get called?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>When does terminate get called?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-11-13 13:22:12 +0000">2014-11-13 13:22:12 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+    </div>
+    <p></p>
+    <p>In Erlang, in a <code class="highlighter-rouge">gen_server</code>, when <em>does</em> terminate get called? Also, some
+messing around with <code class="highlighter-rouge">dbg</code> for tracing.</p>
+
+<p><strong>tl;dr: if your process is trapping exits, <code class="highlighter-rouge">terminate</code> is called for
+everything except <code class="highlighter-rouge">exit(Pid, kill)</code>.</strong></p>
+
+<h2 id="boilerplate">Boilerplate</h2>
+
+<p>Let’s start with a simple <code class="highlighter-rouge">gen_server</code>. See <a href="https://gist.github.com/rlipscombe/6824460d204adce433ca">this
+gist</a> for the
+boilerplate.</p>
+
+<p>Then, in the Erlang shell:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1&gt; c(example_server).
+{ok, example_server}
+2&gt; {ok, Pid} = example_server:start_link().
+{ok, &lt;0.48.0&gt;}
+3&gt; exit(Pid, kill).
+** exception exit: killed
+</code></pre></div></div>
+
+<p>There’s nothing surprising there: we sent an exit signal (with <code class="highlighter-rouge">kill</code>) to the
+process. It died, which killed the shell process.</p>
+
+<h2 id="tracing">Tracing</h2>
+
+<p>In order to see if <code class="highlighter-rouge">terminate</code> <em>is</em> called, we’re going to either need some
+tracing (via <code class="highlighter-rouge">dbg</code>) or some logging (which means writing some code).</p>
+
+<p><em>Roger flips a coin</em></p>
+
+<p>Tracing it is. So, starting from the beginning, we have:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1&gt; c(example_server).
+{ok, example_server}
+2&gt; dbg:start().
+{ok,&lt;0.41.0&gt;}
+3&gt; dbg:tracer().
+{ok,&lt;0.41.0&gt;}
+4&gt; dbg:tp(example_server, []).
+{ok,[{matched,nonode@nohost,10}]}
+5&gt; dbg:p(all, c).
+{ok,[{matched,nonode@nohost,26}]}
+6&gt; {ok, Pid} = example_server:start_link().
+(&lt;0.33.0&gt;) call example_server:start_link()
+(&lt;0.47.0&gt;) call example_server:init([])
+{ok,&lt;0.47.0&gt;}
+</code></pre></div></div>
+
+<p>We can turn on a bunch more tracing for that process with the following.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>7&gt; dbg:p(Pid, [c,m,p]).
+</code></pre></div></div>
+
+<p>Do <strong>not</strong> specify <code class="highlighter-rouge">all</code> for the process here…</p>
+
+<p>And we can see that’s working, because:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>8&gt; Pid ! hello.
+(&lt;0.47.0&gt;) &lt;&lt; hello
+(&lt;0.47.0&gt;) call example_server:handle_info(hello,undefined)
+hello
+</code></pre></div></div>
+
+<p>And, if we send it an exit signal, specifying <code class="highlighter-rouge">normal</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>9&gt; exit(Pid, normal)
+true
+</code></pre></div></div>
+
+<p>OK, let’s try it the hard way:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10&gt; exit(Pid, kill).
+(&lt;0.47.0&gt;) exit killed
+(&lt;0.47.0&gt;) unregister example_server
+</code></pre></div></div>
+
+<h2 id="process_flag"><code class="highlighter-rouge">process_flag</code></h2>
+
+<p>But <code class="highlighter-rouge">terminate</code> didn’t get called, because we’re <strong>not trapping exits</strong>. See
+<a href="http://erlang.org/doc/man/erlang.html#process_flag-2"><code class="highlighter-rouge">process_flag</code></a>. To trap
+exits in a <code class="highlighter-rouge">gen_server</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>init([]) -&gt;
+    process_flag(trap_exit, true),
+    State = undefined,
+    {ok, State}.
+</code></pre></div></div>
+
+<p>If we’re trapping exits, we see, for example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>9&gt; exit(Pid, normal).
+(&lt;0.48.0&gt;) &lt;&lt; {'EXIT',&lt;0.33.0&gt;,normal}
+(&lt;0.48.0&gt;) call example_server:terminate(normal,undefined)
+(&lt;0.48.0&gt;) exit normal
+(&lt;0.48.0&gt;) unregister example_server
+true
+</code></pre></div></div>
+
+<h2 id="exit-reasons">Exit reasons</h2>
+
+<p>What about other exit reasons?</p>
+
+<ul>
+  <li><code class="highlighter-rouge">exit(Pid, normal)</code> calls <code class="highlighter-rouge">terminate(normal, State)</code>; no exception.</li>
+  <li><code class="highlighter-rouge">exit(Pid, shutdown)</code> calls <code class="highlighter-rouge">terminate(shutdown, State)</code>; exception.</li>
+  <li><code class="highlighter-rouge">exit(Pid, {shutdown, whoops})</code> calls <code class="highlighter-rouge">terminate({shutdown, whoops}, State)</code>; exception.</li>
+  <li><code class="highlighter-rouge">exit(Pid, computer_says_no)</code> calls <code class="highlighter-rouge">terminate(computer_says_no, State)</code>; exception.</li>
+  <li><code class="highlighter-rouge">exit(Pid, kill)</code> does not call <code class="highlighter-rouge">terminate/2</code>; exception.</li>
+</ul>
+
+<p>What’s going on here is that:</p>
+
+<ol>
+  <li>The exit signals (apart from <code class="highlighter-rouge">kill</code>) are converted to <code class="highlighter-rouge">{'EXIT', From,
+Reason}</code> messages.</li>
+  <li>The <code class="highlighter-rouge">gen_server</code> module <a href="https://github.com/erlang/otp/blob/OTP-17.3/lib/stdlib/src/gen_server.erl#L380">handles the <code class="highlighter-rouge">'EXIT'</code>
+messages</a>
+and <a href="https://github.com/erlang/otp/blob/OTP-17.3/lib/stdlib/src/gen_server.erl#L721">calls
+<code class="highlighter-rouge">Mod:terminate</code></a>,
+passing the reason.</li>
+  <li>After <code class="highlighter-rouge">Mod:terminate</code> has returned, the original reason is passed to
+<code class="highlighter-rouge">exit/1</code>, which is propagated to linked processes (usually a supervisor of
+some sort).</li>
+</ol>
+
+<h2 id="shutdown">Shutdown</h2>
+
+<p>OK, so what if the process itself chooses to stop? This is a <code class="highlighter-rouge">gen_server</code>, so
+it’s allowed to return <code class="highlighter-rouge">{stop, NewState}</code> from the callback functions.</p>
+
+<p>Add these clauses to the top of <code class="highlighter-rouge">handle_call</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>handle_call(stop, _From, State) -&gt;
+    {stop, normal, ok, State};
+handle_call({stop, Reason}, _From, State) -&gt;
+    {stop, Reason, ok, State};
+</code></pre></div></div>
+
+<p>Add these clauses to the top of <code class="highlighter-rouge">handle_info</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>handle_info(stop, State) -&gt;
+    {stop, normal, State};
+handle_info({stop, Reason}, State) -&gt;
+    {stop, Reason, State};
+</code></pre></div></div>
+
+<p>And, now, we can poke it with, for example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ok = gen_server:call(example_server, {stop, hammer_time}).
+</code></pre></div></div>
+
+<h2 id="errors">Errors</h2>
+
+<p>What about if the process runs into a missing function clause? Or if it calls
+<code class="highlighter-rouge">exit/1</code> itself?</p>
+
+<p>Yes, <code class="highlighter-rouge">terminate</code> is still called.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>At this point, I ran out of things to try, and I’ve come to the conclusion
+that, provided you’re trapping exits, <code class="highlighter-rouge">terminate</code> will be called for everything
+except <code class="highlighter-rouge">exit(Pid, kill)</code>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using the Observer, Proxy and Command Patterns to Marshal Progress Reporting from a Background Thread</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using the Observer, Proxy and Command Patterns to Marshal Progress Reporting from a Background Thread</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-06-28 12:30:00 +0000">2004-06-28 12:30:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>In an earlier article, <a href="http://blog.differentpla.net/node/view/142">Running Long-lived Tasks in a Background Thread</a>, I talked about some of the problems associated with reporting progress from a background thread in a Win32 application.</p>
+
+<p>In my <a href="http://blog.differentpla.net/node/view/282">Upload Wizard</a> source code, you’ll find a better way to implement it, using three of the GoF patterns: the <code class="highlighter-rouge">Observer</code>, <code class="highlighter-rouge">Proxy</code> and <code class="highlighter-rouge">Command</code> patterns.</p>
+
+<p>Here’s how it all works.</p>
+
+<h2 id="the-problem">The Problem</h2>
+
+<p>As explained on the <a href="http://blog.differentpla.net/node/view/142">Running Long-lived Tasks in a Background Thread</a> page, you’ll probably use some variant of the Observer pattern, like this:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=188</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=center</td>
+      <td>width=420</td>
+      <td>height=169]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Here the Uploader object makes calls on an UploadObserver interface, which is implemented by the progress dialog (here called CProgressPage).</p>
+
+<p>The code would look a bit like this:</p>
+
+<pre>struct UploadObserver {
+    virtual void OnProgress(int num, int denom) = 0;
+};
+
+class CProgressPage : public CPropertyPage, public UploadObserver {
+    // ...
+};
+
+void Uploader::DoUpload()
+{
+    // ...
+    m_pObserver-&gt;OnProgress(bytesDone, bytesTotal);
+    // ...
+}</pre>
+
+<p>Since the Uploader is running on a background thread, the calls to the UploadObserver interface are also made on the background thread.</p>
+
+<p>A typical response of the CProgressPage object is to update some controls on the dialog. For example, it will call <code class="highlighter-rouge">CProgressCtrl::SetPos</code>. This resolves into a call to <code class="highlighter-rouge">SendMessage</code>. Because Windows guarantees that a window procedure will only ever be called from the thread that originally called <code class="highlighter-rouge">CreateWindow</code>, this call to <code class="highlighter-rouge">SendMessage</code> will block until the UI thread processes the message.</p>
+
+<p>This should be avoided for (at least) two reasons:</p>
+
+<ul>
+  <li>The background thread will block until the UI thread processes the message. This might cause a problem if your background thread is doing something that times out.</li>
+  <li>It’s now very easy to cause a deadlock. You’ve just introduced a (hidden) lock dependency between the background thread and the foreground thread.</li>
+</ul>
+
+<h2 id="postmessage">PostMessage</h2>
+
+<p>Because Windows guarantees that a message will be handled by a window on the thread it was created on, we can easily use this to our advantage.</p>
+
+<p>If the background thread, instead of calling on the observer directly, uses <code class="highlighter-rouge">PostMessage</code>, the progress updates will arrive (as Windows messages) on the foreground thread correctly.</p>
+
+<p>Unfortunately, this removes our <code class="highlighter-rouge">UploadObserver</code> object from the picture. The background thread is posting messages, and the progress dialog is handling them directly. The whole point of using an observer was to reduce coupling between the <code class="highlighter-rouge">Uploader</code> and the <code class="highlighter-rouge">CProgressPage</code>, which we’ve now just reintroduced.</p>
+
+<h2 id="using-a-proxy-window">Using a Proxy Window</h2>
+
+<p>My preferred solution to this (and I’ve seen it in other places, too) is to use the Proxy pattern:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=189</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=431</td>
+      <td>height=147]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In this implementation, the <code class="highlighter-rouge">Uploader</code> object calls methods on the <code class="highlighter-rouge">UploadObserver</code> interface, as normal. The implementation of <code class="highlighter-rouge">UploadObserver</code> in <code class="highlighter-rouge">UploadObserverProxy</code> turns each of these calls into a call to <code class="highlighter-rouge">PostMessage</code>, sending the messages to itself.</p>
+
+<p>In the relevant message handler, it forwards the call to another <code class="highlighter-rouge">UploadObserver</code> (the progress dialog). Remember that the initial call is on the background thread, and that the messages must be handled on the foreground thread.</p>
+
+<p>In this way, the proxy ensures that the progress dialog sees the calls on the foreground thread.</p>
+
+<p>This generally results in code that looks a bit like this:</p>
+
+<pre>class CProxyWindow : public CWnd, public UploadObserver {
+    UploadObserver *m_pOther;
+
+    // ...
+    virtual void OnProgress(int num, int denom)
+    {
+        PostMessage(MY_WM_PROGRESS, num, denom);
+    }
+
+    LRESULT OnMyProgress(WPARAM wParam, LPARAM lParam)
+    {
+        m_pOther-&gt;OnProgress(wParam, lParam);
+        return 0;
+    }
+};</pre>
+
+<p>The <code class="highlighter-rouge">CProxyWindow::OnProgress</code> method is called on the background thread, and it uses <code class="highlighter-rouge">PostMessage</code> to marshal the parameters to the foreground thread.</p>
+
+<p>In the foreground thread, the message is processed by <code class="highlighter-rouge">CProxyWindow::OnMyProgress</code>, which turns it back into the relevant call to the <code class="highlighter-rouge">UploadObserver</code> interface.</p>
+
+<h2 id="limitations-of-postmessage">Limitations of PostMessage</h2>
+
+<p>This approach has some limitations, though:</p>
+
+<ul>
+  <li>We’re restricted to passing parameters in wParam and lParam. In practice, this isn’t such a big deal: we can pass pointers to structs. This can lead to confusion, though: some methods don’t need parameters, some need simple integers, some need more complicated things. We also need to be careful about the lifetime of the struct. This function will probably have exited by the time the message arrives, meaning that we can’t pass an automatic (stack) variable.</li>
+  <li>We need a message for each progress callback. In practice, we can use the same message and decide what’s happening by looking at (e.g.) wParam.</li>
+</ul>
+
+<h2 id="enter-the-command-pattern">Enter the Command Pattern</h2>
+
+<p>The blurb for the Command pattern in the GoF book says this:</p>
+
+<blockquote>
+  <p>Encapsulate a request as an object, thereby letting you parameterize clients with different requests…</p>
+</blockquote>
+
+<p>This is essentially what we want. We can change the proxy window to use the command pattern by doing the following:</p>
+<pre>struct Command {
+    virtual void Execute() = 0;
+    virtual ~Command() { /* nothing */ };
+};
+
+class OnProgressCommand : public Command {
+    UploadObserver *m_pObserver;
+    int m_num, m_denom;
+
+public:
+    OnProgressCommand(UploadObserver *pObserver, int num, int denom)
+        : m_pObserver(pObserver), m_num(num), m_denom(denom)
+    {
+    }
+
+    virtual void Execute()
+    {
+        m_pObserver-&gt;OnProgress(m_num, m_denom);
+    }
+};
+
+class CProxyWindow : public CWnd, public UploadObserver {
+    UploadObserver *m_pOther;
+
+    // ...
+    virtual void OnProgress(int num, int denom)
+    {
+        Command *pCommand = new OnProgressCommand(m_pOther, num, denom);
+        PostMessage(MY_WM_OBSERVER_COMMAND, 0, pCommand);
+    }
+
+    LRESULT OnMyObserverCommand(WPARAM wParam, LPARAM lParam)
+    {
+        Command *pCommand = reinterpret_cast&lt;Command *&gt;(lParam);
+        pCommand-&gt;Execute();
+        delete pCommand;
+        return 0;
+    }
+};</pre>
+
+<p>Here, we define an abstract class, called <code class="highlighter-rouge">Command</code>, which defines a method, <code class="highlighter-rouge">Execute</code>. The various derived classes will override this as appropriate. Note also that (since this is C++) we need to have a virtual destructor in the <code class="highlighter-rouge">Command</code> class, because we’re deleting them through a base-class pointer.</p>
+
+<p>The magic in the proxy now amounts to putting together the relevant command object and posting it to the foreground thread, where it is run (has <code class="highlighter-rouge">Execute</code> called), and then deleted.</p>
+
+<p>In this way, we provide a simple and consistent way to package up the parameters required by the observer methods. For example, in my upload wizard, the <code class="highlighter-rouge">OnFileProgress</code> method has 1 string parameter and 7 integer parameters.</p>
+
+<p>In this way, we have successfully combined the <code class="highlighter-rouge">Observer</code>, <code class="highlighter-rouge">Proxy</code> and <code class="highlighter-rouge">Command</code> patterns to provide robust progress reporting from a background thread.</p>
+
+<h2 id="pointer-to-member-function">Pointer-To-Member-Function</h2>
+
+<p>There’s more, though. Normally a proxy method would look like this:</p>
+
+<pre>void CProxyWindow::OnSomething(int arg1, char *arg2)
+{
+    class OnSomethingCommand : public Command {
+        int m_arg1;
+        CString m_arg2;
+
+    public:
+        OnSomethingCommand(Progress *pProgress, int arg1, char *arg2)
+            : m_pProgress(pProgress), m_arg1(arg1), m_arg2(arg2)
+        {
+        }
+
+        virtual void Execute() { m_pProgress-&gt;OnSomething(m_arg1, m_arg2); }
+    };
+    Command *commandObject = new OnSomethingCommand(m_pProgress, hr);
+    PostMessage(WM_MY_OBSERVER_COMMAND, 0, (LPARAM)commandObject);
+}</pre>
+
+<p>As you can see, using command objects can soon get a little unwieldy. Each observer method on the proxy needs to define its own <code class="highlighter-rouge">Command</code>-derived object, to encapsulate which method is to be called. We also need to specify each parameter multiple times:</p>
+
+<ul>
+  <li>As parameters to this function.</li>
+  <li>As a member variable of the command class.</li>
+  <li>As constructor parameters.</li>
+  <li>In the initialiser list.</li>
+  <li>In the call to the constructor.</li>
+  <li>In the actual call inside Execute.</li>
+</ul>
+
+<p>It turns out that, usually, the observer methods will take no arguments, or a single string parameter, or a single integer parameter. We’d therefore expect to be able to handle the three different cases by using a <code class="highlighter-rouge">VoidCommand</code>, a <code class="highlighter-rouge">StringCommand</code> and a <code class="highlighter-rouge">IntegerCommand</code>.</p>
+
+<p>But, of course, how does the command object know which method to call when it arrives at the foreground thread?</p>
+
+<p>Enter one of C++’s more arcane pieces of syntax (at least it was before templates were added to the language): the pointer-to-member-function operator, or <code class="highlighter-rouge">-&gt;*</code> to its friends.</p>
+
+<p>We can define our <code class="highlighter-rouge">VoidCommand</code> object as follows:</p>
+
+<pre>class VoidCommand : public Command
+{
+public:
+    typedef void (UploadObserver::*OBSERVER_VOID_FUNC) ();
+
+    VoidCommand(UploadObserver *pObserver, OBSERVER_VOID_FUNC pFunc)
+        : m_pObserver(pObserver), m_pFunc(pFunc)
+    {
+    }
+
+    virtual void Execute()
+    {
+        (m_pObserver-&gt;*m_pFunc)();
+    }
+
+private:
+    UploadObserver *m_pObserver;
+    OBSERVER_VOID_FUNC m_pFunc;
+};</pre>
+
+<p>The <code class="highlighter-rouge">typedef</code> at the top of the class definition defines <code class="highlighter-rouge">OBSERVER_VOID_FUNC</code> as being a pointer to a method that takes no arguments and returns void, <em>and that is a member of <code class="highlighter-rouge">UploadObserver</code></em>.</p>
+
+<p>We can use this object as follows:</p>
+
+<pre>Command *commandObject =
+        new VoidCommand(m_pProgress,
+                &amp;UploadObserver::OnReceivingResponse);
+PostMessage(WM_MY_OBSERVER_COMMAND, 0,
+        (LPARAM)commandObject);</pre>
+
+<p>You can see this code in action – although some of the names are different, and it’s been factored a little differently – in my <a href="http://blog.differentpla.net/node/view/282">File Upload Wizard</a> example.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

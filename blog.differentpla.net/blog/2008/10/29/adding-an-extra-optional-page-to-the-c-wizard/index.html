@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Adding an extra (optional) page to the C# Wizard</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>Adding an extra (optional) page to the C# Wizard</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2008-10-29 16:53:37 +0000">2008-10-29 16:53:37 +0000</span>
+        </div>
+        <p></p>
+        <p>This seems to be causing a few problems, so I’ll quickly walk through it. I’ll try to throw some screenshots in later.</p>
+
+<p>In the TestWizard project, choose “Add New Item”. In the dialog, choose “Inherited User Control” (it’s under Windows Forms). Call it OptionalPage.cs. The Inheritance Picker will appear. Choose “InternalWizardPage”.</p>
+
+<p>In the forms designer, click on the banner and change the Title and Subtitle properties to “Optional Page” and “This page is optional”.</p>
+
+<p>In the constructor for TestWizardSheet, add a line to add the OptionalPage:</p>
+
+<pre>            this.Pages.Add(new WelcomePage());
+            this.Pages.Add(new MiddlePage());
+ **this.Pages.Add(new OptionalPage());**
+            this.Pages.Add(new CompletePage());</pre>
+
+<p>If you run the project now, you’ll see that the new page has been inserted in the correct place.</p>
+
+<p>But we want to make it optional, so throw a check box onto MiddlePage. Add an event handler for WizardNext. Make it look like this:</p>
+
+<pre>        private void MiddlePage_WizardNext(object sender, WizardPageEventArgs e)
+        {
+            if (checkBox1.Checked)
+                e.NewPage = "OptionalPage";
+            else
+                e.NewPage = "CompletePage";
+        }</pre>
+
+<p>Now, when you run through the wizard, the optional page doesn’t appear unless the check box is checked.</p>
+
+<p>But wait. It does appear if you press “Back” on the final page. We’ll have to be a bit cleverer. Create a class like this:</p>
+
+<pre>    public class TestWizardContext
+    {
+        private bool _showOptionalPage;
+
+        public bool ShowOptionalPage
+        {
+            get { return _showOptionalPage; }
+            set { _showOptionalPage = value; }
+        }
+    }</pre>
+
+<p>Create an instance in TestWizardSheet’s constructor and pass it to each of the pages that care:</p>
+
+<pre>            TestWizardContext context = new TestWizardContext();
+
+			this.Pages.Add(new WelcomePage());
+			this.Pages.Add(new MiddlePage(context));
+            this.Pages.Add(new OptionalPage());
+			this.Pages.Add(new CompletePage(context));</pre>
+
+<p>You’ll need to add a _context field to MiddlePage and CompletePage and initialize it in the constructor. Then, create a handler for the checkbox:</p>
+
+<pre>        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            _context.ShowOptionalPage = checkBox1.Checked;
+        }</pre>
+
+<p>Then, add a handler for WizardBack to CompletePage:</p>
+
+<pre>        private void CompletePage_WizardBack(object sender, WizardPageEventArgs e)
+        {
+            if (_context.ShowOptionalPage)
+                e.NewPage = "OptionalPage";
+            else
+                e.NewPage = "MiddlePage";
+        }</pre>
+
+<p>Job done.</p>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../../../../2005/02/26/implementing-a-wizard-in-c/index.html">Implementing a Wizard in C#</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../../../../2005/02/26/implementing-a-wizard-in-c-part-2/index.html">Implementing a Wizard in C#, Part 2</a></li></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">Adding an extra (optional) page to the C# Wizard</a></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

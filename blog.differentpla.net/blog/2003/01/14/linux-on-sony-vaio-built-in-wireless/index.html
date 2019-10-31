@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Linux on Sony Vaio - Built-in Wireless</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Linux on Sony Vaio - Built-in Wireless</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-01-14 15:50:00 +0000">2003-01-14 15:50:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>First, you’ll need to recompile your kernel, with the following options:</p>
+
+<div class="snippet">
+    CONFIG_PCMCIA=m
+    CONFIG_NET_RADIO=y
+    CONFIG_HERMES=m
+    CONFIG_PCMCIA_HERMES=m
+    CONFIG_NET_WIRELESS=y
+
+</div>
+
+<p>Then, you’ll need to make sure you’ve got the PCMCIA and wireless packages installed: <code class="highlighter-rouge">apt-get install pcmcia-cs wireless-tools</code>.</p>
+
+<p>Add the following lines to <code class="highlighter-rouge">/etc/modules</code>:</p>
+
+<div class="snippet">
+    # Load the PCMCIA modules:
+    pcmcia_core
+    yenta_socket
+    ds
+
+</div>
+
+<p>Then, when you reboot, the correct modules should be loaded:</p>
+
+<div class="snippet">
+    $ /sbin/lsmod
+    Module                  Size  Used by    Not tainted
+    **orinoco_cs              4520   1**
+    **orinoco                28608   0 [orinoco_cs]**
+    **hermes                  5312   0 [orinoco_cs orinoco]**
+    af_packet               8392   3 (autoclean)
+    eepro100               18604   1 (autoclean)
+    mii                     2320   0 (autoclean) [eepro100]
+    **ds                      6464   2 [orinoco_cs]**
+    **yenta_socket            8704   2**
+    **pcmcia_core            32992   0 [orinoco_cs ds yenta_socket]**
+    thermal                 6632   0 (unused)
+    processor               8664   0 [thermal]
+    fan                     1576   0 (unused)
+    button                  2420   0 (unused)
+    battery                 5960   0 (unused)
+    ac                      1832   0 (unused)
+    unix                   13572  55 (autoclean)
+
+</div>
+
+<p>You’ll need to edit the <code class="highlighter-rouge">/etc/pcmcia/wireless.opts</code> file as well. Find the section entitled “Lucent Wavelan IEEE (+ Orinoco, RoamAbout and ELSA)”. Fortunately, it’s the first proper section in the file. Edit it like this:</p>
+
+<div class="snippet">
+    # Lucent Wavelan IEEE (+ Orinoco, RoamAbout and ELSA)
+    # Note : wvlan_cs driver only, and version 1.0.4+ for encryption support
+    *,*,*,00:60:1D:*|*,*,*,00:02:2D:*)
+     **INFO="Sony Vaio Orinoco card"**
+     **ESSID="essid"**
+        MODE="Managed"
+     **KEY="0123456789"**
+        ;;
+
+</div>
+
+<p>Obviously, put the correct values for your wireless network in the <code class="highlighter-rouge">ESSID</code> and <code class="highlighter-rouge">KEY</code> variables. Put anything you want in the <code class="highlighter-rouge">INFO</code> variable.
+You’ll also need to add the following line to <code class="highlighter-rouge">/etc/network/interfaces</code>:</p>
+
+<div class="snippet">
+    **iface eth1 inet dhcp**
+
+</div>
+
+<p>Without this line, you’ll get a message “Ignoring unknown interface eth1=eth1.”
+Then, check to see if your wireless networking comes up by:</p>
+
+<div class="snippet">
+    /etc/pcmcia# ./network start eth1
+
+</div>
+
+<p>Use <code class="highlighter-rouge">ifconfig</code> to confirm that it’s working.</p>
+
+<h2 id="other-resources">Other Resources</h2>
+
+<p><a href="http://ozlabs.org/people/dgibson/dldwd/">http://ozlabs.org/people/dgibson/dldwd/</a></p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

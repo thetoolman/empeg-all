@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing Vagrant on Ubuntu</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing Vagrant on Ubuntu</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-11-13 10:15:31 +0000">2014-11-13 10:15:31 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><em>This is part of my <a href="../website-rebuild/index.html">quest to sort out my website</a>.
+Installing Vagrant.</em></p>
+
+<h2 id="installing-oracle-virtualbox">Installing Oracle VirtualBox</h2>
+
+<p>Before installing Vagrant, you’ll probably want to install VirtualBox locally.
+Get it from the <a href="https://www.virtualbox.org/wiki/Linux_Downloads">VirtualBox Linux Downloads
+page</a>. Version 4.3.18 was the
+latest version at the time of writing.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget http://download.virtualbox.org/virtualbox/4.3.18/virtualbox-4.3_4.3.18-96516~Ubuntu~raring_amd64.deb
+sudo dpkg -i virtualbox-4.3_4.3.18-96516~Ubuntu~raring_amd64.deb
+</code></pre></div></div>
+
+<p><em>Note that if you’re already using VirtualBox (so this is just an upgrade),
+you’ll need to shutdown any guest VMs and close the VirtualBox window before
+this will succeed.</em></p>
+
+<h2 id="installing-vagrant">Installing Vagrant</h2>
+
+<p>The package repository for Ubuntu 14.04 (trusty) includes Vagrant 1.4.3, which is old.</p>
+
+<p>The latest (at the time of writing) is 1.6.5, you should probably install it
+direct from the <a href="https://www.vagrantup.com/downloads.html">Vagrant downloads
+page</a>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.5_x86_64.deb
+sudo dpkg -i vagrant_1.6.5_x86_64.deb
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

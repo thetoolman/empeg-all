@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>On caching</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>On caching</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-12-29 09:12:01 +0000">2013-12-29 09:12:01 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="background">Background</h2>
+
+<p>There’s a quote:</p>
+
+<blockquote>
+  <p>“There are only two hard problems in Computer Science: cache invalidation and
+naming things.” - Phil Karlton</p>
+</blockquote>
+
+<p>I’m going to talk about caching, but I’m <em>not</em> going to talk about cache
+invalidation. Instead, I’m going to talk about caching in the face of
+concurrent queries.</p>
+
+<p>I’m thinking about this right now, because I’m looking at one of <a href="http://electricimp.com">electric
+imp’s</a> backend daemons; specifically, the one that
+handles incoming device connections.</p>
+
+<p>When this daemon restarts (after an upgrade, say), all of the imps that were
+connected to it reconnect immediately. This reconnection is transparent to user
+code, but it results in a “horde” of imps hitting the daemon in one go.</p>
+
+<p>Now, obviously, we cache a lot of the database queries, but when the daemon has
+recently restarted, these caches will be cold, and they’ll be getting hit by
+the “horde”.</p>
+
+<h2 id="threads-and-caches">Threads and Caches</h2>
+
+<p>This particular backend daemon at Electric Imp is written in Erlang, but I’ll
+use C# for my examples, since it’s more accessible.</p>
+
+<p>Let’s assume that I’ve got the following C# code:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var cache = new ConcurrentDictionary&lt;int, int&gt;();
+var value = cache.GetOrAdd(42, k =&gt; ExpensiveCalculation(k));
+</code></pre></div></div>
+
+<p>This is perfectly safe when used from multiple threads, but there’s a problem
+with the amount of work that’s done. Consider what happens if we call it like
+this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>const int THREAD_COUNT = 1000;
+Task.WaitAll(
+    Enumerable.Range(1, THREAD_COUNT)
+              .Select(i =&gt;
+                      Task.Factory.StartNew(
+                        () =&gt; {
+                            var value = cache.GetOrAdd(42, k =&gt; ExpensiveCalculation(k));
+                            // do something with value.
+                        })
+              ).ToArray();
+);
+</code></pre></div></div>
+
+<p>That is: we spawn 1000 threads, each of which queries the cache for the same
+key.</p>
+
+<p>What actually happens is that more than one thread gets to run. Each of the
+running threads discovers that the cache doesn’t contain the key, and begins
+the expensive calculation. This means that instead of happening once, our
+expensive calculation happens <em>N</em> times.</p>
+
+<p>In this case, <em>N</em> happens to be roughly 4, because that’s the number of logical
+cores in my laptop. This could easily get much, much, worse if – instead of
+performing some calculation – you were hitting a database, and you did it
+asynchronously, returning those tasks to the pool until the results came back.</p>
+
+<h2 id="i-know-lets-use-a-lock">I know, let’s use a lock</h2>
+
+<blockquote>
+  <p>“Some programmers, confronted with a threading problem, think “I know, I’ll
+use a lock”. Now… They… Have… A… Different… Problem…”
+– Me, just now.</p>
+</blockquote>
+
+<p>So, if the problem is that we don’t want to call <code class="highlighter-rouge">ExpensiveCalculation</code> more
+than once at a time, we can use a lock:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int LockedExpensiveCalculation(int value)
+{
+    lock(something)
+    {
+        Thread.Sleep(1000);
+        return value * value;
+    }
+}
+</code></pre></div></div>
+
+<p>That’s gotta be better, right? Well, actually, no. This time, the threads race
+eachother to grab the lock, meaning that, instead of <em>N</em> threads running the
+function in parallel, they end up convoying on the lock, and they take it in
+turns to run the function. This means extra delay on top of the unneeded work.</p>
+
+<h2 id="but-the-locks-in-the-wrong-place">But the lock’s in the wrong place!</h2>
+
+<p>Well, I’m stupid. The reason that the threads are convoying on the lock is
+because we put it inside the cache miss handler. Let’s put it around the cache
+query instead:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// ...
+Task.Factory.StartNew(() =&gt; {
+    int value;
+    lock(something)
+    {
+        value = cache.GetOrAdd(42, k =&gt; ExpensiveCalculation(k));
+    }
+});
+</code></pre></div></div>
+
+<p>Is that any better?</p>
+
+<p>Well, for certain values of “better”, yes. We only run the expensive
+calculation once, meaning less work. In this contrived example, there’s also
+negligible delay over the naive case as well, because the other threads just
+wait until the cache contains the required value.</p>
+
+<p>Let’s contrive a slightly more complicated example.</p>
+
+<h2 id="a-slightly-more-complicated-contrived-example">A slightly more complicated contrived example</h2>
+
+<p>In this example, the threads aren’t all asking for the same value. Instead,
+they’re asking for a mixture of values:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>value = cache.GetOrAdd(i % 8, k =&gt; ExpensiveCalculation(k));
+</code></pre></div></div>
+
+<p>Now the problem is that we end up blocking each thread, even if it’s not their
+expensive calculation that they’re waiting for. Now, depending on the nature of
+the calculation, this might make sense.</p>
+
+<p>But, if we do have multiple cores (or a beefy database server), it makes sense
+to let at least some of the threads execute in parallel.</p>
+
+<h2 id="promises">Promises</h2>
+
+<p>What we need for that are <strong>promises</strong> or <strong>futures</strong>. In .NET-land, these are
+represented (more-or-less) by the <code class="highlighter-rouge">Task&lt;T&gt;</code> and <code class="highlighter-rouge">TaskCompletionSource&lt;T&gt;</code>
+types.</p>
+
+<p>Instead of caching the actual value, we cache a promise:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var cache = new ConcurrentDictionary&lt;int, Task&lt;int&gt;&gt;();
+
+var value = cache.GetOrAdd(i % 8, k =&gt; PromiseExpensiveCalculation(k));
+</code></pre></div></div>
+
+<p>Where:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Task&lt;int&gt; PromiseExpensiveCalculation(int k)
+{
+    var completion = new TaskCompletionSource&lt;int&gt;();
+    Task.Factory.StartNew(() =&gt; completion.SetResult(ExpensiveCalculation()));
+    return completion.Task;
+}
+</code></pre></div></div>
+
+<p>This immediately returns a promise to the calling threads, with one promise for
+each value of the key. This prevents the calling threads from all calling
+<code class="highlighter-rouge">ExpensiveCalculation</code> at once.</p>
+
+<p>It also spawns another task to actually do the expensive calculation. When this
+is completed, it will fulfill the promise, releasing the waiting threads.</p>
+
+<p>We can then use the .NET task scheduling algorithm to ensure that there aren’t
+too many threads calling <code class="highlighter-rouge">ExpensiveCalculation</code> at the same time.</p>
+
+<p><em>Cough</em>. Yeah. About that. In order to get this to work, you’ll need to pass
+<code class="highlighter-rouge">TaskCreationOptions.LongRunning</code> to <code class="highlighter-rouge">Task.Factory.StartNew()</code>, otherwise .NET
+will prove remarkably reluctant to start the worker thread. Which means you’ll
+make no progress.</p>
+
+<p>That’s a documented thing, but you need to be aware of it.</p>
+
+<h2 id="queue">Queue</h2>
+
+<p>Alternatively, you could come up with an implementation where you have a pool
+of worker threads, a dictionary of <code class="highlighter-rouge">Key -&gt; Value | Semaphore</code> (basically a
+promise), and a queue of requests. It’s equivalent to the above, but you get
+more control over what’s going on.</p>
+
+<h2 id="what-about-asyncawait">What about async/await?</h2>
+
+<p>Yeah, probably.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>I hope that I’ve demonstrated that:</p>
+
+<ol>
+  <li>Naive cache access patterns can result in more work being done than
+necessary.</li>
+  <li>Locking can result in excessive slowdowns, loss of concurrency, and – if
+done wrong – can still result in unnecessary work being done.</li>
+  <li>Promises (or some equivalent) are the right answer.</li>
+</ol>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

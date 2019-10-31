@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Bad UI: Why SQL Query Analyzer sucks</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Bad UI: Why SQL Query Analyzer sucks</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2006-10-19 10:40:31 +0000">2006-10-19 10:40:31 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I’m doing a bunch of SQL hacking at the moment, and I’ve decided to use SQL Query Analyzer as a good template for how not to write a text editor.</p>
+
+<p>Note that this only applies to SQL Query Analyzer in SQL 2000. SQL Management Studio in SQL 2005 has its own set of suckage. I’m sure I’ll rant about that when I’ve used it more.</p>
+
+<ol>
+  <li>It doesn’t shorten filenames displayed in the title bar. I have absolutely no idea which file I’m looking at, because they’re all in the same directory.<br />
+ Note: simply sticking an ellipsis somewhere in the name isn’t really good enough either. If I’m looking at the same file in two different directories (for example two different branches in source control), you need to show that, too. I want to see something like “…branches\wherever...\filename.sql”.</li>
+  <li>The Ctrl+Tab behaviour is completely hosed. It doesn’t work anything like other MDI Windows applications. While I’m holding down Ctrl, it should rotate through the windows. Pressing and releasing Ctrl+Tab twice should toggle between the top two windows in the stack. In Query Analyzer, it doesn’t.</li>
+  <li>Ctrl+Left, Ctrl+Right are broken.</li>
+  <li>Home should take me to the beginning of the text on the line, and then alternate between there and column 1.</li>
+  <li>The cursor should have a virtual column position, allowing it to float at the right-hand side.</li>
+</ol>
+
+<p>&lt;/rant&gt;</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

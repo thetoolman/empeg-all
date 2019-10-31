@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Unresolved external symbol _WinMain@16</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Unresolved external symbol _WinMain@16</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-04-02 08:55:00 +0000">2004-04-02 08:55:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I got this error message today:</p>
+
+<pre>msvcrt.lib(crtexew.obj) : error LNK2019:
+    unresolved external symbol _WinMain@16 referenced in function _WinMainCRTStartup</pre>
+
+<p>The most common cause for this error message is adding Unicode configurations to your project and forgetting to change the entry point to <code class="highlighter-rouge">wWinMainCRTStartup</code>. See <a href="http://support.microsoft.com/default.aspx?scid=kb;EN-US;125750">this Microsoft KB article</a> (or <a href="http://blog.differentpla.net/node/view/135">my article</a>) for more information.</p>
+
+<p>This wasn’t my problem: I’d already done that.</p>
+
+<p>The puzzling thing was that the error was intermittent: I’d get it when building the project as part of a batch build; then I wouldn’t; then it’d keep happening if I built the project on its own. I’d clean the project, and then it’d work. Then if I did a batch build, the problem would come back again.</p>
+
+<p>It turns out that when you create a new configuration, and base it on an existing one – I created the “Debug Unicode” configuration, and based it on the “Debug” configuration – Visual Studio doesn’t always correctly update all of the paths in the project settings. This means that the “Debug” and “Debug Unicode” configurations were sharing precompiled headers, debug information and other stuff. No wonder the linker was getting confused.</p>
+
+<p>Admittedly, Visual Studio.NET’s confusion could be due to me importing the project from a Visual Studio 6 project.</p>
+
+<p>To fix it, you need to change the following entries, so that they have the correct paths in – or you can specify <code class="highlighter-rouge">$(ConfigurationName)</code> or <code class="highlighter-rouge">$(IntDir)</code> or <code class="highlighter-rouge">$(OutDir)</code> instead.</p>
+
+<ul>
+  <li>General / Output Directory: This sets <code class="highlighter-rouge">$(OutDir)</code>. You should probably set it to <code class="highlighter-rouge">$(ConfigurationName)</code>.</li>
+  <li>General / Intermediate Directory: This sets <code class="highlighter-rouge">$(IntDir)</code>. You should probably set it to <code class="highlighter-rouge">$(ConfigurationName)</code>.</li>
+  <li>C/C++ / Precompiled Headers / Precompiled Header File: You should set this to <code class="highlighter-rouge">$(IntDir)/$(TargetName).pch</code>.</li>
+  <li>C/C++ / Output Files / Object File Name: Set this to <code class="highlighter-rouge">$(IntDir)/</code>.</li>
+  <li>C/C++ / Output Files / Program Database File Name: Set this to <code class="highlighter-rouge">$(IntDir)/vc70.pdb</code>.</li>
+  <li>Linker / General / Output File: <code class="highlighter-rouge">$(OutDir)/$(ProjectName).exe</code>.</li>
+  <li>Linker / Debugging / Generate Program Database File: <code class="highlighter-rouge">$(OutDir)/$(ProjectName).pdb</code>.</li>
+  <li>Resources / Additional Include Directories: <code class="highlighter-rouge">$(IntDir)</code>.</li>
+  <li>Resources / Resource File Name: <code class="highlighter-rouge">$(IntDir)/$(InputName).res</code>.</li>
+</ul>
+
+<p>There might be other places you need to check, e.g. depending on whether you’ve got browser information turned on.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

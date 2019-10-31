@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Downloading from an HTTP Server using WinInet</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Downloading from an HTTP Server using WinInet</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-02-26 11:45:00 +0000">2004-02-26 11:45:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>The WinInet functions allow an application to interact with Gopher, FTP and HTTP servers. This article shows how to use the WinInet API to download from an HTTP server.</p>
+
+<h2 id="internetopen">InternetOpen</h2>
+
+<p>The first thing that the application needs to do is to initialise WinInet for use by that application:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LPCTSTR lpszAgent = "WinInetGet/0.1";
+HINTERNET hInternet = InternetOpen(lpszAgent,
+		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">InternetOpen</code> function allows the user to specify the proxy to be used. Here we tell it to use whatever the user has already configured in Internet Explorer. It also requires the “user agent” string, which identifies the application. Here, our demo application is going to be called WinInetGet, so that’s what we pass, along with a version number.
+When we’re finished with the WinInet functions, we should remember to call <code class="highlighter-rouge">InternetCloseHandle</code>.</p>
+
+<h2 id="internetconnect">InternetConnect</h2>
+
+<p>Having initialised the WinInet functions, the next thing we do is connect to a particular server:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LPCTSTR lpszServerName = "vague.home.differentpla.net";
+INTERNET_PORT nServerPort = INTERNET_DEFAULT_HTTP_PORT;
+LPCTSTR lpszUserName = NULL;
+LPCTSTR lpszPassword = NULL;
+DWORD dwConnectFlags = 0;
+DWORD dwConnectContext = 0;
+HINTERNET hConnect = InternetConnect(hInternet,
+				lpszServerName, nServerPort,
+				lpszUserName, lpszPassword,
+				INTERNET_SERVICE_HTTP,
+				dwConnectFlags, dwConnectContext);
+</code></pre></div></div>
+
+<p>You’ll need to change the server name (since this one refers to my Linux test box at home). We’re not passing a user name or password, nor are we passing any connection flags. The <code class="highlighter-rouge">dwConnectContext</code> is an application-defined value that’s passed to the callback function registered with <code class="highlighter-rouge">InternetSetStatusCallback</code>. Since we’re not using <code class="highlighter-rouge">InternetSetStatusCallback</code>, we pass zero.</p>
+
+<h2 id="httpopenrequest">HttpOpenRequest</h2>
+
+<p>The application then needs to form an HTTP request. This is done with the <code class="highlighter-rouge">HttpOpenRequest</code> function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LPCTSTR lpszVerb = "GET";
+LPCTSTR lpszObjectName = "/";
+LPCTSTR lpszVersion = NULL;			// Use default.
+LPCTSTR lpszReferrer = NULL;		// No referrer.
+LPCTSTR *lplpszAcceptTypes = NULL;	// Whatever the server wants to give us.
+DWORD dwOpenRequestFlags = INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTP |
+		INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS |
+		INTERNET_FLAG_KEEP_CONNECTION |
+		INTERNET_FLAG_NO_AUTH |
+		INTERNET_FLAG_NO_AUTO_REDIRECT |
+		INTERNET_FLAG_NO_COOKIES |
+		INTERNET_FLAG_NO_UI |
+		INTERNET_FLAG_RELOAD;
+DWORD dwOpenRequestContext = 0;
+HINTERNET hRequest = HttpOpenRequest(hConnect, lpszVerb, lpszObjectName, lpszVersion,
+		lpszReferrer, lplpszAcceptTypes,
+		dwOpenRequestFlags, dwOpenRequestContext);
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">HttpOpenRequest</code> function doesn’t actually communicate with the server at this point. We use it to create the HTTP request object, which we can then fill in, before sending it.</p>
+
+<p>The interesting thing (from the HTTP point of view) is that we specify “GET /” in the <code class="highlighter-rouge">lpszVerb</code> and <code class="highlighter-rouge">lpszObjectName</code> parameters. The flags are just a bunch of available flags that I thought looked interesting. We pass NULL as the referrer, since we didn’t come here from another page. By passing NULL in the <code class="highlighter-rouge">lplpszAcceptTypes</code> parameter, we signal that we’re not bothered about what we’re given. Most servers will interpret this as “text/*”. Again, we pass zero for the application-defined context value.</p>
+
+<h2 id="httpsendrequest">HttpSendRequest</h2>
+
+<p>Since we’re done putting together our HTTP request, we can send it to the server using the <code class="highlighter-rouge">HttpSendRequest</code> function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BOOL bResult = HttpSendRequest(hRequest, NULL, 0, NULL, 0);
+</code></pre></div></div>
+
+<p>The last four parameters allow us to supply additional headers and any optional data. The optional data is generally only used in <code class="highlighter-rouge">POST</code> and <code class="highlighter-rouge">PUT</code> operations.</p>
+<h2 id="httpqueryinfo">HttpQueryInfo</h2>
+
+<p>After we’ve sent the request, and the response has come back, we ought to check the response headers. This is done with the <code class="highlighter-rouge">HttpQueryInfo</code> function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DWORD dwInfoLevel = HTTP_QUERY_RAW_HEADERS_CRLF;
+DWORD dwInfoBufferLength = 10;
+BYTE *pInfoBuffer = (BYTE *)malloc(dwInfoBufferLength+1);
+while (!HttpQueryInfo(hRequest, dwInfoLevel, pInfoBuffer, &amp;dwInfoBufferLength, NULL))
+{
+	DWORD dwError = GetLastError();
+	if (dwError == ERROR_INSUFFICIENT_BUFFER)
+	{
+		free(pInfoBuffer);
+		pInfoBuffer = (BYTE *)malloc(dwInfoBufferLength+1);
+	}
+	else
+	{
+		fprintf(stderr, "HttpQueryInfo failed, error = %d (0x%x)\n",
+			GetLastError(), GetLastError());
+		break;
+	}
+}
+
+pInfoBuffer[dwInfoBufferLength] = '\0';
+printf("%s", pInfoBuffer);
+free(pInfoBuffer);
+</code></pre></div></div>
+
+<p>In common with many other Windows API functions, <code class="highlighter-rouge">HttpQueryInfo</code> will tell you if you have not allocated enough buffer space for the result. This <code class="highlighter-rouge">while</code> loop is a good way to make sure that you get it right. Note that we add a null terminator, so we allow for this in our call to <code class="highlighter-rouge">malloc</code>. The MSDN documentation implies that the string will already be zero-terminated, but it’s a little ambiguous.</p>
+
+<p>Note that we’re deliberately not allocating enough space. This is so that we can test the logic in the <code class="highlighter-rouge">while</code> loop. In a real application, we’d allocate a larger buffer, to avoid calling <code class="highlighter-rouge">HttpQueryInfo</code> multiple times.</p>
+
+<p>The <code class="highlighter-rouge">HttpQueryInfo</code> function can return a specific header value from the HTTP response, e.g. pass HTTP_QUERY_DATE to retrieve the “Date:” header. For custom header values, the application can pass HTTP_QUERY_CUSTOM and pass the name of the header in the buffer. It will be overwritten with the header value. We pass HTTP_QUERY_RAW_HEADERS_CRLF, because we’re not particularly interested in the actual content; this is just a demo application.</p>
+
+<h2 id="internetreadfile">InternetReadFile</h2>
+
+<p>To retrieve the entity body from the HTTP response, we’ll use a loop like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DWORD dwBytesAvailable;
+while (InternetQueryDataAvailable(hRequest, &amp;dwBytesAvailable, 0, 0))
+{
+	BYTE *pMessageBody = (BYTE *)malloc(dwBytesAvailable+1);
+
+	DWORD dwBytesRead;
+	BOOL bResult = InternetReadFile(hRequest, pMessageBody,
+				dwBytesAvailable, &amp;dwBytesRead);
+	if (!bResult)
+	{
+		fprintf(stderr, "InternetReadFile failed, error = %d (0x%x)\n",
+			GetLastError(), GetLastError());
+		break;
+	}
+
+	if (dwBytesRead == 0)
+		break;	// End of File.
+
+	pMessageBody[dwBytesRead] = '\0';
+	printf("%s", pMessageBody);
+	free(pMessageBody);
+}
+</code></pre></div></div>
+
+<p>Note that the <code class="highlighter-rouge">InternetQueryDataAvailable</code> function blocks until data is available or an error occurs.
+Full source code for this article is <a href="http://blog.differentpla.net/node/view/130">here</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

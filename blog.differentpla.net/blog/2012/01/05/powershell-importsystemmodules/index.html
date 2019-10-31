@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>PowerShell: ImportSystemModules</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>PowerShell: ImportSystemModules</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2012-01-05 13:58:41 +0000">2012-01-05 13:58:41 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I’ve been using PowerShell as a better Command Prompt for a while now. Increasingly, however, it’s one of the first tools I reach for when I come across a problem, rather than being an afterthought.</p>
+
+<p>I’ve been tweaking my profile to pre-load a bunch of modules. I’ve got the <a href="http://pscx.codeplex.com/">PowerShell Community Extensions</a>; I’ve got <a href="http://psget.net/">PsGet</a>; I’ve got <a href="http://poshhg.codeplex.com/">Posh-Hg</a>.</p>
+
+<p>One of the things that caught my eye was the “Import system modules” entry on the PowerShell jump list.</p>
+
+<p>This runs <code class="highlighter-rouge">Powershell.exe -ImportSystemModules</code>, which, in turn, runs the ImportSystemModules command. You can call this command as part of your profile, if you want these modules loaded each time you run PowerShell.</p>
+
+<p>Various places on the Internet state that it loads the available modules from <code class="highlighter-rouge">C:\Windows\System32\WindowsPowerShell\v1.0\Modules</code>. Among these are modules for managing IIS, Hyper-V, etc.</p>
+
+<p>It turns out that it also loads snap-ins from <code class="highlighter-rouge">C:\Users\rogerl\Documents\WindowsPowerShell\Snapins</code>, as you can see from running the following:</p>
+
+<pre>PS&gt; (Get-Command importsystemmodules).Definition
+$SnapIns = @(Get-PSSnapin -Registered -ErrorAction SilentlyContinue)
+$Modules = @(Get-Module -ListAvailable -ErrorAction SilentlyContinue |
+    ? { $_.ModuleBase -like "$pshome*" })
+# etc....
+</pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

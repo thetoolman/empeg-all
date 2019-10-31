@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>differentpla.net is moving!</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>differentpla.net is moving!</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2006-10-06 10:12:03 +0000">2006-10-06 10:12:03 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><strong>2018-12-30: (12 years later) This blog is hosted on GitHub Pages; this page is of historical interest only. If that.</strong></p>
+
+<p>I just signed up for a <a href="http://www.spry.com/webmin-vps/">virtual private server</a> to host differentpla.net. Previously, differentpla.net was hosted on my Linux box at home, over my ADSL line.</p>
+
+<p>Moving to a VPS has a couple of advantages:</p>
+
+<ul>
+  <li>My ADSL line doesn’t come with reverse DNS, which means that sometimes my outgoing emails are rejected. The VPS package offers reverse DNS.</li>
+  <li>I can turn off the computer at home when I’m not using it, saving money and generating less heat and noise.</li>
+  <li>I can investigate other ADSL providers, since I’ll no longer need a fixed IP address at home. So I can get something cheaper, or with more bandwidth.</li>
+</ul>
+
+<p>Bear with me while I move the content from the old site to the new site. I’m doing this piecemeal, rather than in one go, because the old site was pretty broken. I’m taking the opportunity to fix it up.</p>
+
+<p>If you notice anything’s broken or missing, please use the <a href="http://blog.differentpla.net/content/contact">feedback</a> link (also at the top of the page) to let me know. I can’t promise that I’ll fix it, though.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

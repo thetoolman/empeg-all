@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using SMTP-TLS with qmail</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using SMTP-TLS with qmail</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-24 14:12:00 +0000">2004-03-24 14:12:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Lucky part 13 of <a href="../../../../../node/view/165">Installing qmail and vpopmail</a>. This one talks about SMTP-over-TLS.</p>
+
+<p>If you install <a href="http://shupp.org/patches/netqmail-1.05-tls-smtpauth-20040207.patch">this patch</a> (mentioned <a href="../../../../../node/view/167">here</a>), then you’ll get SMTP-over-TLS in qmail.</p>
+
+<p>It’s implemented using the STARTTLS command, and goes over the standard SMTP port.</p>
+
+<p>To get it to work, you’ll need a server certificate, in PEM format. The simplest way to get hold of one is to copy the one you used when <a href="../../../../../node/view/190">securing IMAP</a>:</p>
+
+<pre># cp /etc/opt/bincimap/bincimap.pem /var/qmail/control/servercert.pem
+# chmod 400 /var/qmail/control/servercert.pem</pre>
+
+<p>You’ll also need to make it readable by the user account under which qmail-smtpd is running. For a normal installation, this is <code class="highlighter-rouge">qmaild.qmail</code>. For my vpopmail installation, it’s <code class="highlighter-rouge">vpopmail.vchkpw</code>:</p>
+
+<pre># chown vpopmail.vchkpw /var/qmail/control/servercert.pem</pre>
+
+<p>If it’s not working, you can debug it by telnetting to port 25 on your host and typing in the <code class="highlighter-rouge">STARTTLS</code> command. The output is usually pretty descriptive. For example:</p>
+
+<pre>220 peculiar.differentpla.net ESMTP
+HELO
+250 peculiar.differentpla.net
+STARTTLS
+454 TLS missing certificate: error:0200100D:system library:fopen:Permission denied (#4.3.0)</pre>
+
+<p>If it’s working, you should see the following:</p>
+
+<pre>220 peculiar.differentpla.net ESMTP
+HELO
+250 peculiar.differentpla.net
+STARTTLS
+220 ready for tls</pre>
+
+<p>For more information, check out <a href="http://iain.cx/ssl/?qmailtls">http://iain.cx/ssl/?qmailtls</a>.</p>
+
+<p>Next: <a href="../../../../../node/view/198">Installing qmailAdmin</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

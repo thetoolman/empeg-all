@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>CTreeCtrl, TrackPopupMenu and CCmdTarget</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>CTreeCtrl, TrackPopupMenu and CCmdTarget</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-31 17:17:00 +0000">2004-03-31 17:17:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Some twisted code showing how to combine MFC’s <code class="highlighter-rouge">CTreeCtrl</code>, <code class="highlighter-rouge">CCmdTarget</code> and <code class="highlighter-rouge">TrackPopupMenu</code>.</p>
+
+<p>Let’s assume that you want to allow your users to get a context menu when they right-click on a tree control. The first part is simple. You can subclass the control (which is easy in MFC) and handle WM_CONTEXTMENU. Alternatively, if you don’t want to subclass the control, you can handle the NM_RCLICK notification that you’ll receive from the tree control:</p>
+
+<h2 id="handling-a-right-click-on-the-tree-background">Handling a right-click on the tree background</h2>
+
+<pre>BEGIN_MESSAGE_MAP(CTreeCtrlDlg, CDialog)
+    ON_NOTIFY(NM_RCLICK, IDC_TREECTRL, OnNMRclickTreectrl)
+END_MESSAGE_MAP()</pre>
+
+<pre>void CTreeCtrlDlg::OnNMRclickTreectrl(NMHDR *pNMHDR, LRESULT *pResult)
+{
+    *pResult = 0;
+
+    CPoint ptScreen;
+    if (GetCursorPos(&amp;ptScreen))
+    {
+        CPoint ptClient(ptScreen);
+        m_treeCtrl.ScreenToClient(&amp;ptClient);
+
+        UINT flags;
+        HTREEITEM hTreeItem = m_treeCtrl.HitTest(ptClient, &amp;flags);
+
+        // The user hasn't clicked on any item.
+        if (hTreeItem == NULL)
+        {
+            CMenu menu;
+            VERIFY(menu.LoadMenu(IDR_POPUP_NOWHERE));
+            CMenu *popup = menu.GetSubMenu(0);
+            ASSERT(popup);
+            VERIFY(popup-&gt;TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON,
+                    ptScreen.x, ptScreen.y, this, NULL));
+        }
+    }
+}</pre>
+
+<p>There are a few things to note here. The first is that the NM_RCLICK notification sent from a tree control doesn’t include the mouse coordinates, so we have to get them ourselves. <code class="highlighter-rouge">GetCursorPos</code> returns the coordinates relative to the screen, so we have to convert them to client coordinates before calling <code class="highlighter-rouge">CTreeCtrl::HitTest</code>. <code class="highlighter-rouge">TrackPopupMenu</code> wants the coordinates in screen coordinates.
+When the user selects a command, it’ll be sent to the window passed to <code class="highlighter-rouge">TrackPopupMenu</code> in a <code class="highlighter-rouge">WM_COMMAND</code> message, which is exactly what we want.</p>
+
+<h2 id="handling-right-click-on-an-item">Handling right-click on an item</h2>
+
+<p>This code shows how to handle a right-click on the background of the tree control. What if we want to display a different popup menu if the user clicks on an item? That’s easy:</p>
+
+<pre>        if (hTreeItem &amp;&amp; (flags &amp; TVHT_ONITEM))
+        {
+            CMenu menu;
+            VERIFY(menu.LoadMenu(IDR_POPUP_ONITEM));
+            CMenu *popup = menu.GetSubMenu(0);
+            ASSERT(popup);
+            VERIFY(popup-&gt;TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON,
+                    ptScreen.x, ptScreen.y, this, NULL);</pre>
+
+<p>One problem with this approach is that the command will be sent to the dialog, and we’ll have forgotten which item the user clicked on. There are several possible solutions to this problem. Among them:</p>
+
+<ul>
+  <li>Remember which item was clicked on. Add a handler for the command to the dialog. In the command handler, we can look at which item was clicked previously do decide what to do. This means carrying around a piece of data (the <code class="highlighter-rouge">HTREEITEM</code>) between messages, which is a smell.</li>
+  <li>Call <code class="highlighter-rouge">CTreeCtrl::SelectItem</code> to make the clicked item current, making the handler (again in the dialog) simpler. This is the simplest option, but has its own disadvantages – what if selecting the item causes a bunch of unnecessary work? Imagine if we enumerated the contents of the folder, only to find that the user had selected the “Delete” menu item.</li>
+  <li>Pass the <code class="highlighter-rouge">TPM_RETURNCMD</code> flag to <code class="highlighter-rouge">TrackPopupMenu</code>.</li>
+</ul>
+
+<p>This last option looks like this:</p>
+
+<pre>        UINT nCode = popup-&gt;TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON |
+                        TPM_RETURNCMD,
+                        ptScreen.x, ptScreen.y, this, NULL);
+        if (nCode != 0)
+        {
+            /* do something with HTREEITEM and nCode. */
+        }</pre>
+
+<p>Now, what if we wanted to create a slightly more MFC-oriented solution, and make it a little more object-oriented? It’s a little bit of a smell to have the dialog handling commands (even in this way) for some other object (namely the item in the tree control.</p>
+
+<h2 id="using-ccmdtarget-and-oncmdmsg">Using CCmdTarget and OnCmdMsg</h2>
+
+<p>This can be easily resolved by creating a new class, <code class="highlighter-rouge">CTreeCtrlItem</code> (or whatever you’d prefer to call it), derived from <code class="highlighter-rouge">CCmdTarget</code>, and putting these in the tree control, like this:</p>
+
+<pre>class CTreeCtrlItem : public CCmdTarget
+{
+    /* stuff */
+};</pre>
+
+<pre>    CTreeCtrlItem *pItem = new CTreeCtrlItem;
+    LPARAM lParam = reinterpret_cast<LPARAM>(pItem);
+    m_treeCtrl.InsertItem(TVIF_TEXT | TVIF_PARAM, "Root Item",
+                            0, 0, 0, 0,
+                            lParam, TVI_ROOT, TVI_LAST);&lt;/pre&gt;
+
+Then, when the user right-clicks on the tree control, you can get back the item and forward the message to it:
+
+<pre>UINT nCode = popup-&gt;TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON |
+                        TPM_RETURNCMD,
+                        ptScreen.x, ptScreen.y, this, NULL);
+if (nCode != 0)
+{
+    DWORD_PTR lParam = m_treeCtrl.GetItemData(hTreeItem);
+    CCmdTarget *pItem = reinterpret_cast&lt;CCmdTarget *&gt;(lParam);
+    ASSERT(pItem &amp;&amp; pItem-&gt;IsKindOf(RUNTIME_CLASS(CCmdTarget)));
+    pItem-&gt;OnCmdMsg(nCode, CN_COMMAND, NULL, NULL);
+}</pre>
+
+And, if you start adding command handlers to the `CTreeCtrlItem` class, they'll be handled correctly. The magic of this, of course, is that the objects that you put in the tree only need to be derived from `CCmdTarget` in order for this to work, meaning that you can put different objects in there, and the commands will be handled polymorphically, and routed correctly.
+
+Source code is [here](/node/view/203).
+</LPARAM></pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>
