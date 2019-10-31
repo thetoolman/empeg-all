@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using IIS Express in vs-welcome-page</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using IIS Express in vs-welcome-page</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-29 17:35:18 +0000">2013-05-29 17:35:18 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>So, why did I use <em>IIS Express</em> to implement my <em>vs-welcome-page</em> extension?
+I’m using Nancy, so why didn’t I just use the self-hosting support and host it
+inside Visual Studio instead?</p>
+
+<p>Because of a misunderstanding about URL ACLs. The HTTP stack in Windows allows
+you to bind multiple processes to the same port number, as long as they use
+different URL “prefixes” (namespaces, if you like).</p>
+
+<p>However, in order to prevent malicious processes binding
+to well-known URLs, Windows has the concept of URL ACLs, which control which user
+accounts can bind to while prefixes.</p>
+
+<p>Previously, when I’ve used Nancy, and I’ve attempted to listen on an address as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>const string prefix = "http://localhost:10250/";
+var host = new NancyHost(new Uri(prefix));
+host.Start();
+</code></pre></div></div>
+
+<p>…I’ve received an “Access Denied” exception. When using <em>IIS Express</em>, I’ve not
+seen this. I just guessed that <em>IIS Express</em> had some magic in it that allowed it
+to subvert the rules, and (since this was a weekend project) I didn’t
+bother investigating any further.</p>
+
+<p>Today, however, I had an opportunity to investigate this. I started with <code class="highlighter-rouge">HttpListener</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>const string prefix = "http://localhost:10250/";
+var listener = new HttpListener();
+listener.Prefixes.Add(prefix);
+listener.Start();
+</code></pre></div></div>
+
+<p>… and this works fine. It appears that you don’t need URL ACLs to bind to
+“localhost”, and that this is the magic that <em>IIS Express</em> is using.</p>
+
+<p>So why doesn’t it work with <em>Nancy</em>? It turns out that I was missing one thing:
+in the self-hosting code, Nancy transforms “localhost” into “+” (meaning all available addresses),
+which then falls under the purview of the URL ACL mechanism.</p>
+
+<p>Fortunately, this behaviour can be controlled by the <code class="highlighter-rouge">HostConfiguration.RewriteLocalhost</code>
+flag passed to the <code class="highlighter-rouge">NancyHost</code> constructor:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var configuration = new HostConfiguration { RewriteLocalhost = false };
+var host = new NancyHost(configuration, new Uri(prefix));
+host.Start();
+</code></pre></div></div>
+
+<p>… and now it all works fine. I’ll be updating my VS extension in the next few
+days to remove the dependency on <em>IIS Express</em>, which will reduce the number of
+moving parts, simplify the packaging process, and make it easier to enable some
+other features that I’ve been thinking about.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

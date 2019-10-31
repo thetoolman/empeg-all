@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Running IIS Express</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Running IIS Express</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-29 15:07:25 +0000">2013-05-29 15:07:25 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>When you create a web application in Visual Studio, you can configure it (on the
+properties page) to run in <strong>IIS Express</strong>.</p>
+
+<p>I made use of it in my “Visual Studio Extension in a Weekend” project. The
+advantages of using IIS Express for hosting the rendering application part of that project are:</p>
+
+<ol>
+  <li>It’s installed as part of Visual Studio, so I can pretty much assume that it’s available.</li>
+  <li>It runs happily without administrator privileges, which is nice.</li>
+</ol>
+
+<p>###Spike: how to run IIS Express?###</p>
+
+<p>In <code class="highlighter-rouge">C:\Program Files (x86)\IIS Express</code>, you can find the <code class="highlighter-rouge">iisexpress.exe</code> 
+application. It will display help text if you run it with the <code class="highlighter-rouge">/?</code> switch.</p>
+
+<p>You can run it with the <code class="highlighter-rouge">/path</code> switch, and it will start up a web server instance.</p>
+
+<p>If you run it from a command prompt, it runs as a console application, which is 
+a bit ugly.</p>
+
+<p>If you start a web application in Visual Studio, IIS Express runs in the 
+notification area, with no ugly console window. What’s the difference? 
+With IIS Express running in this mode, Task Manager shows two applications: 
+“IIS Express System Tray” (iisexpresstray.exe) and “IIS Express Worker Process” 
+(iisexpress.exe).</p>
+
+<p>Showing the “command line” column in Task Manager shows that <code class="highlighter-rouge">iisexpress.exe</code> 
+is run with the following arguments:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/config:"C:\Users\name\Documents\IISExpress\config\applicationhost.config"
+/site:"MvcApplication1"
+/apppool:"Clr4IntegratedAppPool"`
+</code></pre></div></div>
+
+<p>And <code class="highlighter-rouge">iisexpresstray.exe</code> is run passing the process ID of the <code class="highlighter-rouge">iisexpress.exe</code> 
+process.</p>
+
+<p>However, if we try this ourselves, we still get an ugly console window.</p>
+
+<h2 id="process-explorer">Process Explorer</h2>
+
+<p>I’m guessing here, but I suspect that Visual Studio simply starts up the process
+hidden. I’m going to use Process Explorer to see if this is the case.</p>
+
+<p>The first thing that Visual Studio does is look in the registry (under 
+<code class="highlighter-rouge">HKLM\SOFTWARE\Wow6432Node\Microsoft\IISExpress\8.0\InstallPath</code>) to see where 
+IIS Express is installed. Oddly, it seems to look for IIS Express 7.5 first.</p>
+
+<p>It also queries the <code class="highlighter-rouge">Manifest</code> registry value, and then opens the file named here. 
+However, on looking in this file, there doesn’t appear to be anything interesting, 
+so I don’t know why it’s doing this. I’ll ignore it for now.</p>
+
+<p>Unfortunately, it doesn’t appear that Process Explorer allows you to see the 
+exact parameters passed to <code class="highlighter-rouge">CreateProcessW</code>, so it’s either time to break out 
+WinDbg, or time to just try it.</p>
+
+<p>So: let’s just try it. Time for a bit of PowerShell.</p>
+
+<h2 id="wheres-powershell-ise-gone">Where’s PowerShell ISE gone?</h2>
+
+<p>A brief interlude ensues here: where’s PowerShell ISE on Windows 8? It turns out 
+that it is installed, but it’s not shown on the Start screen by default. 
+See <a href="http://trekker.net/archives/where-is-the-powershell-ise-in-windows-8/">this</a> 
+for more details.</p>
+
+<p>After a couple of minutes of messing about, I came up with the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$applicationRoot = 'C:\path\to\webapp'
+
+$iisexpress = Join-Path `
+    (Get-ItemProperty 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\IISExpress\8.0' 'InstallPath').InstallPath `
+    'iisexpress.exe'
+
+$startInfo = New-Object System.Diagnostics.ProcessStartInfo
+$startInfo.FileName = $iisexpress
+$startInfo.Arguments = ('/path:"{0}"' -f $applicationRoot)
+$startInfo.CreateNoWindow = $true
+$startInfo.WindowStyle = 'Hidden'
+
+$p = [System.Diagnostics.Process]::Start($startInfo)
+</code></pre></div></div>
+
+<p>…which works beautifully, but it turns out that it’s even simpler:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Start-Process $iisexpress ('/path:"{0}"' -f $applicationRoot) -WindowStyle Hidden
+</code></pre></div></div>
+
+<p>It also turns out that IIS Express starts the tray icon by itself, so the whole
+thing can be done with one line, and we can start the default web browser with one more:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Start-Process 'http://localhost:8080'
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

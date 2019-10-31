@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>gen_fsm learnings, part 1</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>gen_fsm learnings, part 1</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2013-11-11 15:31:10 +0000">2013-11-11 15:31:10 +0000</span>
+        </div>
+        <p></p>
+        <h2 id="background">Background</h2>
+
+<p>All of the <code class="highlighter-rouge">gen_fsm</code> examples I’ve found on the Internet are way too
+complicated. For example, the one in <a href="http://learnyousomeerlang.com/finite-state-machines">learn you some
+Erlang</a> jumps from a
+simple, hand-written FSM to one that seems to handle a full trading floor
+simulation. That’s a steep learning curve in my book.</p>
+
+<p>Here’s a simpler example.</p>
+
+<h2 id="the-goal">The goal</h2>
+
+<p>A simple state machine with two states: <code class="highlighter-rouge">alpha</code> and <code class="highlighter-rouge">beta</code>. It starts in state <code class="highlighter-rouge">alpha</code>,
+and you can send it between the states by sending it messages.</p>
+
+<h2 id="getting-started">Getting started</h2>
+
+<p>First, we’ll need a source file. Call it <code class="highlighter-rouge">ab_fsm.erl</code>, and start with the
+following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(ab_fsm).
+-behaviour(gen_fsm).
+</code></pre></div></div>
+
+<p>Now, if we compile that (<code class="highlighter-rouge">erlc ab_fsm.erl</code>), we’ll get warnings telling us which bits we forgot
+– this is <em>proper</em> TDD:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ab_fsm.erl:2: Warning: undefined callback function code_change/4 (behaviour 'gen_fsm')
+ab_fsm.erl:2: Warning: undefined callback function handle_event/3 (behaviour 'gen_fsm')
+ab_fsm.erl:2: Warning: undefined callback function handle_info/3 (behaviour 'gen_fsm')
+ab_fsm.erl:2: Warning: undefined callback function handle_sync_event/4 (behaviour 'gen_fsm')
+ab_fsm.erl:2: Warning: undefined callback function init/1 (behaviour 'gen_fsm')
+ab_fsm.erl:2: Warning: undefined callback function terminate/3 (behaviour 'gen_fsm')
+</code></pre></div></div>
+
+<p>So, let’s export those…</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
+</code></pre></div></div>
+
+<p>We’ll also want a <code class="highlighter-rouge">start_link</code> function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-export([start_link/0]).
+
+start_link() -&gt;
+  Args = [], Options = [],
+  gen_fsm:start_link(?MODULE, Args, Options).
+</code></pre></div></div>
+
+<p>…and start defining them. The <code class="highlighter-rouge">init</code> function is called first, to do any
+initialisation (based on <code class="highlighter-rouge">Args</code>). It should return <code class="highlighter-rouge">{ok, InitialStateName,
+InitialStateData}</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>init(_Args) -&gt;
+  {ok, alpha, []}.
+</code></pre></div></div>
+
+<p>I’m not entirely sure (yet) what the next three are for, so I’ll just stub them out:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>handle_event(_Event, StateName, StateData) -&gt;
+  {next_state, StateName, StateData}.
+
+handle_sync_event(_Event, _From, StateName, StateData) -&gt;
+  {reply, ok, StateName, StateData}.
+
+handle_info(_Info, StateName, StateData) -&gt;
+  {next_state, StateName, StateData}.
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">terminate</code> is called to do cleanup; we don’t have anything to do:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>terminate(_Reason, _StateName, _StateData) -&gt;
+  ok.
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">code_change</code> is called once the new code is loaded to upgrade the state; we don’t do anything:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>code_change(_OldVsn, StateName, StateData, _Extra) -&gt;
+  {ok, StateName, StateData}.
+</code></pre></div></div>
+
+<h2 id="lets-try-it-out">Let’s try it out</h2>
+
+<p>Now we can try it out a bit:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ erl
+1&gt; c(ab_fsm).
+{ok,ab_fsm}
+2&gt; {ok, Pid} = ab_fsm:start_link().
+{ok,&lt;0.41.0&gt;}
+</code></pre></div></div>
+
+<p>Well, it’s running. You might have noticed that <code class="highlighter-rouge">gen_fsm</code> requires that you
+define a function for each state; we didn’t do that. This, of course, means that
+it doesn’t work:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3&gt; gen_fsm:sync_send_event(Pid, foo).
+
+=ERROR REPORT==== 9-Nov-2013::11:20:55 ===
+** State machine &lt;0.41.0&gt; terminating
+** Last message in was {'$gen_sync_event',{&lt;0.33.0&gt;,#Ref&lt;0.0.0.102&gt;},foo}
+** When State == alpha
+**      Data  == []
+** Reason for termination =
+** {'function not exported',
+       [{ab_fsm,alpha,[foo,{&lt;0.33.0&gt;,#Ref&lt;0.0.0.102&gt;},[]],[]},
+        {gen_fsm,handle_msg,7,[{file,"gen_fsm.erl"},{line,505}]},
+        {proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,239}]}]}
+** exception exit: undef
+     in function  ab_fsm:alpha/3
+        called as ab_fsm:alpha(foo,{&lt;0.33.0&gt;,#Ref&lt;0.0.0.102&gt;},[])
+     in call from gen_fsm:handle_msg/7 (gen_fsm.erl, line 505)
+     in call from proc_lib:init_p_do_apply/3 (proc_lib.erl, line 239)
+</code></pre></div></div>
+
+<p>I guess that we’d better go and implement the missing functions, then:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-export([alpha/3]).
+alpha(beta, _From, StateData) -&gt;
+  {reply, ok, beta, StateData}.
+</code></pre></div></div>
+
+<p>Because we used <code class="highlighter-rouge">gen_fsm:sync_send_event</code>, this particular variant of <code class="highlighter-rouge">alpha</code>
+gets called. It’s supposed to send a reply (because it’s synchronous).</p>
+
+<p>This is Erlang, so we can simply reload the code and try again:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>16&gt; c(ab_fsm).
+17&gt; {ok, Pid} = ab_fsm:start_link().
+18&gt; gen_fsm:sync_send_event(Pid, beta).
+</code></pre></div></div>
+
+<p>Cool; that works. Let’s implement a bunch more, including changing <code class="highlighter-rouge">alpha</code>, so
+that if it doesn’t recognise the event, it stays in the same state. This
+replaces the above snippet:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-export([alpha/3, beta/3]).
+
+alpha(beta, _From, StateData) -&gt;
+  {reply, ok, beta, StateData};
+alpha(_Event, _From, StateData) -&gt;
+  {reply, ok, alpha, StateData}.
+
+beta(alpha, _From, StateData) -&gt;
+  {reply, ok, alpha, StateData};
+beta(_Event, _From, StateData) -&gt;
+  {reply, ok, beta, StateData}.
+</code></pre></div></div>
+
+<p>Note that these use clause matching to either handle a specified event (an
+atom), or to handle all unknown events.</p>
+
+<h2 id="unit-tests">Unit tests</h2>
+
+<p>And, we’ll write some unit tests, because I’m bored with trying everything
+manually:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-include_lib("eunit/include/eunit.hrl").
+
+starts_test() -&gt;
+    {ok, _Pid} = ab_fsm:start_link().
+
+alpha_to_beta_test() -&gt;
+    {ok, Pid} = ab_fsm:start_link(),
+    ok = gen_fsm:sync_send_event(Pid, beta).
+
+alpha_to_alpha_test() -&gt;
+    {ok, Pid} = ab_fsm:start_link(),
+    ok = gen_fsm:sync_send_event(Pid, alpha),
+    ok = gen_fsm:sync_send_event(Pid, nonsense).
+
+beta_to_alpha_test() -&gt;
+    {ok, Pid} = ab_fsm:start_link(),
+    ok = gen_fsm:sync_send_event(Pid, beta),
+    ok = gen_fsm:sync_send_event(Pid, alpha).
+
+beta_to_beta_test() -&gt;
+    {ok, Pid} = ab_fsm:start_link(),
+    ok = gen_fsm:sync_send_event(Pid, beta),
+    ok = gen_fsm:sync_send_event(Pid, nonsense).
+</code></pre></div></div>
+
+<p>We can test this more easily from the shell:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1&gt; c(ab_fsm).
+ok
+2&gt; eunit:test(ab_fsm).
+  All 5 tests passed.
+ok
+</code></pre></div></div>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">gen_fsm learnings, part 1</a></li>
+        
+        
+        
+        
+        
+            <li><a href="../gen-fsm-learnings-part-2/index.html">gen_fsm learnings, part 2</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../../12/gen-fsm-learnings-part-3/index.html">gen_fsm learnings, part 3</a></li></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

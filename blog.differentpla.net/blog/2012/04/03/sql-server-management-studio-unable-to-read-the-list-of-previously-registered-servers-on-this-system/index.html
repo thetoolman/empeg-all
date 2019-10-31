@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>SQL Server Management Studio: Unable to read the list of previously registered servers on this system</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>SQL Server Management Studio: Unable to read the list of previously registered servers on this system</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2012-04-03 13:28:41 +0000">2012-04-03 13:28:41 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I recently started having odd problems with SQL Server Management Studio on my work PC.</p>
+
+<p>When I’d run it, I got the following exception, and I couldn’t browse any SQL server instances.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Microsoft.SqlServer.Management.RegisteredServers.RegisteredServerException:
+Unable to read the list of previously registered servers on this system.
+Re-register your servers in the 'Registered Servers' window.
+
+---&gt; Microsoft.SqlServer.Management.Sdk.Sfc.SfcSerializationException:
+Deserialization operation on /RegisteredServersStore/ServerGroup/CentralManagementServerGroup has failed.
+
+---&gt; System.InvalidOperationException: Unable to generate a temporary class (result=1).
+error CS2001: Source file 'C:\Windows\TEMP\gb_pz65v.0.cs' could not be found
+error CS2008: No inputs specified
+</code></pre></div></div>
+
+<p>To fix this exception, I deleted my <code class="highlighter-rouge">%APPDATA%\Microsoft\Microsoft SQL Server</code> folder. When I ran SQL Server Management Studio again, this exception was gone, but I had to re-register all of my servers.</p>
+
+<p>Unfortunately, after that I get another exception:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Value cannot be null.
+Parameter name: viewInfo (Microsoft.SqlServer.Management.SqlStudio.Explorer)
+</code></pre></div></div>
+
+<p>However, at the same time, Visual Studio 2010 (well, actually ReSharper) started reporting the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Unable to generate a temporary class (result=1). error CS2001: Source file 'C:\Windows\TEMP\oaspyffw.0.cs' could not be found error CS2008: No inputs specified
+</code></pre></div></div>
+
+<p>…which is almost identical to the error that I was seeing from SSMS.</p>
+
+<p>It appears that my %TEMP% environment variable is set incorrectly. If, on this machine, I go to Start / Run and enter <code class="highlighter-rouge">%TEMP%</code>, I get a UAC prompt. It looks like the variable’s pointing to <code class="highlighter-rouge">C:\Windows\Temp</code>.</p>
+
+<p>However, I can’t figure out <em>where</em> it’s set. The variable looks fine in PowerShell, but not in Command Prompt.</p>
+
+<p>Light-bulb moment. Rebooting to check something.</p>
+
+<p>Back from rebooting.</p>
+
+<p>A couple of days ago, I “cleaned out” my <code class="highlighter-rouge">%APPDATA%\Temp</code> folder. It seems that I deleted a bit too much. Recreating the <code class="highlighter-rouge">2</code> subdirectory and rebooting, everything seems fine.</p>
+
+<p>The clue was on the <a href="http://connect.microsoft.com/SQLServer/feedback/details/573771/value-cannot-be-null">MS Connect site</a>.</p>
+
+<p>There’s another clue as to how this might have happened on the <a href="http://social.msdn.microsoft.com/Forums/en-US/sqltools/thread/236d9263-a67e-4926-a7a1-b1173553b8aa/">MSDN Forums</a>, of which more <a href="http://technet.microsoft.com/en-us/library/cc755098.aspx">here</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

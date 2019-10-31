@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Things I learnt this week: RegSetValueEx</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Things I learnt this week: RegSetValueEx</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2008-10-25 12:17:14 +0000">2008-10-25 12:17:14 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><code class="highlighter-rouge">RegSetValueEx</code>, when passed <code class="highlighter-rouge">REG_SZ</code>, needs the length to be in bytes, so don’t just use <code class="highlighter-rouge">_tcslen</code> like this:</p>
+
+<pre>    TCHAR sz[] = _T("Hello World");
+    RegSetValueEx(hKey, bstrValueName, 0, REG_SZ, (const BYTE *)sz, _tcslen(sz));</pre>
+
+<p>That truncates the value placed in the registry (11 bytes where it actually needed 24, including the null terminator).</p>
+
+<hr />
+
+<p><code class="highlighter-rouge">RegSetValueEx</code>, when passed <code class="highlighter-rouge">REG_SZ</code>, is documented as needing the length to include the NULL terminator.</p>
+
+<p>It seems to cope OK without this, though. If you later ask for the size, it comes back with the NULL terminator included. To be on the safe side, always include the NULL terminator when passing the value to <code class="highlighter-rouge">RegSetValueEx</code>:</p>
+
+<pre>    TCHAR sz[] = _T("Hello World");
+    DWORD cb = (_tcslen(sz) + 1) * sizeof(TCHAR);
+    RegSetValueEx(hKey, bstrValueName, 0, REG_SZ, (const BYTE *)sz, cb);</pre>
+
+<hr />
+
+<p><code class="highlighter-rouge">RegSetValueEx</code>, when passed REG_SZ, expects lpData to be TCHAR[], but does nothing to enforce this. This means that the following:</p>
+
+<pre>    char sz[] = "Hello World";
+    RegSetValueEx(hKey, bstrValueName, 0, REG_SZ, (const BYTE *)sz, strlen(sz) + 1);</pre>
+
+<p>…will result in “效汬⁯潗汲d” being written to the registry.</p>
+
+<p>It should be the following:</p>
+
+<pre>    TCHAR sz[] = _T("Hello World");
+    RegSetValueEx(hKey, bstrValueName, 0, REG_SZ, (const BYTE *)sz, _tcslen(sz) + 1);</pre>
+
+<hr />
+
+<p>In fact, you’d be better off with the following:</p>
+
+<pre>LSTATUS RegSetStringValueW(_In_ HKEY hKey, _In_z_ const WCHAR *pwszValueName, _In_z_ const WCHAR *pwszData)
+{
+   DWORD cchData = wcslen(pwszData) + 1;
+   DWORD cbData = cchData * sizeof(WCHAR);
+   return RegSetValueExW(hKey, pwszValueName, 0, REG_SZ, pwszData, cbData);
+}
+
+LSTATUS RegSetStringValueA(_In_ HKEY hKey, _In_z_ const CHAR *pszValueName, _In_z_ const CHAR *pszData)
+{
+   DWORD cchData = strlen(pszData) + 1;
+   DWORD cbData = cchData * sizeof(CHAR);
+   return RegSetValueExA(hKey, pszValueName, 0, REG_SZ, pszData, cbData);
+}
+
+#ifdef UNICODE
+ #define RegSetStringValue RegSetStringValueW
+#else
+ #define RegSetStringValue RegSetStringValueA
+#endif
+</pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

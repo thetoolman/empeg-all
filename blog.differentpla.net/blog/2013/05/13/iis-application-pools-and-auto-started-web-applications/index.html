@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>IIS Application Pools and Auto-Started Web Applications</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>IIS Application Pools and Auto-Started Web Applications</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-13 13:38:19 +0000">2013-05-13 13:38:19 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>We had an issue at work last week where a web application was taking a little bit too long to start up, which was causing intermittent failures. We’d like the application to be always-running, so that this doesn’t happen.</p>
+
+<p>This led to an investigation of the vagaries of IIS application pool configuration.</p>
+
+<h2 id="what-does-it-mean-when-an-application-pool-is-displayed-as-started">What does it mean when an application pool is displayed as ‘Started’?</h2>
+
+<p>In IIS Manager, under “Application Pools”, you’ll see in the <strong>Status</strong> column that your application pools are shown as “Started”. This doesn’t mean that there’s a worker application ready to accept requests (the value should probably be “Ready”).</p>
+
+<h2 id="the-autostart-attribute">The <code class="highlighter-rouge">autoStart</code> attribute</h2>
+
+<p>In the <a href="http://www.iis.net/configreference/system.applicationhost/applicationpools/add">applicationpools/add</a> node in <code class="highlighter-rouge">applicationHost.config</code>, there are two settings which might be of interest. The <code class="highlighter-rouge">autoStart</code> attribute corresponds to the “Start Automatically” property shown in the “Advanced Settings” dialog for the application pool.</p>
+
+<p>This doesn’t actually <em>start</em> the application pool; it’s equivalent to the “Started” status discussed above. It (more-or-less) enables the application pool, so that it’s ready when IIS starts up.</p>
+
+<h2 id="the-startmode-attribute">The <code class="highlighter-rouge">startMode</code> attribute</h2>
+
+<p>The second interesting attribute in <a href="http://www.iis.net/configreference/system.applicationhost/applicationpools/add">applicationpools/add</a> is the <code class="highlighter-rouge">startMode</code> attribute. This doesn’t appear to be available in the IIS console, but you can set it from PowerShell:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$pool = Get-Item 'IIS:\AppPools\DefaultAppPool'
+$pool.startMode = 'AlwaysRunning'
+$pool | Set-Item
+</code></pre></div></div>
+
+<h2 id="idle-timeout">Idle Timeout</h2>
+
+<p>IIS stops web worker processes when they’re idle, in order to save resources. This may cause problems if your application takes a while to start up, so we want to disable this as well:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$pool = Get-Item 'IIS:\AppPools\DefaultAppPool'
+$pool.processModel.idleTimeout = [TimeSpan]::Zero
+$pool | Set-Item
+</code></pre></div></div>
+
+<p>Also see <a href="http://technet.microsoft.com/en-us/library/cc771956.aspx">“Configure Idle Time-out Settings for an Application Pool (IIS 7)”</a></p>
+
+<h2 id="configuring-recycling">Configuring recycling</h2>
+
+<p>The other problem that we had was that IIS <a href="http://www.iis.net/configreference/system.applicationhost/applicationpools/add/recycling/periodicrestart">recycles</a> the application pool every <a href="http://serverfault.com/questions/348493/why-does-the-iis-worker-process-recycle-every-29-hours-and-not-every-24-hours">29 hours</a>. We’d rather it recycled outside working hours, at a fixed time each day.</p>
+
+<p>So, using the details from <a href="http://serverfault.com/a/441972/7027">here</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$pool = Get-Item 'IIS:\AppPools\DefaultAppPool'
+$pool.recycling.periodicRestart.time = [TimeSpan]::Zero
+$pool | Set-Item
+
+Clear-ItemProperty "IIS:\AppPools\$($pool.Name)" -Name recycling.periodicRestart.schedule
+Set-ItemProperty "IIS:\AppPools\$($pool.Name)" `
+	-Name recycling.periodicRestart.schedule -Value @{value='02:00:00'}
+</code></pre></div></div>
+
+<p>…we can set the application pool to recycle at 2am.</p>
+
+<h2 id="other-links">Other Links</h2>
+
+<ul>
+  <li><a href="http://blogs.msdn.com/b/amb/archive/2012/03/08/launch-worker-process-w3wp-exe-automatically-as-soon-as-application-pool-starts.aspx">Launch worker process (w3wp.exe) automatically as soon as application pool starts</a></li>
+  <li><a href="http://weblogs.asp.net/scottgu/archive/2009/09/15/auto-start-asp-net-applications-vs-2010-and-net-4-0-series.aspx">Auto-Start ASP.NET Applications (VS 2010 and .NET 4.0 Series)</a></li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

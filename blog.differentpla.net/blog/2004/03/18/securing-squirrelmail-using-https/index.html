@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Securing SquirrelMail using HTTPS</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Securing SquirrelMail using HTTPS</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-18 15:19:00 +0000">2004-03-18 15:19:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Part 11 of <a href="../../../../../node/view/165">Installing qmail and vpopmail</a>. This part is about securing webmail access by using HTTPS.</p>
+
+<p>At the end of <a href="../../../../../node/view/175">Installing SquirrelMail</a>, I’d finished installing webmail on my test box. Currently, this uses HTTP. This is not really secure enough for webmail, so this article is going to look at adding HTTPS access to webmail.</p>
+
+<h2 id="apache-ssl-or-mod_ssl">Apache-SSL or mod_ssl?</h2>
+
+<p>There are two options when it comes to providing support for HTTPS: <a href="http://www.apache-ssl.org/">Apache-SSL</a> and <a href="http://www.modssl.org/">mod_ssl</a>. Debian has packages for both.</p>
+
+<p>See these two mailing list posts (e.g.) for more information about which to choose:</p>
+
+<ul>
+  <li>
+    <p><a href="http://lists.debian.org/debian-isp/2003/debian-isp-200304/msg00260.html">http://lists.debian.org/debian-isp/2003/debian-isp-200304/msg00260.html</a>*   <a href="http://www.mail-archive.com/modssl-users@modssl.org/msg15791.html">http://www.mail-archive.com/modssl-users@modssl.org/msg15791.html</a>
+For this box, I’m going to use mod_ssl. My main motivation is that Apache-SSL runs as a separate daemon, which means that I’ll have two sets of configuration files to maintain, and a bunch of <code class="highlighter-rouge">apache-ssl</code> processes using up memory even though this box won’t be doing much HTTPS.</p>
+
+    <h2 id="installing-mod_ssl">Installing mod_ssl</h2>
+
+    <p>The first thing to do is to configure Apache to allow SSL access. As you’ll recall, my test box is called <code class="highlighter-rouge">flimsy</code>, so we want to allow access to https://flimsy/. We do this (on Debian) by installing the <code class="highlighter-rouge">libapache-mod-ssl</code> package:</p>
+
+    <pre># apt-get install libapache-mod-ssl libapache-mod-ssl-doc</pre>
+
+    <p>Information about configuring mod_ssl is in <code class="highlighter-rouge">/usr/share/doc/libapache-mod-ssl-doc</code> on Debian, but basically, you run <code class="highlighter-rouge">mod-ssl-makecert</code> to make yourself a certificate for testing, and then tweak your <code class="highlighter-rouge">/etc/apache/httpd.conf</code> file to turn on SSL. I’ll talk about self-signed certificates (and installing them under Windows) later.</p>
+
+    <p>When Apache starts, it’ll prompt for the passphrase used to protect the server certificate. See <a href="http://bsdvault.net/sections.php?op=viewarticle&amp;artid=85">this</a> for one way to work around this. Alternatively, you could just not enter a passphrase.</p>
+
+    <p>With a certificate installed using this method, you’ll see a warning like the following:</p>
+
+    <p>[img_assist|nid=211|title=|desc=|link=none|align=left|width=288|height=226] [img_assist|nid=212|title=|desc=|link=none|align=left|width=389|height=278]
+When you create the certificate, you should specify the “Common Name” as the name by which clients will connect to this server. This is generally <code class="highlighter-rouge">www.wherever.com</code>. If you don’t, you’ll get a warning: “The name on the security certificate is invalid or does not match the name of the site” or similar.</p>
+
+    <p>For now, if you just hit “Yes”, Internet Explorer will use the certificate for this session, allowing you to connect to the server.</p>
+
+    <h2 id="redirecting-webmail-to-https">Redirecting webmail to HTTPS</h2>
+
+    <p>Now, currently, users can connect to the webmail using either HTTP or HTTPS. I’d like to force users to connect using HTTPS. This can be done with some <code class="highlighter-rouge">mod_rewrite</code> magic.</p>
+
+    <p>To make it go, put a <code class="highlighter-rouge">.htaccess</code> file in <code class="highlighter-rouge">/var/www/webmail</code> containing the following:</p>
+
+    <pre>DirectoryIndex index.php
+
+<IfModule mod_rewrite.c="">
+        RewriteEngine On
+        RewriteCond %{SERVER_PORT}      !^443$
+        RewriteRule ^(.*)$      https://%{SERVER_NAME}/webmail/$1 [L,R=303]
+</IfModule></pre>
+
+    <p>If you prefer, you can probably put similar directives in a <code class="highlighter-rouge">&lt;Location&gt;</code> or <code class="highlighter-rouge">&lt;Directory&gt;</code> block in <code class="highlighter-rouge">httpd.conf</code>.
+Note that this stanza is protected by <code class="highlighter-rouge">IfModule</code>. This causes it to fall back to normal HTTP access if <code class="highlighter-rouge">mod_ssl</code> didn’t load. In such a case, you might prefer to deny access to this directory entirely.</p>
+
+    <h2 id="self-signed-certificates">Self-Signed Certificates</h2>
+
+    <p>In order to get rid of Internet Explorer’s warning about the untrusted certificate, you need to have a signed certificate. For an e-commerce site, this is generally done by giving a stack of cash to <a href="http://www.verisign.com/">VeriSign</a> or <a href="http://www.thawte.com/ssl/index.html">Thawte</a>. There are other Certificate Authorities, but these are the top two.</p>
+
+    <p>Alternatively, you can create a self-signed certificate and install it in Internet Explorer. For more information about how to do this see, for example, <a href="http://www.modssl.org/docs/2.8/ssl_faq.html#cert-ownca">http://www.modssl.org/docs/2.8/ssl_faq.html#cert-ownca</a>.</p>
+
+    <p><strong>Note:</strong> If you’re planning on using the same server key and certificate with BincIMAP, you’ll need to remove the passphrase from the server key. BincIMAP has no way of prompting for the key and, due to the use of tcpserver, couldn’t keep it anywhere anyway. For more information, see <a href="http://www.modssl.org/docs/2.8/ssl_faq.html#remove-passphrase">http://www.modssl.org/docs/2.8/ssl_faq.html#remove-passphrase</a>.</p>
+
+    <p>If you follow the instructions given there to create a signed (or self-signed) certificate, you should end up with two files: <code class="highlighter-rouge">server.crt</code> and <code class="highlighter-rouge">server.key</code>. If you’ve installed Debian’s <code class="highlighter-rouge">mod_ssl</code>, you should have directories named <code class="highlighter-rouge">ssl.crt</code>, <code class="highlighter-rouge">ssl.csr</code> and <code class="highlighter-rouge">ssl.key</code> in <code class="highlighter-rouge">/etc/apache</code>. I just put the files (in this example, I called them <code class="highlighter-rouge">flimsy.key</code>, <code class="highlighter-rouge">flimsy.csr</code> and <code class="highlighter-rouge">flimsy.crt</code> in those directories, and edited <code class="highlighter-rouge">/etc/apache/httpd.conf</code> to point to them:</p>
+
+    <pre><VirtualHost _default_:443="">
+     <IfModule mod_ssl.c="">
+        SSLEngine on
+        SSLCertificateFile      /etc/apache/ssl.crt/flimsy.crt
+        SSLCertificateKeyFile   /etc/apache/ssl.key/flimsy.key
+        SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+     </IfModule>
+</VirtualHost></pre>
+
+    <h2 id="installing-a-self-signed-certificate-in-ie">Installing a Self-Signed Certificate in IE</h2>
+
+    <p>If, when presented with the certificate error message, you click on “View Certificate”, you’ll see your webserver’s certificate.</p>
+
+    <table align="center">
+<tbody>
+<tr>
+<td valign="center">[img_assist|nid=213|title=|desc=|link=none|align=left|width=288|height=226]</td>
+
+<td width="20px"> </td>
+
+<td valign="center">[img_assist|nid=214|title=|desc=|link=none|align=left|width=307|height=357]</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+    <p>You’d think that clicking the “Install Certificate” button would suffice, but it doesn’t.</p>
+
+    <p>If you’re using a self-signed certificate, you need to install your CA certificate in the “Trusted Root Certification Authorities” store. To to this, you can click on the “Certification Path” tab. This will show your server’s certificate and your CA certificate. If you click on your CA certificate and click “View Certificate”, you can view the details for your root CA certificate.</p>
+
+    <p>To install it, you first need to save it as a file. Select the “Details” tab and click the “Copy to File” button. If you then right-click on this file and select “Install Certificate” you’ll see a wizard that will walk you through installing your CA certificate.</p>
+
+    <p>To see it, click on <code class="highlighter-rouge">Tools</code> / <code class="highlighter-rouge">Options</code> and go to the “Content” tab. Click on the “Certificates” button. Your certificate will be shown under “Trusted Root Certification Authorities”.</p>
+
+    <table align="center">
+<tbody>
+<tr>
+<td valign="center">![](/images/18e4c9a767f8d1947bde086222013223-181.png)</td>
+
+<td width="20px"> </td>
+
+<td valign="center">![](/images/52fa0e235abb98bfcb831bd44254b7a9-185.png)</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+    <p>Now you can point your browser at (in this example) <a href="https://flimsy.home.differentpla.net/webmail/">https://flimsy.home.differentpla.net/webmail/</a> and it connects without bringing up any warnings.</p>
+
+    <p>For more information about Internet Explorer and certificates, read <a href="http://www.microsoft.com/resources/documentation/ie/6/all/reskit/en-us/part2/c06ie6rk.mspx">Chapter 6 - Digital Certificates</a> in the Internet Explorer Resource Kit documentation.</p>
+
+    <h2 id="virtual-hosts-and-https">Virtual Hosts and HTTPS</h2>
+
+    <p>If you’re using Virtual Hosts with Apache, you will run into what seems like a major problem: you can’t use <a href="http://httpd.apache.org/docs/vhosts/name-based.html">name-based virtual hosts</a> and HTTPS. For more information, see <a href="http://www.modssl.org/docs/2.8/ssl_faq.html#vhosts">http://www.modssl.org/docs/2.8/ssl_faq.html#vhosts</a>.</p>
+
+    <p>Here are some possible different solutions:</p>
+
+    <ul>
+      <li>Use <a href="http://httpd.apache.org/docs/vhosts/ip-based.html">IP-based virtual hosts</a>. This requires a different IP address for each virtual host. This can be done by installing more than one network card or by using IP aliasing with a single network card.
+ Unfortunately, this won’t work in my situation, because I’ve only got a single IP address for my DSL connection, and I’d need to upgrade my service and buy a router that supported more than one external IP address.</li>
+      <li>Use a different port for each virtual HTTPS host. This would work in my case, but it’s easy to forget to supply the port number when typing in the address.</li>
+      <li>Don’t worry about it. Use the same virtual host to access all of your mailboxes. This works with <code class="highlighter-rouge">vpopmail</code>, because the domain name is part of the username used to log in. You can do this as long as you don’t mind that your users will see that all of your different domains are running off the same server. I don’t particularly mind, so this is what I’ll do.
+        <h2 id="testing-with-name-based-virtual-hosts">Testing with Name-based Virtual Hosts</h2>
+      </li>
+    </ul>
+
+    <p><code class="highlighter-rouge">peculiar</code>, my “production” server is already configured with several name-based virtual hosts. To try this out, I’ll have to configure my test box in a similar fashion.</p>
+
+    <p>In <a href="../../../../../node/view/170">Part 4</a>, I configured my internal DNS so that both of my test domains would resolve to the same box. If I connect to <a href="http://flimsy.differentpla.test/">http://flimsy.differentpla.test/</a> or <a href="http://flimsy.beerology.test/">http://flimsy.beerology.test/</a>, I am presented with the same page.</p>
+
+    <p>Configuring name-based virtual hosts to handle this is very easy. Just put something like the following into <code class="highlighter-rouge">/etc/apache/httpd.conf</code>:</p>
+
+    <pre>NameVirtualHost *
+
+&lt;VirtualHost *&gt;
+    ServerName flimsy.differentpla.test
+    DocumentRoot /var/www/flimsy.differentpla.test
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *&gt;
+    ServerName flimsy.beerology.test
+    DocumentRoot /var/www/flimsy.beerology.test
+&lt;/VirtualHost&gt;</pre>
+
+    <p>This is the minimum needed to get name-based virtual hosts to work. You’ll probably want to configure more than just this for each virtual host. For example, <code class="highlighter-rouge">peculiar</code> has separate log files and custom error documents for each host.</p>
+
+    <p>Any requests that don’t match a particular <code class="highlighter-rouge">ServerName</code> or <code class="highlighter-rouge">ServerAlias</code> directive will resolve to the first matching <code class="highlighter-rouge">VirtualHost</code> block.</p>
+
+    <p>We also need a minimal <code class="highlighter-rouge">index.html</code> in each of the <code class="highlighter-rouge">DocumentRoot</code> locations, e.g.:</p>
+
+    <pre><!--/var/www/flimsy.beerology.test/index.html-->
+<html>
+ <head><title>flimsy.beerology.test</title></head>
+ <body>
+  <h1>flimsy.beerology.test</h1>
+ </body>
+</html>
+</pre>
+
+    <p>We ought also to tweak the <code class="highlighter-rouge">DocumentRoot</code> settings in the <code class="highlighter-rouge">VirtualHost</code> block responsible for HTTPS:</p>
+
+    <pre><VirtualHost _default_:443="">
+    DocumentRoot /var/www/flimsy.home.differentpla.net
+    <IfModule mod_ssl.c="">
+        SSLEngine on
+        SSLCertificateFile      /etc/apache/ssl.crt/flimsy.crt
+        SSLCertificateKeyFile   /etc/apache/ssl.key/flimsy.key
+        SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+    </IfModule>
+</VirtualHost>
+</pre>
+
+    <p>If we don’t do this, it’ll be set to the default (<code class="highlighter-rouge">/var/www</code> on Debian), which is where each of our virtual hosts is installed. A user will be able to get a list of the virtual hosts on this box by browsing to <a href="http://flimsy.home.differentpla.net/">http://flimsy.home.differentpla.net/</a>. So, we change it.</p>
+
+    <p>Success! Users can connect to either of the name-based virtual hosts, and they can still connect to <a href="https://flimsy.home.differentpla.net/webmail/">https://flimsy.home.differentpla.net/</a> to check their mail.</p>
+
+    <p>If a user inadvertently tries to connect to <a href="https://flimsy.differentpla.test/">https://flimsy.differentpla.test</a>, which resolves to the same site, they’ll be presented with a warning message:</p>
+
+    <p><img src="http://blog.differentpla.net/images/a94a9bb5b44bf08238a6e8e97cd8a4a4-183.png" alt="" /></p>
+
+    <p>The user can choose “Yes”, and they’ll get the webmail login form as normal. In future, we’d probably prefer to use some <code class="highlighter-rouge">mod_rewrite</code> magic to redirect them to an information page if they’ve typed in the wrong address. We might also want to use <code class="highlighter-rouge">mod_rewrite</code> so that people who use HTTPS to connect to pages that don’t need to be secure are redirected to use the HTTP variant, thus saving CPU cycles on the server.</p>
+
+    <p>Next: <a href="../../../../../node/view/190">Securing IMAP</a>.</p>
+  </li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

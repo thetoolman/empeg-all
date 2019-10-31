@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Failed to load data access DLL</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Failed to load data access DLL</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-06-03 10:55:33 +0000">2013-06-03 10:55:33 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>While attempting to debug a crash dump from a .NET 4.0 RTM process on my (.NET
+4.5), I got the dreaded <code class="highlighter-rouge">Failed to load data access DLL, 0x80004005</code> error
+message.</p>
+
+<p><strong>tl;dr? Skip to the end…</strong></p>
+
+<p>In full, the error looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0:000&gt; .loadby sos clr
+0:000&gt; !vmstat
+Failed to load data access DLL, 0x80004005
+Verify that 1) you have a recent build of the debugger (6.2.14 or newer)
+            2) the file mscordacwks.dll that matches your version of clr.dll is 
+                in the version directory or on the symbol path
+            3) or, if you are debugging a dump file, verify that the file 
+                mscordacwks_&lt;arch&gt;_&lt;arch&gt;_&lt;version&gt;.dll is on your symbol path.
+            4) you are debugging on supported cross platform architecture as 
+                the dump file. For example, an ARM dump file must be debugged
+                on an X86 or an ARM machine; an AMD64 dump file must be
+                debugged on an AMD64 machine.
+
+You can also run the debugger command .cordll to control the debugger's
+load of mscordacwks.dll.  .cordll -ve -u -l will do a verbose reload.
+If that succeeds, the SOS command should work on retry.
+
+If you are debugging a minidump, you need to make sure that your executable
+path is pointing to clr.dll as well.
+</code></pre></div></div>
+
+<p>There are lots of words here, but they’re not the easiest to understand,
+particularly when you’re in a hurry (like, say, you’re attempting to debug an
+issue on a production server).</p>
+
+<p>I’m assuming that you’ve got a recent version of WinDbg. I was running 6.12, which should be OK.</p>
+
+<p>If you’re lucky, however, (and you’ll need to have <code class="highlighter-rouge">!sym noisy</code> turned on to see this), you’ll get:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DBGHELP: clr - public symbols  
+         c:\websymbols\clr.pdb\0A821B8A573E42899202851DF6A539F12\clr.pdb
+SYMSRV:  mscordacwks_AMD64_AMD64_4.0.30319.01.dll from http://msdl.microsoft.com/download/symbols: 502605 bytes - copied         
+DBGHELP: c:\websymbols\mscordacwks_AMD64_AMD64_4.0.30319.01.dll\4BA21EEB965000\mscordacwks_AMD64_AMD64_4.0.30319.01.dll - OK
+</code></pre></div></div>
+
+<p>This means that the Microsoft Symbol Server had the relevant <code class="highlighter-rouge">mscordacwks.dll</code>
+file. If not, you’ll have to copy it from the machine from where the crash dump
+originates, and put it somewhere useful. Unfortunately, the message doesn’t
+explain what, exactly, it means by “on your symbol path”.</p>
+
+<p>For me, at least, it seems that putting it in (e.g.) <code class="highlighter-rouge">C:\WebSymbols</code> doesn’t
+work – you need to put it in the correct named location. I can’t verify this
+right now, since it downloaded it successfully from Microsoft Symbol Server.</p>
+
+<p>More importantly for my problem, however, is the easily-overlooked message at
+the end:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>If you are debugging a minidump, you need to make sure that your executable
+path is pointing to clr.dll as well.
+</code></pre></div></div>
+
+<p>Given that WinDbg <em>knows</em> that I’m debugging a minidump, it could have made
+this more prominent. What it’s telling us is this:</p>
+
+<ol>
+  <li>Copy clr.dll from the original machine. Put it somewhere. Next to the dump file would be fine.</li>
+  <li>Add that path to the executable search path, using <code class="highlighter-rouge">.exepath+ C:\wherever</code></li>
+</ol>
+
+<p>Note, that you <strong>must</strong> use the version from the original machine. If you
+attempt to use your <code class="highlighter-rouge">clr.dll</code>, you’ll get the message:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The version of SOS does not match the version of CLR you are debugging.  Please
+load the matching version of SOS for the version of CLR you are debugging.
+CLR Version: 4.0.30319.1
+SOS Version: 4.0.30319.17929
+CLRDLL: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscordacwks.dll:4.0.30319.17929 f:8
+doesn't match desired version 4.0.30319.01 f:8
+</code></pre></div></div>
+
+<h2 id="just-tell-me-what-to-do-already">Just tell me what to do, already!</h2>
+
+<ol>
+  <li>Copy <code class="highlighter-rouge">clr.dll</code>, <code class="highlighter-rouge">sos.dll</code> and <code class="highlighter-rouge">mscordacwks.dll</code> from the machine where the
+crash is occurring.</li>
+  <li>Put them in <code class="highlighter-rouge">C:\Temp</code>.</li>
+  <li><code class="highlighter-rouge">.exepath+ C:\Temp</code></li>
+  <li><code class="highlighter-rouge">.load C:\Temp\sos</code></li>
+  <li>Done, you can now <code class="highlighter-rouge">!vmstat</code>, etc., to your heart’s content.</li>
+</ol>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

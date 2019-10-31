@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Building a DLL with Jam</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Building a DLL with Jam</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2001-07-16 17:29:57 +0000">2001-07-16 17:29:57 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/jam">jam</a></span>
+        
+    </div>
+    <p></p>
+    <h2 id="introduction">Introduction</h2>
+
+<p>empeg’s code base contains several Windows DLL projects. I’m going to investigate getting these built with jam the <a href="../../14/building-an-mfc-application-with-jam/index.html">same way</a> as I did for the MFC applications – by building a simple project with the AppWizard, and getting the project built.</p>
+
+<h2 id="using-appwizard-to-generate-the-dll">Using AppWizard to generate the DLL</h2>
+
+<p>As I’ve already stated, our DLLs don’t use MFC, so we’ll use the AppWizard to generate a “Win32 Dynamic-Link Library”. To mirror the structure used at empeg, we’ll create the DLL in the <code class="highlighter-rouge">S:\jam-test\lib\</code> directory, and we’ll call it <code class="highlighter-rouge">win32_dll</code>.</p>
+
+<p>The AppWizard wants to know what type of DLL we’re creating, so we’ll create one that exports some symbols. We’ll build it with Developer Studio, just to check.</p>
+
+<h2 id="creating-the-jamfile">Creating the Jamfile</h2>
+
+<p>The obvious thing to start with is a Jamfile that looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Main win32_dll : StdAfx.cpp win32_dll.cpp ;
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">Main</code> rule section in the <code class="highlighter-rouge">Jambase</code> file is geared up to create a .EXE file, so we’ll have to hack on it a little. If we just copy it to a new rule called <code class="highlighter-rouge">SharedLibrary</code>, we can make our changes there. It turns out that the only change we need to make is the suffix of the generated file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>	_t = [ FAppendSuffix $(&lt;) : $(SUFSHR) ] ;
+</code></pre></div></div>
+
+<p>We have to go and define SUFSHR somewhere, though. The definition of the <code class="highlighter-rouge">SharedLibrary</code> rule is <a href="../../04/building-shared-libraries-dlls/index.html">here</a>.
+Once we’ve added the new rules to Jambase, and changed “Main” to “SharedLibrary” in our Jamfile, we get the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>win32_dll.cpp(25) : error C2491: 'nWin32_dll' : definition of dllimport data not allowed
+win32_dll.cpp(29) : error C2491: 'fnWin32_dll' : definition of dllimport function not allowed
+win32_dll.cpp(36) : warning C4273: 'CWin32_dll::CWin32_dll' : inconsistent dll linkage.  dllexport assumed.
+</code></pre></div></div>
+
+<p>This doesn’t work, so we’ll take a look at the compiler command lines.</p>
+
+<h2 id="compiler-flags">Compiler Flags</h2>
+
+<p>Jam is invoking the compiler like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cl /nologo /c /Fowin32_dll.obj /IP:\VStudio\VC98\include /Tpwin32_dll.cpp
+</code></pre></div></div>
+
+<p>Developer Studio is invoking the compiler like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cl /nologo /MTd /W3 /Gm /GX /ZI /Od
+	/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "WIN32_DLL_EXPORTS"
+	/Fp"Debug/win32_dll.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/"
+	/FD /GZ /c
+</code></pre></div></div>
+
+<p>We looked at what the compiler flags meant <a href="../../14/building-an-mfc-application-with-jam/index.html">here</a>. The only one that’s different is <code class="highlighter-rouge">/MTd</code>, rather than <code class="highlighter-rouge">/MDd</code>. This is building a multi-threaded application, and linking it to LIBCMT.LIB rather than to MSVCRT.LIB. Also promising are the <code class="highlighter-rouge">/D</code> switches. We’ll put those into our Jamfile:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C++FLAGS += /MTd /W3 /Gm /GX /ZI /Od
+			/D "WIN32" /D "_DEBUG" /D "_WINDOWS"
+			/D "_MBCS" /D "_USRDLL" /D "WIN32_DLL_EXPORTS" ;
+
+SharedLibrary win32_dll : StdAfx.cpp win32_dll.cpp ;
+</code></pre></div></div>
+
+<p>This compiles happily, but the linker leaves us with:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LINK : fatal error LNK1561: entry point must be defined
+</code></pre></div></div>
+
+<h2 id="entry-point">Entry Point</h2>
+
+<p>Jam is invoking link like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>link /nologo /out:win32_dll.dll StdAfx.obj win32_dll.obj
+</code></pre></div></div>
+
+<p>Developer Studio is invoking link with a response file containing the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib
+ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+/nologo /dll /incremental:yes /pdb:"Debug/win32_dll.pdb" /debug /machine:I386
+/out:"Debug/win32_dll.dll" /implib:"Debug/win32_dll.lib" /pdbtype:sept
+.\Debug\StdAfx.obj
+.\Debug\win32_dll.obj
+</code></pre></div></div>
+
+<p>We’ll add some of the more interesting switches to our Jamfile, and see what happens:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C++FLAGS += /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "WIN32_DLL_EXPORTS" ;
+LINKFLAGS += /dll /incremental:yes /debug /machine:I386 ;
+
+SharedLibrary win32_dll : StdAfx.cpp win32_dll.cpp ;
+</code></pre></div></div>
+
+<p>It builds!
+It seems to me that the extra LINKFLAGS should really be added in the SharedLibrary rule, rather than here. Also, for some reason, Visual C++ is passing a <code class="highlighter-rouge">/implib</code> switch to the linker which we didn’t seem to need (it built an import library correctly). I’ll come back to this later.</p>
+
+<p>You can find the resulting source code from this example <a href="http://blog.differentpla.net/blog/2001/07/16/src/jam-test-20010712a.tar.gz">here</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

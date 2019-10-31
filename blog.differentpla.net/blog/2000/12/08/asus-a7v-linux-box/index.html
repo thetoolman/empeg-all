@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Asus A7V Linux Box</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Asus A7V Linux Box</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2000-12-08 00:02:00 +0000">2000-12-08 00:02:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Having been so impressed with the speed of Linux on the A7V (see <a href="index.html">here</a>), I accidentally slipped while in <a href="http://www.cambridge-computers.com/">Cambridge Computers</a> and bought another one.</p>
+
+<p>It installed well enough. There were just two problems:</p>
+
+<ul>
+  <li>The D-Link DFE 530TX network card.</li>
+  <li>The Promise ATA100 controller.</li>
+</ul>
+
+<h2 id="d-link-dfe-530tx">D-Link DFE-530TX</h2>
+
+<p>I couldn’t get Linux to install using this network card. Some discussion in the office revealed that the card might actually be either a VIA-Rhine, or a Realtek RTL8139. However, it turns out that it’s actually a Via-Rhine 2, for which support doesn’t exist in the stock 2.2.17 kernel (at least not the one with Debian 2.2r1).</p>
+
+<p>In the interim, however, I’ve stuck a DEC Tulip in the box. This seems to be working fine.</p>
+
+<p>See <a href="http://www.scyld.com/network">here</a> for more info.</p>
+
+<p><em>Update 2000-12-12:</em> I spoke too soon. I can’t get the D-Link card to work in Win2k, so I’m going to put the reshuffle my network cards, so that the D-Link is in the new box, and something with some driver support is in the Win2k box. Then I’ll install the patched driver.</p>
+
+<p><em>Update 2000-03-25:</em> Linux 2.2.19 is out. It supports these cards native. Hurrah. The card works now, so I stuck it in my firewall box.</p>
+
+<h2 id="promise-ata100-controller">Promise ATA100 Controller</h2>
+
+<p>This card isn’t supported out of the box on Linux 2.2.17 either. As you can probably imagine, this makes the installation trickier than it otherwise could be.</p>
+
+<p>It’s not too bad. Simply:</p>
+
+<ol>
+  <li>Plug the disk into the UDMA66 controller on the A7V, and install to that.</li>
+  <li>Download and apply the patches from <a href="http://www.linux-ide.org/">http://www.linux-ide.org/</a>.</li>
+  <li>Build a kernel with support for the Promise controller. Don’t worry about “boot off-board chipsets first”.</li>
+  <li>Stick your existing kernel onto a floppy disk, just in case.</li>
+  <li>Edit /etc/lilo.conf and /etc/fstab, changing hda-&gt;hde, hdb-&gt;hdf, etc.</li>
+  <li>Reboot.</li>
+</ol>
+
+<p>Obviously, YMMV. It worked for me – I’ve got an Asus CD-ROM drive on /dev/hda (Linux complains if there isn’t anything there, it would seem), and a pair of IBM disks on /dev/hde and /dev/hdg.
+<em>Update 2001-01-15:</em> Once again, the spectre of dodgy PSUs comes back to haunt me. See <a href="http://blog.differentpla.net/node/view/144">here</a> for more information.</p>
+
+<p><em>Update 2001-06-25:</em> I’d just like to point out that this board is the original A7V. It doesn’t use the VIA 686B Southbridge that people have been complaining about so much recently.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

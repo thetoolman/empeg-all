@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using PartCover with NUnit on 64-bit Windows</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using PartCover with NUnit on 64-bit Windows</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2009-07-16 13:04:26 +0000">2009-07-16 13:04:26 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Some random notes:</p>
+
+<h2 id="running-partcoverexe-on-x64">Running PartCover.exe on x64</h2>
+
+<p>If you run it, you’ll get the following error message:</p>
+
+<pre>Retrieving the COM class factory for component with CLSID {FB20430E-CDC9-45D7-8453-272268002E08} failed due to the following error: 80040153.</pre>
+
+<p>This is because the COM class requested is 32-bit only, and PartCover is running as a 64-bit app. To fix it, you’ll need to use CORFLAGS:</p>
+<pre>"%VS90COMNTOOLS%\vsvars32"
+CORFLAGS /32BIT+ /FORCE path\to\partcover.exe
+</pre>
+
+<h2 id="running-partcover-with-nunit">Running PartCover with NUnit</h2>
+
+<p>First, you need to get nunit-console-x86 working:</p>
+
+<pre>nunit-console-x86 path\to\unit.tests.dll
+</pre>
+
+<h2 id="partcover-inclusions">PartCover inclusions</h2>
+
+<p>You’ll probably forget this bit (I usually do), but you need to tell PartCover what to include in its coverage analysis:</p>
+
+<pre>partcover --target path\to\nunit-console-x86.exe --target-args path\to\unit.tests.dll --include [*]* --output PartCoverResults.xml
+</pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

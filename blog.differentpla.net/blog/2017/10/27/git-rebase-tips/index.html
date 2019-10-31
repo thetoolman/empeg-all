@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>git rebase tips</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>git rebase tips</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2017-10-27 13:10:00 +0000">2017-10-27 13:10:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/git">git</a></span>
+        
+    </div>
+    <p></p>
+    <p><em>This is an internal email I wrote almost exactly 2 years ago. I had to refer
+to it today, and I figured that it bears sharing publicly.</em></p>
+
+<p>The use of git rebase came up in the backend retrospective yesterday, and I
+said I’d follow up. Here are some random notes and links.</p>
+
+<p><strong>tl;dr: learn to use <code class="highlighter-rouge">git rebase -i</code>; <code class="highlighter-rouge">git add -p</code> is your friend.</strong></p>
+
+<p><code class="highlighter-rouge">git rebase</code> works by replaying the commits from one branch on top of another
+commit (usually a branch). This means that if you’ve been hacking on a feature
+branch for a while, you can pretend that you did all of your work on master.</p>
+
+<p>So, I might:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git checkout rl-cool-feature
+git rebase master
+# fix conflicts, run tests, etc.
+git checkout master
+git merge --no-ff rl-cool-feature
+git push
+</code></pre></div></div>
+
+<p>This allows us to have nice, neat <a href="http://pdh11.blogspot.co.uk/2013/06/bow-shaped-branches-git-workflow.html">bow-shaped
+branches</a>.</p>
+
+<p>However, you sometimes run into problems in that “fix conflicts” step, which
+can sometimes get painful. At this point a couple of tricks come in useful.</p>
+
+<p>The first is that you don’t have to rebase onto a branch. You can rebase onto a
+particular commit. This allows you to “ratchet” your branch closer to where you
+want it. It doesn’t necessarily avoid fixing conflicts, but it make it easier
+to find out where the conflict is coming from.</p>
+
+<p>It also feels like you’re doing something useful, and it makes <code class="highlighter-rouge">git rebase
+--abort</code> seem like less of a big deal.</p>
+
+<p>This is where interactive rebase comes in. You can use it to edit commit
+messages; you can merge commits (squash or fixup); you can reorder commits and
+you can flat out delete commits.</p>
+
+<p>There’s a good tutorial covering this here: <a href="https://robots.thoughtbot.com/git-interactive-rebase-squash-amend-rewriting-history">Git Interactive Rebase, Squash,
+Amend and Other Ways of Rewriting
+History</a>,
+which covers more or less the same ground as the Pro Git book, in <a href="https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History">7.6 Git
+Tools - Rewriting
+History</a>.</p>
+
+<p>The other really powerful thing you can do with interactive rebase is to
+<strong>split</strong> commits. The book hints at this
+<a href="https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History#_splitting_a_commit">here</a>,
+but glosses over it by merely mentioning <code class="highlighter-rouge">git reset HEAD^</code>.</p>
+
+<p>The deal with this is that, in interactive rebase, when you mark a commit as
+“edit”, git stops replaying commits immediately after the point that commit was
+applied.</p>
+
+<p>This means that you can (a) sneak a new commit in (b) add some files and use
+<code class="highlighter-rouge">git commit --amend</code> to include them or (c) actually edit the files in the
+commit. To do this, you need to reset the commit, which unstages your changes.
+This is what <code class="highlighter-rouge">git reset HEAD^</code> (or <code class="highlighter-rouge">HEAD~</code>) does.</p>
+
+<p>At this point, you can break the commit up:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git reset HEAD~
+# 'foo' and 'bar' are unstaged; you want to put them in separate commits.
+
+git add foo
+git commit -m "Add foo"
+git add bar
+git commit -m "Add bar"
+git rebase --continue
+</code></pre></div></div>
+
+<p>But, more than that, remember <code class="highlighter-rouge">git add -p</code>. This <strong>allows you to stage only part
+of a file</strong>. That’s really powerful; it means that you can use interactive rebase
+to split the changes to a particular file across multiple commits.</p>
+
+<p>And that might make your rebase less conflict-prone, because you can deal with
+the conflicts in smaller pieces.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

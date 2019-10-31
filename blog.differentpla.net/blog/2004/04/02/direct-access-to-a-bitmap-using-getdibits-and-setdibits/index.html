@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Direct access to a Bitmap using GetDIBits and SetDIBits</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Direct access to a Bitmap using GetDIBits and SetDIBits</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-04-02 11:28:00 +0000">2004-04-02 11:28:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>In the <a href="http://blog.differentpla.net/node/view/207">Grabbing a snapshot of the screen</a> article, I said: “I’m planning on altering the snapshot before displaying it.”. This article shows how to alter a bitmap by directly accessing the raw bits.</p>
+
+<p>If we start with the code from the previous article, it’s as simple as adding the following code:</p>
+
+<pre>// BLOCK: Copy a chunk of the screen to the memory DC.
+{
+    CWindowDC screenDC(NULL);
+    memoryDC.BitBlt(0, 0, clientRect.Width(), clientRect.Height(),
+                &amp;screenDC, 0, 0, SRCCOPY);
+
+    // Find out about the bitmap.
+    BITMAP bitmapObject;
+    memoryBitmap.GetBitmap(&amp;bitmapObject);
+
+    // Get the BITMAPINFO structure for the bitmap.
+    BITMAPINFO *bmi = (BITMAPINFO *)_alloca(sizeof(BITMAPINFOHEADER)
+                + 256*sizeof(RGBQUAD));
+    memset(&amp;bmi-&gt;bmiHeader, 0, sizeof(BITMAPINFOHEADER));
+    bmi-&gt;bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    int scanLineCount = GetDIBits(dc, memoryBitmap, 0,
+                bitmapObject.bmHeight, NULL, bmi, DIB_RGB_COLORS);
+
+    // Allocate a buffer for the bits.
+    int imageBytes = dib::GetBitmapBytes(&amp;bmi-&gt;bmiHeader);
+    char *pSourceBits = (char *)malloc(imageBytes);
+
+    // Get the bits.
+    scanLineCount = GetDIBits(dc, memoryBitmap, 0,
+                bitmapObject.bmHeight, pSourceBits, bmi, DIB_RGB_COLORS);
+
+    // Munge them.
+    ASSERT(bmi-&gt;bmiHeader.biBitCount == 32);
+
+    // Iterate over the bits, munging them.
+    dib::ApplyBitmapTransform(bmi, pSourceBits, pSourceBits,
+                dib::RedShiftTransform());
+
+    ::SetDIBits(dc, memoryBitmap, 0, bitmapObject.bmHeight,
+                pSourceBits, bmi, DIB_RGB_COLORS);
+
+    // We're done; free the memory.
+    free(pSourceBits);
+}</pre>
+
+<p>This shows one way to call <code class="highlighter-rouge">GetDIBits</code>. We call it twice: once to find out about the bitmap, and then again to copy the actual data.</p>
+
+<p>We also need the implementations of <code class="highlighter-rouge">dib::ApplyBitmapTransform</code> and <code class="highlighter-rouge">dib::GetBitmapBytes</code>. They look like this:</p>
+
+<pre>namespace dib
+{
+    int GetBytesPerPixel(int depth)
+    {
+        return (depth==32 ? 4 : 3);
+    }
+
+    int GetBytesPerRow(int width, int depth)
+    {
+        int bytesPerPixel = GetBytesPerPixel(depth);
+        int bytesPerRow = ((width * bytesPerPixel + 3) &amp; ~3);
+
+        return bytesPerRow;
+    }
+
+    int GetBitmapBytes(int width, int height, int depth)
+    {
+        return height * GetBytesPerRow(width, depth);
+    }
+
+    int GetBitmapBytes(const BITMAPINFOHEADER *bmih)
+    {
+        return GetBitmapBytes(bmih-&gt;biWidth, bmih-&gt;biHeight, bmih-&gt;biBitCount);
+    }
+
+    template <class Transform="">
+        void ApplyBitmapTransform(const BITMAPINFO *bmi,
+                const void *pSourceBits, void *pDestBits, const Transform &amp; trans)
+    {
+        ASSERT(bmi-&gt;bmiHeader.biBitCount == 32);
+
+        const RGBQUAD *pSource = (const RGBQUAD *)pSourceBits;
+        RGBQUAD *pDest = (RGBQUAD *)pDestBits;
+
+        for (int y = 0; y &lt; bmi-&gt;bmiHeader.biHeight; ++y)
+        {
+            for (int x = 0; x &lt; bmi-&gt;bmiHeader.biWidth; ++x)
+            {
+                int offset = x + (bmi-&gt;bmiHeader.biWidth * y);
+
+                RGBQUAD src = pSource[offset];
+                RGBQUAD dst = trans(src);
+                pDest[offset] = dst;
+            }
+        }
+    }
+
+    class ColourShiftTransform
+    {
+    protected:
+        // Shift the channel down a little,
+        // making sure that we don't wrap.
+        BYTE Downshift(BYTE b, BYTE down_by) const
+        {
+            if (b &gt; down_by)
+                return b - down_by;
+
+            return 0;
+        }
+
+        // Shift the channel up a little,
+        // making sure that we saturate, rather than wrap.
+        BYTE Upshift(BYTE b, BYTE up_by) const
+        {
+            if (b &lt; (255 - up_by))
+                return b + up_by;
+
+            return 255;
+        }
+    };
+
+    class RedShiftTransform : public ColourShiftTransform
+    {
+    public:
+        RGBQUAD operator() (RGBQUAD src) const
+        {
+            RGBQUAD result;
+
+            result.rgbBlue = Downshift(src.rgbBlue, 40);
+            result.rgbGreen = Downshift(src.rgbGreen, 40);
+            result.rgbRed = Upshift(src.rgbRed, 40);
+            result.rgbReserved = src.rgbReserved;
+
+            return result;
+        }
+    };
+};&lt;/pre&gt;
+</class></pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

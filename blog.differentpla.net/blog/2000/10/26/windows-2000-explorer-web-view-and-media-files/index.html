@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Windows 2000 Explorer Web View and Media Files</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Windows 2000 Explorer Web View and Media Files</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2000-10-26 16:29:00 +0000">2000-10-26 16:29:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><strong>Warning:</strong> I’ve recently received a couple of emails stating that this technique totally breaks Web View in Windows Explorer. Use it at your own risk. Back up any files you change.</p>
+
+<p>When using the Windows Explorer in Web View, Windows 2000 (and presumably ME, but I’ve not checked), adds a preview window for media files to the left hand pane.</p>
+
+<p>This causes problems when the files in question are on the other end of a Samba connection. In particular, you can’t rename the files without getting a sharing violation. In short, the Media Player preview window has the file locked open, and Samba doesn’t like it.</p>
+
+<p>The fix? Just open the file C:\WINNT\Web\folder.htt, and remove the following snippet (don’t forget to back the file up, just in case):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;span id=MediaPlayerSpan&gt;
+&lt;/span&gt;
+</code></pre></div></div>
+
+<p>Note: You might experience general wierdness with your editor, because the file is marked hidden.</p>
+
+<p>Media Player also leaches onto the Search Results view. To fix it, open the file C:\WINNT\Web\fsresult.htt, and find the line:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var gWantMedia = true;
+</code></pre></div></div>
+
+<p>Change <code class="highlighter-rouge">true</code> to <code class="highlighter-rouge">false</code>. Again, back up the file.</p>
+
+<p>I’ve also had problems with the image preview in the search results. To fix this, find the line:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if (item.Size)
+</code></pre></div></div>
+
+<p>Change it to:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if (false &amp;&amp; item.Size)
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

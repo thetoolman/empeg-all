@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Setting up Squid on Windows</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Setting up Squid on Windows</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2009-09-16 08:38:27 +0000">2009-09-16 08:38:27 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>At work, we do a lot of our testing and debugging with virtual machines (using Microsoft Virtual Server or Hyper-V, mostly). The virtual guests are generally not allowed any access to our live network, which makes accessing the Internet difficult. To get around this, I usually set up Squid on the host machine. This allows the guests to access (e.g.) Windows Update and Microsoft Symbol Server, which makes things a bit easier.</p>
+
+<p>Here’s my quick guide to setting up Squid on Windows.</p>
+
+<ol>
+  <li>Download the latest stable version of Squid from <a href="http://squid.acmeconsulting.it/download/dl-squid.html">http://squid.acmeconsulting.it/download/dl-squid.html</a>. At the time of writing this is <a href="http://squid.acmeconsulting.it/download/squid-2.7.STABLE6-bin.zip">Squid 2.7-stable6</a>.</li>
+  <li>Unzip it to <code class="highlighter-rouge">C:\</code>. You should end up with a directory called <code class="highlighter-rouge">C:\squid</code>.</li>
+  <li>In the <code class="highlighter-rouge">C:\squid\etc</code> directory, rename the configuration files as follows:
+    <ul>
+      <li>mime.conf.default to mime.conf</li>
+      <li>squid.conf.default to squid.conf</li>
+    </ul>
+  </li>
+  <li>If you want to put the cache and log directories on another drive – they get quite large, edit the squid.conf file (see below).</li>
+  <li>Run c:\squid\bin\squid -i to install it as a Windows service. You’ll need to be elevated at this point.</li>
+  <li>Run c:\squid\bin\squid -z to initialize the cache directories.</li>
+  <li>Open up your firewall to either allow squid.exe or port 3128</li>
+  <li>Start the squid service</li>
+</ol>
+
+<h2 id="using-a-different-drive-for-the-cache-and-log-directories">Using a different drive for the cache and log directories</h2>
+
+<pre>--- squid.conf.default  2008-10-21 00:03:06.000000000 +0100
++++ squid.conf  2009-01-06 10:03:48.160910000 +0000
+@@ -1928,7 +1928,7 @@
+ #      (hard coded at 1 MB).
+ #
+ #Default:
+-# cache_dir ufs c:/squid/var/cache 100 16 256
++cache_dir ufs e:/squid/var/cache 100 16 256
+
+ #  TAG: store_dir_select_algorithm
+ #      Set this to 'round-robin' as an alternative.
+@@ -2100,7 +2100,7 @@
+ #
+ #      And priority could be any of:
+ #      err, warning, notice, info, debug.
+-access_log c:/squid/var/logs/access.log squid
++access_log e:/squid/var/logs/access.log squid
+
+ #  TAG: log_access     allow|deny acl acl...
+ #      This options allows you to control which requests gets logged
+@@ -2123,7 +2123,7 @@
+ #      logged to this file with the "debug_options" tag below.
+ #
+ #Default:
+-# cache_log c:/squid/var/logs/cache.log
++cache_log e:/squid/var/logs/cache.log
+
+ #  TAG: cache_store_log
+ #      Logs the activities of the storage manager.  Shows which
+@@ -2133,7 +2133,7 @@
+ #      disable it.
+ #
+ #Default:
+-# cache_store_log c:/squid/var/logs/store.log
++cache_store_log e:/squid/var/logs/store.log
+
+ #  TAG: cache_swap_state
+ #      Location for the cache "swap.state" file. This index file holds
+@@ -4872,7 +4872,7 @@
+ # coredump_dir none
+ #
+ # Leave coredumps in the first cache dir
+-coredump_dir c:/squid/var/cache
++coredump_dir e:/squid/var/cache
+
+ #  TAG: chroot
+ #      Use this to have Squid do a chroot() while initializing.  This
+</pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

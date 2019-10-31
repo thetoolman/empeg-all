@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>gen_fsm learnings, part 3</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>gen_fsm learnings, part 3</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2013-11-12 13:51:52 +0000">2013-11-12 13:51:52 +0000</span>
+        </div>
+        <p></p>
+        <p>Some odds and ends.</p>
+
+<h2 id="handle_info-information"><code class="highlighter-rouge">handle_info</code> information</h2>
+
+<p>The last of the “I don’t know what this is for” functions is <code class="highlighter-rouge">handle_info</code>. This
+is documented as being called for messages that aren’t events or system
+messages.</p>
+
+<p>Your implementation of this should take a look at the event (in <code class="highlighter-rouge">Info</code>), and
+then it can return <code class="highlighter-rouge">{next_state, NextStateName, NewStateData}</code> to move to the
+next state.</p>
+
+<p>But this isn’t particularly state-machine-like, since you’re not looking at the
+current state when working out what to do with the event.</p>
+
+<p>One possible answer (from <a href="http://stackoverflow.com/a/3962655/8446">here</a>) is
+to simply write it as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>handle_info(Info, StateName, StateData) -&gt;
+    ?MODULE:StateName(Info, StateData).
+</code></pre></div></div>
+
+<p>But, if you have a choice, you should try to avoid sending messages directly to
+your FSM process.</p>
+
+<h2 id="entering-a-state">Entering a state</h2>
+
+<p>I can’t find any way to be notified when the FSM enters a particular state.
+That is, there’s nothing like <code class="highlighter-rouge">Module:State_enter(StateData)</code> or
+<code class="highlighter-rouge">Module:handle_enter(StateName, StateData)</code>. So, you have to handle this case
+when transitioning <em>from</em> the previous state.</p>
+
+<p>Something like the following might suit:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>enter_gamma(StateData) -&gt;
+    %% Code goes here
+    {next_state, gamma, StateData}.
+
+alpha(gamma, StateData) -&gt;
+    enter_gamma(StateData).
+
+beta(gamma, StateData) -&gt;
+    enter_gamma(StateData).
+</code></pre></div></div>
+
+<h2 id="timeouts">Timeouts</h2>
+
+<p>You can have timeouts in your FSM, by returning <code class="highlighter-rouge">{next_state, NextStateName,
+NewStateData, Timeout}</code>. If, while in the given state, no events are received,
+you’ll receive a call to <code class="highlighter-rouge">Module:State(timeout, StateData)</code>.</p>
+
+<p>You can choose to do something and then remain in this state, or you could
+transition to another state.</p>
+
+<p>If you return <code class="highlighter-rouge">{next_state, SameState, NewStateData}</code>, the timeout is
+discarded. If you return <code class="highlighter-rouge">{next_state, SameState, NewStateData, Timeout}</code>, the
+timeout is restarted. If you want the timeout to continue, you’ll need to keep
+track of the time remaining yourself. See, for example, <a href="http://stackoverflow.com/a/19928265/8446">my
+answer</a> on Stack Overflow about this.</p>
+
+<p>Note, however, that I’m not sure how the timeouts are calculated if you turn
+<code class="highlighter-rouge">handle_info</code> into a direct call to the <code class="highlighter-rouge">Module:State/2</code> function, as above.</p>
+
+<h2 id="how-do-i-detect-current-state">How do I detect current state?</h2>
+
+<p>You can detect the current state of your FSM by using <code class="highlighter-rouge">sys:get_state/1</code>, as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{StateName, StateData} = sys:get_state(Pid).
+</code></pre></div></div>
+
+<p>Note that this won’t work reliably for asynchronous events (race condition).</p>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../../11/gen-fsm-learnings-part-1/index.html">gen_fsm learnings, part 1</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../../11/gen-fsm-learnings-part-2/index.html">gen_fsm learnings, part 2</a></li></li>
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">gen_fsm learnings, part 3</a></li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

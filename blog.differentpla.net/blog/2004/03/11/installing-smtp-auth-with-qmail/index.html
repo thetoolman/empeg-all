@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Installing SMTP AUTH with qmail</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Installing SMTP AUTH with qmail</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-03-11 09:28:00 +0000">2004-03-11 09:28:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>This is the third part in a multipart series on <a href="../../../../../node/view/165">Installing qmail and vpopmail</a></p>
+
+<h2 id="installing-smtp-auth">Installing SMTP AUTH</h2>
+
+<p>In the Requirements list, above, I talked about being able to send email from anywhere, using my laptop. This is known as selective relaying.</p>
+
+<p>There are several ways to allow selective relaying. The easiest is useful if all of the machines to send mail are on the local network. We just add a line like the following to <code class="highlighter-rouge">/etc/tcp.smtp</code>:</p>
+
+<pre>192.168.0.:allow,RELAYCLIENT=""</pre>
+
+<p>I’m not going to do this yet, because I’m doing all of my testing from my internal network, so I’ll not know if I’ve correctly configured relaying for my laptop until it’s too late.
+Another way to allow selective relaying is SMTP-after-POP. Essentially, authenticating with the POP daemon adds you to the tcprules file for a limited time, allowing relaying. Most modern email clients can be configured to work like this. For example, in <a href="http://blog.differentpla.net/images/946aa447a66295f55baa9ba0a0ebf32f-169.jpg">Outlook XP</a>, it’s called “Log on to incoming mail server before sending email”.</p>
+
+<p>The first thing that we need to do is test that it doesn’t allow relaying by default. To do this, we’ll set up a new account in Outlook Express (because I’m already using Outlook for my real email on my desktop PC) that tries to use <code class="highlighter-rouge">flimsy</code> as the SMTP server. If we attempt to send email like this, we should see something like the following:</p>
+
+<pre>553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)</pre>
+
+<p>There’s a combined TLS+SMTP Auth <a href="http://shupp.org/patches/netqmail-1.05-tls-smtpauth-20040207.patch">patch</a> listed on <a href="http://www.qmail.org/netqmail/">qmail.org</a>. It works with netqmail-1.05. Instructions are in the top of the patch.</p>
+
+<p>For this patch, you’ll also need the OpenSSL binaries and libraries:</p>
+
+<pre>apt-get install openssl libssl-dev</pre>
+
+<p>One problem I had after installing this patch was that the SMTP connection would be closed abruptly. Looking in the logs revealed the following:</p>
+
+<pre>/var/qmail/bin/qmail-smtpd: error while loading shared libraries:
+libc.so.6: failed to map segment from shared object: Cannot allocate memory</pre>
+
+<p>LWQ <a href="http://www.lifewithqmail.org/lwq.html#supervise-tree">says</a> to increase the <code class="highlighter-rouge">-m</code> parameter to <code class="highlighter-rouge">softlimit</code> to 3000000 (around 3Mb). This fixes the problem.
+You’ll also need a <a href="http://cr.yp.to/checkpwd.html">checkpassword</a> program.</p>
+
+<p>Don’t forget to read the <code class="highlighter-rouge">README.auth</code> in <code class="highlighter-rouge">/usr/local/src/netqmail-1.05/netqmail-1.05</code> for information on installing it correctly.</p>
+
+<p>In particular, if you get <code class="highlighter-rouge">503 auth not available (#5.3.3)</code> messages, you probably forgot to add /bin/checkpassword to /var/qmail/supervise/qmail-smtpd/run. Look in README.auth again.</p>
+
+<p>Another problem is that, by default, <code class="highlighter-rouge">/bin/checkpassword</code> is installed with over-strict permissions. <code class="highlighter-rouge">qmail-smtpd</code> can’t actually run it in the default configuration. To fix this, we need to change the permissions and make it setuid root.</p>
+
+<pre># chown root.root /bin/checkpassword
+# chmod 4755 /bin/checkpassword</pre>
+
+<p>This is a potential security hole. I’m going to install vpopmail later, which has its own checkpassword program. When I’ve installed the replacement, I’ll restore checkpassword to its original settings (or, in fact, delete it, since nothing will be using it).
+If we then <a href="http://blog.differentpla.net/images/ab44157cb410409dc6a8033aeb7fccf3-168.jpg">turn on SMTP AUTH</a> in Outlook Express, it works. I can send mail from my Windows PC to another host. If I quickly test it by turning off SMTP AUTH in Outlook Express, it fails, as expected.</p>
+
+<p>Next: <a href="../../../../../node/view/170">Installing vpopmail</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

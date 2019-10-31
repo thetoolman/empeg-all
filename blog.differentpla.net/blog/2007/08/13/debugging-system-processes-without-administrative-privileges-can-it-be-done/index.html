@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Debugging system processes without administrative privileges: can it be done?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Debugging system processes without administrative privileges: can it be done?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-08-13 10:17:36 +0000">2007-08-13 10:17:36 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I’ve been running with a normal, non-administrator (LUA) account for the past 2 years or so, without any real problems. Most of the time, the problem is simply that you can’t install something, or register something, or you need to install a service.</p>
+
+<p>In most of these cases, you can simply switch to an administrative session (using local remote desktop or fast user switching), do what you need to do, and then switch back.</p>
+
+<p>When debugging things, you can usually get away with running them under your user account, which is fairly easily accomplished.</p>
+
+<p>Sometimes, however, you want to run a Windows service running as LocalSystem, which becomes quite difficult.</p>
+
+<p>I <em>could</em> give my user account the SE_DEBUG_NAME privilege, but this allows unfettered access to the memory of any process running on the computer. This is as good as having administrative privileges to any malware that knows how to take advantage of it.</p>
+
+<p>I’ve looking for something more focussed, where I can give myself permission to debug specific service processes.</p>
+
+<p>If you try attaching to the process from Visual Studio 2005, you get the message <code class="highlighter-rouge">Unable to attach to the process. You do not have permission to debug the process.</code></p>
+
+<p>Using this as a search term mostly brings up people having problems with Windows Vista and UAC. I’m running on Windows 2003, so this isn’t my problem. My problem is that, simply, I <em>don’t</em> have permission to debug the process.</p>
+
+<p>My first attempt to work around this (which didn’t work) was to tweak the permissions of the process, by using SysInternals Process Explorer:</p>
+
+<ol>
+  <li>In the Process tree view, bring up the properties for the relevant process.</li>
+  <li>On the Security tab, you can see what account the process is running under, which groups it belongs to, and which privileges it has, showing whether they’re enabled or disabled. This is interesting, but you need to click on the Permissions button.</li>
+  <li>You can add your user account, granting Full Control, using this dialog box.</li>
+</ol>
+
+<p>This time, we still can’t attach the debugger, but we get a different error message: <code class="highlighter-rouge">Unable to attach to the process. You do not have permission to inspect the process's identity</code>. We’re getting closer, but still no cigar.</p>
+
+<p>Unfortunately, searching for this message talks about remote debugging and Terminal Services, both of which are only vaguely related to what I’m trying to do here.</p>
+
+<p>And that’s where I run into a brick wall. Is this even possible?</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

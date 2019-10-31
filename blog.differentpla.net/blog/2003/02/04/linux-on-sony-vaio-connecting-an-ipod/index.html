@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Linux on Sony Vaio - Connecting an iPod</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Linux on Sony Vaio - Connecting an iPod</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-02-04 15:10:00 +0000">2003-02-04 15:10:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><strong>Note:</strong> This is a preliminary version of this document. I’ve not fully verified that the stuff in here works.</p>
+
+<p>The Sony SRX87 has a 4-pin Firewire (IEEE1394 or Sony i.Link) port on the side. Next to it is the power connector for the DVD-ROM drive. However, the connector can be used by itself for connecting other firewire devices.</p>
+
+<p>I decided to connect my iPod to it. I don’t currently have any software for transferring to or from the iPod, but getting it to appear as a SCSI block device would be a good start.</p>
+
+<p>You’ll need to configure your kernel with the following options:</p>
+
+<div class="snippet">
+    CONFIG_IEEE1394_RAWIO=m (IEEE 1394 ---&gt; Raw IEEE1394 I/O support)
+    CONFIG_BLK_DEV_SD=m (SCSI Support ---&gt; SCSI disk support)
+    CONFIG_SD_EXTRA_DEVS=40 (automatic)
+    CONFIG_CHR_DEV_SG=m (SCSI Support ---&gt; SCSI generic support)
+    CONFIG_PARTITION_ADVANCED=y (File systems ---&gt; Partition Types ---&gt; Advanced partition selection)
+    CONFIG_MAC_PARTITION=y (File systems ---&gt; Partition Types ---&gt; Macintosh partition map support)
+
+</div>
+
+<p>I don’t know if it’ll be needed, but I also turned on SCSI generic support.
+Once you’ve compiled (and rebooted with) your new kernel, you should be able to, as root:</p>
+
+<div class="snippet">
+    # modprobe ohci1394
+    # modprobe sbp2
+
+</div>
+
+<p>These are the same modules commands used for the firewire DVD-ROM drive.
+To check that your iPod was recognised, you can:</p>
+
+<div class="snippet">
+    $ cat /proc/scsi/scsi
+    Attached devices:
+    **Host: scsi0 Channel: 00 Id: 00 Lun: 00
+      Vendor: Apple    Model: iPod             Rev: 1.21
+      Type:   Direct-Access                    ANSI SCSI revision: 02**
+
+    $ cat /proc/partitions
+    major minor  #blocks  name
+
+     **8     0    9765630 scsi/host0/bus0/target0/lun0/disc
+       8     1         31 scsi/host0/bus0/target0/lun0/part1
+       8     2      32768 scsi/host0/bus0/target0/lun0/part2
+       8     3    9732828 scsi/host0/bus0/target0/lun0/part3**
+       3     0   19535040 ide/host0/bus0/target0/lun0/disc
+       3     1   12289693 ide/host0/bus0/target0/lun0/part1
+       3     2    7028437 ide/host0/bus0/target0/lun0/part2
+       3     3     216877 ide/host0/bus0/target0/lun0/part3
+
+</div>
+
+<p>The parts in <strong>bold</strong> are what you’re looking for.
+You should also be able to (as root):</p>
+
+<div class="snippet">
+    # dd if=/dev/sda of=/dev/null
+
+</div>
+
+<p>This can take a while, so press Ctrl+C after a short time.
+Note that <code class="highlighter-rouge">fdisk</code> doesn’t recognise Mac partitions, so the <code class="highlighter-rouge">cat /proc/partitions</code> is to confirm that the disk has been recognised. You should be able to repeat the <code class="highlighter-rouge">dd</code> command from above for each partition.</p>
+
+<h2 id="other-resources">Other Resources</h2>
+
+<ul>
+  <li><a href="http://www.tex9.com/">tex9</a> – iPod software (formerly xtunes) for Linux.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

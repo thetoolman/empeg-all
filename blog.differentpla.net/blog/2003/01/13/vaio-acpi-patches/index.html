@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Vaio: ACPI patches</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Vaio: ACPI patches</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-01-13 16:03:00 +0000">2003-01-13 16:03:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>You’ll need to install the ACPI patches, and the ACPI daemon. Grab the patches from <a href="http://sourceforge.net/project/showfiles.php?group_id=36832">here</a>, and apply them to the kernel:</p>
+
+<div class="snippet">
+    ~/src/linux$ gzip -cd ../acpi-20021212-2.4.20.diff.gz | patch -p1
+
+</div>
+
+<p>The ACPI daemon, <code class="highlighter-rouge">acpid</code> is included in Debian: <code class="highlighter-rouge">apt-get install acpid</code>. It comes with a sample script that shuts down the Vaio when you hit the power switch. More information is available <a href="http://acpid.sourceforge.net/">here</a>.</p>
+
+<p>Make sure that the modules automatically load at bootup by adding the following to <code class="highlighter-rouge">/etc/modules</code>:</p>
+
+<div class="snippet">
+    # Load the ACPI modules:
+    ac
+    battery
+    button
+    fan
+    processor
+    thermal
+
+</div>
+
+<p>When you’ve rebooted your new kernel, you should be able to cleanly shutdown the Vaio by using the power switch.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

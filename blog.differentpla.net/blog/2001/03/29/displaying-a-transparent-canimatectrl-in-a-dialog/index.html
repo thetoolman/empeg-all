@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Displaying a transparent CAnimateCtrl in a dialog</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Displaying a transparent CAnimateCtrl in a dialog</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2001-03-29 23:00:00 +0000">2001-03-29 23:00:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Microsoft’s knowledge base article, <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;Q179907">Q179907</a> explains how to use a transparent CAnimateCtrl in a CView or a CDialog.</p>
+
+<p>Unfortunately, the instructions don’t quite work properly for displaying the animation control over another control (e.g. a CListCtrl) in a dialog - the animation control uses the dialog colour (if you don’t handle WM_CTLCOLOR) or white (if you do).</p>
+
+<p>The fix is simple - just set the background colour of the DC:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    HBRUSH CMyDialog::OnCtlColor(CDC *pDC, CWnd *pWnd, UINT nCtlColor)
+    {
+        if (pWnd-&gt;GetDlgCtrlID() == IDC_ANIMATE)
+        {
+            pDC-&gt;SetBkColor(GetSysColor(COLOR_WINDOW));  // add this
+            return (HBRUSH)GetStockObject(NULL_BRUSH);   // Q179907 says this
+        }
+
+        return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+    }
+</code></pre></div></div>
+
+<p>Apparently, this may not work with Visual Studio.NET and Windows XP. If this is the case, try handling <code class="highlighter-rouge">WM_CTLCOLORSTATIC</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    LRESULT CMyDialog::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+    {
+        if( message == WM_CTLCOLORSTATIC  &amp;&amp; ::GetDlgCtrlID( (HWND)lParam ) == IDC_ANIMATE) )
+        {
+            CDC* pDC = CDC::FromHandle( (HDC)wParam );
+            pDC-&gt;SetBkColor( GetSysColor(COLOR_WINDOW) );
+            return (LRESULT)GetStockObject(NULL_BRUSH);
+        }
+        return CDialog::WindowProc(message, wParam, lParam);
+    }
+</code></pre></div></div>
+
+<p>(Thanks to Mark Gullacher for sharing this with me).
+Unfortunately, this doesn’t work with Visual C++ 6 and Windows XP, using a manifest file: the background of the animation is painted black. You want this instead:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    class CMyDialog : public CDialog
+    {
+        //...
+        CBrush m_background_brush;
+        //...
+
+        afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+        afx_msg LRESULT OnCtlColorStatic(WPARAM wParam, LPARAM lParam);
+    };
+
+    BEGIN_MESSAGE_MAP(CMediaLibraryView, CSourceView)
+        //...
+        ON_WM_CTLCOLOR()
+        ON_MESSAGE(WM_CTLCOLORSTATIC, OnCtlColorStatic)
+    END_MESSAGE_MAP()
+
+    BOOL CMyDialog::OnInitDialog()
+    {
+        //...
+        m_background_brush.CreateSolidBrush(GetSysColor(COLOR_WINDOW));
+        //...
+    }
+
+    HBRUSH CMyDialog::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+    {
+        if (pWnd-&gt;GetDlgCtrlID() == IDC_ANIMATE)
+        {
+            pDC-&gt;SetBkColor(GetSysColor(COLOR_WINDOW));  // add this
+            pDC-&gt;SetBkMode(TRANSPARENT);
+            return (HBRUSH)m_background_brush.GetSafeHandle();
+        }
+        else
+            return CWizardPage::OnCtlColor(pDC, pWnd, nCtlColor);
+    }
+
+    LRESULT CMyDialog::OnCtlColorStatic(WPARAM wParam, LPARAM lParam)
+    {
+        HDC hDC = (HDC)wParam;
+        HWND hwndCtl = (HWND)lParam;
+
+        if (::GetDlgCtrlID(hwndCtl) == IDC_ANIMATE)
+        {
+            CDC *pDC = CDC::FromHandle(hDC);
+            pDC-&gt;SetBkColor(GetSysColor(COLOR_WINDOW));
+            pDC-&gt;SetBkMode(TRANSPARENT);
+            return (LRESULT)(HBRUSH)m_background_brush.GetSafeHandle();
+        }
+
+        return Default();
+    }
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

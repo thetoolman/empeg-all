@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Getting NBehave to work with NUnit 2.5.5</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Getting NBehave to work with NUnit 2.5.5</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2010-05-20 14:37:51 +0000">2010-05-20 14:37:51 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>NBehave depends on NUnit 2.5.2. To get it to work with NUnit 2.5.5, you can create an NBehave-Console.exe.config file containing the following:</p>
+
+<p><span style="color: blue"><?</span><span style="color: #a31515">xml </span><span style="color: red">version</span><span style="color: blue">=</span>"<span style="color: blue">1.0</span>" <span style="color: red">encoding</span><span style="color: blue">=</span>"<span style="color: blue">utf-8</span>" <span style="color: blue">?> <br />
+«/span&gt;<span style="color: #a31515">configuration</span><span style="color: blue">&gt; <br />
+</span><span style="color: blue">  «/span&gt;<span style="color: #a31515">runtime</span><span style="color: blue">&gt; <br />
+    «/span&gt;<span style="color: #a31515">assemblyBinding </span><span style="color: red">xmlns</span><span style="color: blue">=</span>“<span style="color: blue">urn:schemas-microsoft-com:asm.v1</span>“<span style="color: blue">&gt; <br />
+      «/span&gt;<span style="color: #a31515">dependentAssembly</span><span style="color: blue">&gt; <br />
+        «/span&gt;<span style="color: #a31515">assemblyIdentity </span><span style="color: red">name</span><span style="color: blue">=</span>“<span style="color: blue">nunit.framework</span>” <br />
+                          <span style="color: red">culture</span><span style="color: blue">=</span>“<span style="color: blue">neutral</span>” <br />
+                          <span style="color: red">publicKeyToken</span><span style="color: blue">=</span>“<span style="color: blue">96d09a1eb7f44a77</span>” <span style="color: blue">/&gt; <br />
+        «/span&gt;<span style="color: #a31515">bindingRedirect </span><span style="color: red">oldVersion</span><span style="color: blue">=</span>“<span style="color: blue">2.5.2.9222</span>” <span style="color: red">newVersion</span><span style="color: blue">=</span>“<span style="color: blue">2.5.5.10112</span>” <span style="color: blue">/&gt; <br />
+      &lt;/</span><span style="color: #a31515">dependentAssembly</span><span style="color: blue">&gt; <br />
+    &lt;/</span><span style="color: #a31515">assemblyBinding</span><span style="color: blue">&gt; <br />
+  &lt;/</span><span style="color: #a31515">runtime</span><span style="color: blue">&gt; <br />
+&lt;/</span><span style="color: #a31515">configuration</span><span style="color: blue">&gt;<br />
+</span></span></span></span></span></span></span></p>
+
+<p>This will cause it to use 2.5.5.10112 instead of 2.5.2.9222. You’ll also need to overwrite the copy of nunit.framework in the NBehave directory with the newer version.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

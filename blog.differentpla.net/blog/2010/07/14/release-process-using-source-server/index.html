@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Release Process: Using Source Server</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Release Process: Using Source Server</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2010-07-14 13:33:54 +0000">2010-07-14 13:33:54 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>One of the cool things you can do with the Microsoft Debugging Tools is set up a source server. This works by embedding source control details in your PDB files. Once you’ve published these to a symbol server, and set that up properly, you should be able to load a minidump file in Visual Studio (or WinDbg) and be taken to the correct line of the correct revision of the source file where the crash happened.</p>
+
+<p>Which is pretty cool.</p>
+
+<p>The scripts are in the Microsoft <a href="http://www.microsoft.com/whdc/devtools/debugging/default.mspx">Debugging Tools for Windows</a>. By default, you’ll find them in <code class="highlighter-rouge">C:\Program Files (x86)\Microsoft Debugging Tools for Windows (x86)\srcsrv</code>.</p>
+
+<p>They need Perl, and they <a href="http://blog.differentpla.net/content/2009/04/source-server-indexing-fails-svn-cant-get-details-sourcefile">don’t work</a> with a default installation of <a href="http://www.cygwin.com/">Cygwin</a>, so you’ll need to install <a href="http://www.activestate.com/activeperl/">ActiveState Perl</a> instead. Make sure it appears in your PATH variable ahead of the Cygwin one.</p>
+
+<p>Then, to index your source, change to your source directory, and run SSINDEX.CMD, passing (at least) the -System switch. If you’re using Subversion, it should work as-is. If you’re using Perforce or (heaven forbid) Visual SourceSafe, you’ll need to enter some server details in SRCSRV.INI. Use the -Debug switch to see what’s happening.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

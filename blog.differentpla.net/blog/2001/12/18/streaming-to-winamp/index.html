@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Streaming to Winamp</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Streaming to Winamp</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2001-12-18 22:44:00 +0000">2001-12-18 22:44:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Since the Audio Receiver Manager (the server) uses HTTP to stream the MP3 data to the Rio Receiver, it’s possible (with some work) to stream directly to Winamp. Here’s how.</p>
+
+<p>For a simple example, we’ll play a playlist.</p>
+
+<p>Enter <code class="highlighter-rouge">http://hostname:12078/content/100?_extended=1</code> into your browser, remembering to replace <code class="highlighter-rouge">hostname</code> with the name of the machine running the server. Note, however, that <code class="highlighter-rouge">localhost</code> won’t work.</p>
+
+<p>You’ll get something like this:</p>
+
+<div class="snippet">
+    12cc0=PBanco De Gaia - Big Men Cry
+    11740=PBlue Lines
+    12cd0=PBoundary Conditions
+    117b0=PCafe del Mar Vol 1
+    117c0=PCafe del Mar Vol 2
+
+</div>
+
+<p>Each line reads as <code class="highlighter-rouge">fid=PTitle</code>. The fid is the internal ID of the item in question. The “P” denotes that this is a playlist, and the title is obvious. We’ll pick one of these playlists, e.g. “Cafe def Mar Vol 1”</p>
+
+<p>Enter the same query as above, but replacing the “100” with one of the fids in the list. In our example, that will be <code class="highlighter-rouge">http://hostname:12078/content/117b0?_extended=1</code></p>
+
+<p>This results in the following:</p>
+
+<div class="snippet">
+    7a80=TAgua
+    7ae0=TThe Story Of Light
+    7ab0=TSmokebelch II (Beatless Mix)
+    7a70=TMusic For A Found Harmonium
+    7a60=TSundance
+    7a30=TFanfare Of Life
+    7ac0=TThe Hypnotist
+    7a90=TSecond Hand
+    7aa0=TCrazy Ivan
+    7a40=TEstelle
+    7a50=TOn The Rocks
+    7ad0=TSunset At The Cafe Del Mar
+
+</div>
+
+<p>These are all tunes (denoted by the “T”). Let’s say that we want to listen to “Crazy Ivan”. To do this, we simply point Winamp (using the Open URL feature) at <code class="highlighter-rouge">http://hostname:12078/content/7aa0</code></p>
+
+<p>And that’s it. In next week’s instalment: How to use your browser to run queries against the Audio Receiver Manager database.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

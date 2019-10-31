@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>jq reduce</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>jq reduce</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2019-01-11 19:38:00 +0000">2019-01-11 19:38:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/jq">jq</a></span>
+        
+    </div>
+    <p></p>
+    <p>I found myself having to process a large JSON file using <code class="highlighter-rouge">jq --slurp</code>, and it was using up a lot of memory, so I thought it was time to learn about <code class="highlighter-rouge">jq</code>’s <code class="highlighter-rouge">reduce</code> function.</p>
+
+<p><code class="highlighter-rouge">reduce</code> works like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reduce inputs as $line (INIT, REDUCER)
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">INIT</code> is whatever you want; commonly you’ll use an empty object, <code class="highlighter-rouge">{}</code> or an empty array, <code class="highlighter-rouge">[]</code>.</p>
+
+<p><code class="highlighter-rouge">REDUCER</code> is a <code class="highlighter-rouge">jq</code> transform that is given <code class="highlighter-rouge">.</code> as the current value of the accumulator, can access <code class="highlighter-rouge">$line</code>, and is expected to return the new accumulator value.</p>
+
+<p>A do-nothing <code class="highlighter-rouge">reduce</code> would look like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reduce inputs as $line
+({}; {})
+</code></pre></div></div>
+
+<p>That is: the initial accumulator value is the empty object, and the reducer ignores the input line and returns the empty object.</p>
+
+<p>The following example returns the last value passed to it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reduce inputs as $line
+({}; .)
+</code></pre></div></div>
+
+<p>You can replicate <code class="highlighter-rouge">--slurp</code> with the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reduce inputs as $line
+([]; . + [$line])
+</code></pre></div></div>
+
+<h2 id="a-more-complicated-example">A more complicated example</h2>
+
+<p>Simplified, the JSON logs that I was processing look like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{"timestamp": "2019-01-09T06:52:58.079Z", "user": 1, "data": { ... }}
+{"timestamp": "2019-01-09T06:52:58.148Z", "user": 1, "data": { ... }}
+{"timestamp": "2019-01-09T06:52:58.171Z", "user": 2, "data": { ... }}
+{"timestamp": "2019-01-09T06:52:58.178Z", "user": 1, "data": { ... }}
+{"timestamp": "2019-01-09T06:52:58.179Z", "user": 3, "data": { ... }}
+{"timestamp": "2019-01-09T06:52:58.231Z", "user": 2, "data": { ... }}
+</code></pre></div></div>
+
+<p>…and I want to count the number of events, per user, per minute.</p>
+
+<p>I came up with the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jq 'reduce inputs as $line
+    ({};
+     ($line.user | tostring) as $user
+     | .[$user] as $current
+     | $line.timestamp[0:16] as $bucket
+     | $current[$bucket] as $count
+     | { ($bucket): ($count + 1) } as $this
+     | ($current + $this) as $next
+     | . + { ($user): ($next) }
+    )' \
+    raw.json
+</code></pre></div></div>
+
+<p>…which results in the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "1": {
+    "2019-01-09T06:52": 4,
+    "2019-01-09T06:53": 178,
+    "2019-01-09T06:54": 202,
+  ... etc.
+</code></pre></div></div>
+
+<h2 id="heres-how-it-works">Here’s how it works</h2>
+
+<p>For each record (<code class="highlighter-rouge">$line</code>) in the input, reduce, starting with an empty object:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jq 'reduce inputs as $line
+    ({};
+</code></pre></div></div>
+
+<p>Set <code class="highlighter-rouge">$user</code> to the value of the user field (an integer), converted to a string. It needs converting to a string because I’m going to use it as an object key later, and object keys can’t be numbers:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     ($line.user | tostring) as $user
+</code></pre></div></div>
+
+<p>The accumulator (<code class="highlighter-rouge">.</code>) is an object. <code class="highlighter-rouge">.[$user]</code> gets the current value of the field identified by  <code class="highlighter-rouge">$user</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     | .[$user] as $current
+</code></pre></div></div>
+
+<p>In our example data, that’s equivalent to, say, <code class="highlighter-rouge">acc["1"]</code> or <code class="highlighter-rouge">acc["2"]</code>. Assign that to <code class="highlighter-rouge">$current</code>.</p>
+
+<p>Then take the timestamp field, trim it to represent just the minute, by using the range expression <code class="highlighter-rouge">[0:16]</code>, and assign it to <code class="highlighter-rouge">$bucket</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     | $line.timestamp[0:16] as $bucket
+</code></pre></div></div>
+
+<p>The current record for the user is an object, keyed by bucket, where the value is the current count:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     | $current[$bucket] as $count
+</code></pre></div></div>
+
+<p>Create a new record with the same key, incrementing the count. The name <code class="highlighter-rouge">$this</code> could be confusing, but I couldn’t come up with a better name; stet:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     | { ($bucket): ($count + 1) } as $this
+</code></pre></div></div>
+
+<p>Merge it with the current record:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     | ($current + $this) as $next
+</code></pre></div></div>
+
+<p>Merge <em>that</em> with the user-keyed record:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     | . + { ($user): ($next) }
+</code></pre></div></div>
+
+<p>Then there’s just closing brackets and stuff:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    )' \
+    raw.json
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

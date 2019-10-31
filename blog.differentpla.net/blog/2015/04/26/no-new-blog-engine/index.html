@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>No new blog engine</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>No new blog engine</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2015-04-26 08:13:00 +0000">2015-04-26 08:13:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/blogging">blogging</a></span>
+        
+    </div>
+    <p></p>
+    <p>Periodically, I become unhappy with my blog implementation and decide that I
+should do something about it.</p>
+
+<p>Then, because <a href="http://haacked.com/archive/2006/10/06/Rolling_Your_Own_Blog_Engine.aspx/">writing a blog engine is harder than you
+think</a>,
+I generally give up.</p>
+
+<p>This weekend, I came to the conclusion that <a href="http://jekyllrb.com/">Jekyll</a> is
+probably the right idea.</p>
+
+<p>So I cobbled something together in node.js to scrape the content from the MySql
+database behind my original drupal-powered blog and pushed the results to
+GitHub Pages.</p>
+
+<p>However, I’m not going to continue to use GitHub pages, because I want better
+access to the webserver logs (for ‘page not found’ errors, etc.), and I might
+want to experiment with Jekyll plugins.</p>
+
+<p><del>And, because a <a href="http://blog.codinghorror.com/a-blog-without-comments-is-not-a-blog/">blog should allow
+comments</a>,
+I’ve installed <a href="http://discourse.differentpla.net/">Discourse</a>.</del></p>
+
+<hr />
+
+<h4 id="update-20-apr-2019">Update: 20 Apr 2019</h4>
+
+<p>I <em>am</em> going to continue with GitHub Pages; I use Google Analytics for 404 errors; the list of plugins supported by GitHub Pages is OK; I uninstalled Discourse; I’m at peace with not allowing comments.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

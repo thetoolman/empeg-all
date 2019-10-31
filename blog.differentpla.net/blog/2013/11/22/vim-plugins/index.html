@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>vim plugins</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>vim plugins</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-11-22 12:22:29 +0000">2013-11-22 12:22:29 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/vim">vim</a></span>
+        
+    </div>
+    <p></p>
+    <p>This, for no particular reason, is the list of vim plugins that I’m currently using:</p>
+
+<h2 id="pathogen">Pathogen</h2>
+
+<p>How else are you going to manage this many plugins?</p>
+
+<ul>
+  <li><a href="https://github.com/tpope/vim-pathogen">pathogen</a></li>
+</ul>
+
+<p>Well, yeah, you could use <a href="https://github.com/gmarik/vundle">vundle</a>.</p>
+
+<h2 id="parentheses">Parentheses</h2>
+
+<ul>
+  <li><a href="https://github.com/Raimondi/delimitMate">delimitMate</a> – auto-completion for quotes, parens, etc.</li>
+  <li><a href="https://github.com/kien/rainbow_parentheses.vim">rainbow_parentheses</a> – essential if you’re doing any Clojure, but pretty useful anyway.</li>
+</ul>
+
+<h2 id="navigation">Navigation</h2>
+
+<ul>
+  <li><a href="https://github.com/tpope/vim-unimpaired">vim-unimpaired</a> – various things attached to the <code class="highlighter-rouge">[</code> and <code class="highlighter-rouge">]</code> keys. I mostly use <code class="highlighter-rouge">[b</code> and <code class="highlighter-rouge">]b</code> for jumping between buffers.</li>
+  <li><a href="https://github.com/kshenoy/vim-signature">vim-signature</a> – toggle, display and navigate marks.</li>
+</ul>
+
+<h2 id="programming-stuff">Programming stuff</h2>
+
+<ul>
+  <li><a href="https://github.com/scrooloose/syntastic">syntastic</a> – Syntax checking inside vim.</li>
+  <li><a href="https://github.com/johnsyweb/vim-makeshift">vim-makeshift</a> – use the right ‘makeprg’.</li>
+  <li><a href="https://github.com/tpope/vim-fugitive">vim-fugitive</a> – git stuff; I don’t actually use it that much.</li>
+  <li><a href="https://github.com/airblade/vim-gitgutter">vim-gitgutter</a> – display changed lines in the gutter.</li>
+</ul>
+
+<h2 id="language-support">Language Support</h2>
+
+<ul>
+  <li>squirrel – some syntax rules for <a href="http://www.squirrel-lang.org/">Squirrel</a></li>
+  <li>vim-django</li>
+  <li>vim-elixir</li>
+  <li>vim-jade</li>
+  <li>vim-javascript</li>
+  <li>vim-jsbeautify</li>
+  <li>vim-scala</li>
+  <li>vim-scons</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

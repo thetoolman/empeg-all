@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Removing duplicates from a table</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Removing duplicates from a table</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-05-08 12:21:37 +0000">2007-05-08 12:21:37 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Let’s assume that you’ve got a table:</p>
+
+<pre>CREATE TABLE #t (
+  Id INT IDENTITY,
+  Name VARCHAR(50),
+  Number INT )</pre>
+
+<p>… into which you’ve accidentally inserted some duplicate rows:</p>
+
+<pre>INSERT INTO #t(Name, Number) VALUES('Alice', 3)
+INSERT INTO #t(Name, Number) VALUES('Alice', 3)
+INSERT INTO #t(Name, Number) VALUES('Alice', 3)
+INSERT INTO #t(Name, Number) VALUES('Alice', 4)
+INSERT INTO #t(Name, Number) VALUES('Bob', 1)
+INSERT INTO #t(Name, Number) VALUES('Bob', 2)
+INSERT INTO #t(Name, Number) VALUES('Bob', 3)
+INSERT INTO #t(Name, Number) VALUES('Charlie', 1)
+INSERT INTO #t(Name, Number) VALUES('Charlie', 2)
+INSERT INTO #t(Name, Number) VALUES('Charlie', 3)
+INSERT INTO #t(Name, Number) VALUES('Charlie', 4)
+INSERT INTO #t(Name, Number) VALUES('David', 1)
+INSERT INTO #t(Name, Number) VALUES('David', 1)
+INSERT INTO #t(Name, Number) VALUES('David', 2)
+INSERT INTO #t(Name, Number) VALUES('David', 2)</pre>
+
+<p>(The <a href="http://en.wikipedia.org/wiki/Alice_and_Bob">names</a> are those used when discussing crypto.)</p>
+
+<p>As you can see, I’ve managed to insert two duplicate rows for Alice, and two duplicate (but different) rows for David.</p>
+
+<p>It’s pretty easy to find the non-duplicates, by doing the following:</p>
+
+<pre>SELECT MIN(Id) AS Id, Name, Number FROM #t
+GROUP BY Name, Number
+ORDER BY MIN(Id)</pre>
+
+<p>Actually deleting them, on the other hand, is more tricky:</p>
+
+<pre>DELETE #t FROM
+	( SELECT MIN(L.Id) AS MinId, L.Name, L.Number FROM #t AS L
+		INNER JOIN #t AS R
+		ON L.Name = R.Name AND L.Number = R.Number
+		AND L.Id &lt;&gt; R.Id
+		GROUP BY L.Name, L.Number ) AS Q
+INNER JOIN #t
+	ON #t.Id &gt; Q.MinId
+	AND #t.Name = Q.Name
+	AND #t.Number = Q.Number</pre>
+
+<p>The inner portion…</p>
+
+<pre>SELECT MIN(L.Id) AS MinId, L.Name, L.Number FROM #t AS L
+	INNER JOIN #t AS R
+	ON L.Name = R.Name AND L.Number = R.Number
+	AND L.Id &lt;&gt; R.Id
+	GROUP BY L.Name, L.Number</pre>
+
+<p>…selects the first row of each set of duplicates (in no particular order):</p>
+
+<pre>27	David	1
+29	David	2
+16	Alice	3</pre>
+
+<p>If we join this subquery against the original table, using the greater-than operator…</p>
+
+<pre>SELECT #t.* FROM
+	( SELECT MIN(L.Id) AS MinId, L.Name, L.Number FROM #t AS L
+		INNER JOIN #t AS R
+		ON L.Name = R.Name AND L.Number = R.Number
+		AND L.Id &lt;&gt; R.Id
+		GROUP BY L.Name, L.Number ) AS Q
+INNER JOIN #t
+	ON #t.Id &gt; Q.MinId
+	AND #t.Name = Q.Name
+	AND #t.Number = Q.Number</pre>
+
+<p>…then we end up with the duplicate rows…</p>
+
+<pre>17	Alice	3
+18	Alice	3
+28	David	1
+30	David	2</pre>
+
+<p>…which we can then delete by changing the SELECT to a DELETE.</p>
+
+<p>Ta-da!</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

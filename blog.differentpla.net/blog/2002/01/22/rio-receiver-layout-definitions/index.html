@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Rio Receiver: Layout Definitions</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Rio Receiver: Layout Definitions</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2002-01-22 18:06:00 +0000">2002-01-22 18:06:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="introduction">Introduction</h2>
+
+<p>Inspired by the stirling effort that David Schuetz has put into deciphering the layout definitions for the Rio Receiver (see <a href="http://www.dasnet.org/David/Rio/Layout.html">here</a>), I’ve decided to expand on his work.</p>
+
+<p>Obviously, I’m at a distinct advantage, ‘cos I get to look at the source code (and designed/wrote some of it, too).</p>
+
+<p><strong>Note:</strong> All of the information contained herein is subject to the whims of the SONICblue development team, should they decide to revamp this for a later version of the product.</p>
+
+<h2 id="getting-the-list-of-layouts">Getting the list of Layouts</h2>
+
+<p>The layout definitions are stored on the server. By default, these are in the <code class="highlighter-rouge">C:\Program Files\Audio Receiver\Layout</code> directory. This location is stored in the <code class="highlighter-rouge">HKEY_LOCAL_MACHINE\SOFTWARE\Diamond Multimedia\Audio Receiver Manager\1.0\HTTP</code> registry key.</p>
+
+<p>In order to get a list of layouts supported, the Receiver first asks the server for <code class="highlighter-rouge">/layout/_language_/index</code>. The language is set to <code class="highlighter-rouge">en_UK</code> at build time. The server hands over a copy of <code class="highlighter-rouge">_layout-directory_\_language_\index</code>, which is displayed on the screen of the Receiver.</p>
+
+<p>This file contains a list of the layout names, and their absolute locations on the server. This was done so that multiple languages could share the same definition files, and only the index file would need to be changed. The file looks like this:</p>
+
+<div class="snippet"> `<pre>/layout/en_UK/all_info=All Info
+/layout/en_UK/remaining=Remaining Time
+/layout/en_UK/scope=Scope View
+/layout/en_UK/inverse_scope=Inverse Scope
+/layout/en_UK/big_title=Big Title</pre>` </div>
+
+<p>Once you’ve picked a layout from the list, the Receiver goes and grabs the file from the location listed in the index.</p>
+
+<h2 id="format-of-the-layout-file">Format of the Layout File</h2>
+
+<p>The file consists of a sequence of information blocks, detailing each item (or Widget) that will be drawn on the screen. It’s arranged like this:</p>
+
+<div class="snippet"> `<pre>struct WidgetData {
+    INT32 id;
+    INT32 left;
+    INT32 top;
+    INT32 right;
+    INT32 bottom;
+    INT32 len;
+    char payload_data[len];
+};</pre>` </div>
+
+<p>All integers are little-endian. I note, however – from looking at a later version of the source code – that the most-significant 3 bytes of <code class="highlighter-rouge">id</code> and <code class="highlighter-rouge">len</code> should be considered reserved, i.e. they should be expressed as:</p>
+<pre>struct {
+    BYTE id_or_len;
+    BYTE reserved1;
+    BYTE reserved2;
+    BYTE reserved3;
+};</pre>
+
+<p>Whether that particularly evolutionary offshoot will go anywhere remains to be seen, however.</p>
+<h2 id="layout-ids">Layout IDs</h2>
+
+<table>
+<tbody>
+<tr>
+<th>ID</th>
+
+<th>Description</th>
+
+</tr>
+
+<tr>
+<td>0</td>
+
+<td>Blank</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>Text -- see "Text Widgets"</td>
+
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>Track Info -- see "Text Widgets"</td>
+
+</tr>
+
+<tr>
+<td>3</td>
+
+<td>Time -- see "Text Widgets"</td>
+
+</tr>
+
+<tr>
+<td>4</td>
+
+<td>Play State -- see "Text Widgets"</td>
+
+</tr>
+
+<tr>
+<td>5</td>
+
+<td>Bitmap</td>
+
+</tr>
+
+<tr>
+<td>6</td>
+
+<td>Rectangle</td>
+
+</tr>
+
+<tr>
+<td>7</td>
+
+<td>Volume</td>
+
+</tr>
+
+<tr>
+<td>8</td>
+
+<td>Scope -- see "Scope Widget"</td>
+
+</tr>
+
+<tr>
+<td>9</td>
+
+<td>Status -- see "Text Widgets"</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="text-widgets">Text Widgets</h2>
+
+<p>The various payloads look like this:</p>
+
+<div class="snippet"> `<pre>struct TextWidgetData {
+    BYTE justify, style, font_index;
+    BYTE text_len;
+    char text[text_len];
+};</pre>` </div>
+
+<table>
+<tbody>
+<tr valign="top">
+<td>
+### justify
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+
+<td>left</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>centre</td>
+
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>right</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+<td>
+### style
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+
+<td>normal</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>inverse</td>
+
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>background</td>
+
+</tr>
+
+<tr>
+<td>3</td>
+
+<td>transparent</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+<td>
+### font_index
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+
+<td>medium</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>small</td>
+
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>graphics</td>
+
+</tr>
+
+<tr>
+<td>3</td>
+
+<td>timecode</td>
+
+</tr>
+
+<tr>
+<td>4</td>
+
+<td>large</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div class="snippet"> `<pre>struct TrackInfoWidgetData {
+    BYTE justify, style, font_index;
+    BYTE which;
+};</pre>` </div>
+
+<h3 id="which">which</h3>
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+
+<td>title</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>artist</td>
+
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>source</td>
+
+</tr>
+
+<tr>
+<td>3</td>
+
+<td>source_year</td>
+
+</tr>
+
+<tr>
+<td>4</td>
+
+<td>year</td>
+
+</tr>
+
+<tr>
+<td>5</td>
+
+<td>bitrate</td>
+
+</tr>
+
+<tr>
+<td>6</td>
+
+<td>playlist</td>
+
+</tr>
+
+<tr>
+<td>7</td>
+
+<td>codec</td>
+
+</tr>
+
+<tr>
+<td>8</td>
+
+<td>duration</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div class="snippet"> `<pre>struct TimeWidgetData {
+    BYTE justify, style, font_index;
+    BYTE type;
+};</pre>` </div>
+
+<h3 id="type">type</h3>
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+
+<td>elapsed</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>remaining</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div class="snippet"> `<pre>struct PlaystateWidgetData {
+    BYTE justify, style, font_index;
+};</pre>` </div>
+
+<div class="snippet"> `<pre>struct StatusWidgetData {
+    BYTE justify, style;
+    BYTE cond;
+};</pre>` </div>
+
+<h3 id="cond">cond</h3>
+
+<table>
+<tbody>
+<tr>
+<td>0</td>
+
+<td>mute</td>
+
+</tr>
+
+<tr>
+<td>1</td>
+
+<td>repeat</td>
+
+</tr>
+
+<tr>
+<td>2</td>
+
+<td>random</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="bitmap-widget">Bitmap Widget</h2>
+
+<div class="snippet"> `<pre>struct BitmapWidgetData {
+    INT32 bpp;
+    INT32 width, height;
+    BYTE data[];
+};</pre>` </div>
+
+<p><code class="highlighter-rouge">bpp</code> is bits-per-pixel, and must be 4. <code class="highlighter-rouge">width</code> and <code class="highlighter-rouge">height</code> are in pixels. As far as I can tell, the bitmap data is stored as rows of 4-bit colour values.</p>
+
+<h2 id="scope-widget">Scope Widget</h2>
+
+<p>There’s no payload in this one.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

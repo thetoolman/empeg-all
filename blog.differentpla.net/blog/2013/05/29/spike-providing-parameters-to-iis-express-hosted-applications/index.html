@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Spike: Providing parameters to IIS Express-hosted applications</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Spike: Providing parameters to IIS Express-hosted applications</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-29 15:32:53 +0000">2013-05-29 15:32:53 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>An aside: We need to be able to support multiple instances of our small web 
+application (because you might have more than one instance of Visual Studio open).
+If we host our application in IIS Express (and remember that we’re doing this to
+avoid messing around with URL ACLs), we either need to duplicate the whole thing 
+for each site, or figure out a way to provide it with parameters.</p>
+
+<p>My first thought was that Visual Studio adds a new <code class="highlighter-rouge">&lt;site&gt;</code> element to the IIS 
+Express <code class="highlighter-rouge">applicationHost.config</code> file for each web application that you choose to
+use IIS Express for. Maybe we could add something to this <code class="highlighter-rouge">&lt;site&gt;</code> element?</p>
+
+<p>It turns out that: no, it doesn’t appear that we can – the
+<a href="http://www.iis.net/configreference/system.applicationhost/sites/site/application">schema</a>
+doesn’t allow for configuration settings.</p>
+
+<p>OK, so maybe we can clone the entire <code class="highlighter-rouge">applicationHost.config</code> file? IIS Express
+actually does this if you use the <code class="highlighter-rouge">/path</code> parameter on the command line
+(you can see this in the console output when running the command <code class="highlighter-rouge">iisexpress.exe</code>).
+Then we can point IIS Express at a custom configuration file, and our application
+can figure out its settings from there.</p>
+
+<p>Even if we do this, it doesn’t appear that we can easily load sections of this file.</p>
+
+<p>I also just tried a quick spike to see if we could use <code class="highlighter-rouge">WebConfigurationManager</code>
+to get <code class="highlighter-rouge">ApplicationSettings</code> from the <code class="highlighter-rouge">applicationHost.config</code> file. No luck.</p>
+
+<p>It looks like we’ll just have to clone the whole web application folder.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

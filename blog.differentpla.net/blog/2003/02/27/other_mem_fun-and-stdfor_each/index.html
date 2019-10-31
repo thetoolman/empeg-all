@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>other_mem_fun and std::for_each</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>other_mem_fun and std::for_each</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-02-27 14:53:00 +0000">2003-02-27 14:53:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>How many times have you found yourself writing something like the following?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>typedef std::vector&lt;B&gt; bs_t;
+
+for (bs_t::const_iterator i = bs.begin(); i != bs.end(); ++i)
+{
+    do_something(*i);
+}
+</code></pre></div></div>
+
+<p>It gets boring quickly. Enter std::for_each:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::for_each(bs.begin(), bs.end(), do_something);
+</code></pre></div></div>
+
+<p>…which works a treat, as long as do_something() is a global function or functor; if you want to call a member function, you’re SOL.</p>
+
+<p>You can try this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::for_each(bs.begin(), bs.end(), &amp;B::process);
+</code></pre></div></div>
+
+<p>But it doesn’t work. I went digging in the C++ documentation and found the mem_fun, mem_fun_ref and ptr_fun functors. They make this a little easier:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::for_each(bs.begin(), bs.end(), std::mem_fun(&amp;B::process));
+</code></pre></div></div>
+
+<p>…should be used when you’ve got vector&lt;B*&gt;.
+    std::for_each(bs.begin(), bs.end(), std::mem_fun_ref(&amp;B::process));</p>
+
+<p>…should be used when you’ve got vector<b>.
+This is all deeply groovy. You can ignore <code class="highlighter-rouge">std::ptr_fun</code> – all it seems to do is provide some typedefs when handed a function pointer. I could be wrong; it has happened before.</b></p>
+
+<p>Now, the problem I had:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class TestCase;
+
+class TestCases {
+    typedef std::vector&lt;TestCase *&gt; testcases_t;
+    testcases_t m_testcases;
+
+    void runTest(TestCase? *testCase);
+
+public:
+    void runTests();
+};
+
+void TestCases::runTests()
+{
+    for (testcases_t::const_iterator i = m_testcases.begin();
+         i != m_testcases.end(); ++i)
+    {
+        runTest(*i);
+    }
+}
+
+void TestCases::runTest(TestCase *testCase)
+{
+    MemoryLeakDetector leakDetector;
+    testCase-&gt;runTest();
+}
+</code></pre></div></div>
+
+<p>So, I thought I’d replace the for-loop with the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>std::for_each(m_testcases.begin(), m_testcases.end(), mem_fun(&amp;TestCases::runTest));
+</code></pre></div></div>
+
+<p>…but it doesn’t work; this is geared up to call a member function <em>on</em> each of the members of the collection, rather than on something else, <em>with</em> each member.</p>
+
+<p>So, enter “other_mem_fun”, a concoction that I just came up with (with a non-insubstantial amount of help from Mike and Peter – cheers guys):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include &lt;functional&gt;
+#include &lt;algorithm&gt;
+
+template &lt;typename ReturnType, typename CalleeType, typename ArgType&gt;
+    class other_mem_fun_t
+{
+    typedef ReturnType (CalleeType::*function_t) (ArgType);
+    CalleeType *m_callee;
+    function_t m_pfn;
+
+public:
+    other_mem_fun_t(CalleeType *callee, function_t pfn)
+        : m_callee(callee), m_pfn(pfn)
+	{
+	}
+
+    ReturnType operator() (ArgType arg) const
+    {
+        return (m_callee-&gt;*m_pfn)(arg);
+    }
+};
+
+template &lt;typename ReturnType, typename CalleeType, typename ArgType&gt;
+other_mem_fun_t&lt;ReturnType, CalleeType, ArgType&gt;
+    other_mem_fun(CalleeType *callee, ReturnType (CalleeType::* pfn)(ArgType))
+{
+    return other_mem_fun_t&lt;ReturnType, CalleeType, ArgType&gt;(callee, pfn);
+}
+</code></pre></div></div>
+
+<p>Fortunately, none of that mess makes it into the caller:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void TestCases::runTests()
+{
+    std::for_each(m_testcases.begin(), m_testcases.end(),
+                  other_mem_fun(this, &amp;TestCases::runTest));
+}
+</code></pre></div></div>
+
+<p>Cool.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

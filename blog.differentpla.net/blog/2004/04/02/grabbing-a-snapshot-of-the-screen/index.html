@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Grabbing a snapshot of the screen</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Grabbing a snapshot of the screen</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-04-02 10:51:00 +0000">2004-04-02 10:51:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Some (simple) code that shows how to grab a snapshot of the screen and display it in a window.</p>
+
+<p><strong>Note:</strong> Of course, if you simply want to take a snapshot of the screen to use in Microsoft Paint, just hit your <code class="highlighter-rouge">Print Screen</code> button: the screen grab will be put on the clipboard.</p>
+
+<p>Something I’m working on at the moment requires some bitmap manipulation. Because it’s been a long time since I read Petzold, I’m putting it together in pieces. This piece shows how to grab a snapshot of the screen and display it in a window.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void CGrabWnd::OnLButtonDown(UINT nFlags, CPoint point)
+{
+    CRect clientRect;
+    GetClientRect(&amp;clientRect);
+
+    // We need the window DC.
+    CWindowDC dc(this);
+
+    // We need an offscreen DC.
+    CDC memoryDC;
+    memoryDC.CreateCompatibleDC(&amp;dc);
+
+    // We need a bitmap to back the bits.
+    CBitmap memoryBitmap;
+    memoryBitmap.CreateCompatibleBitmap(&amp;dc,
+                    clientRect.Width(), clientRect.Height());
+
+    CBitmap *oldMemoryBitmap = memoryDC.SelectObject(&amp;memoryBitmap);
+
+    // BLOCK: Copy a chunk of the screen to the memory DC.
+    {
+        CWindowDC screenDC(NULL);
+        memoryDC.BitBlt(0, 0, clientRect.Width(), clientRect.Height(),
+                    &amp;screenDC, 0, 0, SRCCOPY);
+    }
+
+    // Copy that to the client area.
+    dc.BitBlt(0, 0, clientRect.Width(), clientRect.Height(),
+                    &amp;memoryDC, 0, 0, SRCCOPY);
+
+    memoryDC.SelectObject(oldMemoryBitmap);
+
+    CWnd::OnLButtonDown(nFlags, point);
+}
+</code></pre></div></div>
+
+<p>There’s nothing particularly clever here. One thing of note is that we used <code class="highlighter-rouge">CWindowDC</code> to grab hold of both the screen DC and the window DC. An alternative way to do this would have been:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CDC dc;
+dc.Attach(::GetDC(NULL));
+
+// some code
+
+::ReleaseDC(NULL, dc.Detach());
+</code></pre></div></div>
+
+<p>Another thing worth commenting on is that this code copies the screen to an offscreen bitmap, and then to the client area, rather than copying it directly. The reason for this? I’m planning on altering the snapshot before displaying it.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

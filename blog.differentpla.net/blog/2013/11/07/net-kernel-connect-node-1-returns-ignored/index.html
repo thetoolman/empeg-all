@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>net_kernel:connect_node/1 returns ignored</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>net_kernel:connect_node/1 returns ignored</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-11-07 16:31:34 +0000">2013-11-07 16:31:34 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+    </div>
+    <p></p>
+    <p>Just some random thing I learnt today while playing with Erlang:</p>
+
+<p>So, I was playing with connecting to another Erlang node; I’m thinking about how
+to use it for diagnostics. However, when I tried it…</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1&gt; net_kernel:connect_node('foo@roger-pc').
+ignored
+</code></pre></div></div>
+
+<p>Huh? The documentation says:</p>
+
+<blockquote>
+  <p>Returns true if successful, false if not, and ignored if the local node is not alive.</p>
+</blockquote>
+
+<p>Wait. What? Obviously the node is alive – I’m using it…? Hang on, maybe Erlang
+has a different meaning of “alive”?</p>
+
+<p>Yeah:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2&gt; erlang:is_alive().
+false
+</code></pre></div></div>
+
+<p>Hmmm. Documentation again:</p>
+
+<blockquote>
+  <p>Returns true if the local node is alive; that is, if the node can be part of a
+distributed system. Otherwise, it returns false.</p>
+</blockquote>
+
+<p>Ah. I didn’t give my local shell a name. Let’s try again:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ erl -sname bar
+(bar@roger-pc)1&gt;
+</code></pre></div></div>
+
+<p>Well, that’s more promising – there’s a name in the prompt…</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(bar@roger-pc)1&gt; is_alive().
+true
+</code></pre></div></div>
+
+<p>Better.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(bar@roger-pc)2&gt; net_kernel:connect_node('foo@roger-pc').
+true
+</code></pre></div></div>
+
+<p>Perfect.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Chef Server, Chef Zero or Chef Solo?</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Chef Server, Chef Zero or Chef Solo?</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-11-13 11:06:34 +0000">2014-11-13 11:06:34 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/chef">chef</a></span>
+        
+    </div>
+    <p></p>
+    <p><em>This is part of my <a href="../website-rebuild/index.html">quest to sort out my website</a>.
+Which Chef?</em></p>
+
+<p>Chef is available in several “editions”, and I struggled to choose one. Here’s
+my understanding:</p>
+
+<h2 id="chef-server">Chef Server</h2>
+
+<p>The preferred way to run Chef in a large server farm is with each server
+(“node” in chef parlance) talking to a centrally-managed Chef server.</p>
+
+<p>You can use Opscode’s hosted chef server, or you can use an on-premises chef
+server.  See <a href="https://manage.opscode.com/">https://manage.opscode.com/</a> for
+more details.</p>
+
+<h2 id="chef-zero">Chef Zero</h2>
+
+<p>Per <a href="https://github.com/opscode/chef-zero">https://github.com/opscode/chef-zero</a>:</p>
+
+<blockquote>
+  <p>Chef Zero is a simple, easy-install, in-memory Chef server that can be useful
+for Chef Client testing and chef-solo-like tasks that require a full Chef
+Server.</p>
+</blockquote>
+
+<h2 id="chef-solo">Chef Solo</h2>
+
+<p>Per <a href="https://docs.getchef.com/chef_solo.html">https://docs.getchef.com/chef_solo.html</a>:</p>
+
+<blockquote>
+  <p>chef-solo is an open source version of the chef-client that allows using
+cookbooks with nodes without requiring access to a Chef server. chef-solo
+runs locally and requires that a cookbook (and any of its dependencies) be on
+the same physical disk as the node.</p>
+</blockquote>
+
+<h2 id="so-which-one">So, which one?</h2>
+
+<ul>
+  <li>For managing a single server, chef server seemed like overkill.</li>
+  <li>Chef zero is great, but I didn’t like the way that the node configuration
+(roles, attributes, etc.) are kept in the server, and can’t easily be
+versioned with the other files.</li>
+  <li>So I opted for Chef Solo, of which more later.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

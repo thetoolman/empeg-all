@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Displaying a tooltip when the user drags the scroll thumb</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Displaying a tooltip when the user drags the scroll thumb</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-01-12 12:24:00 +0000">2004-01-12 12:24:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="you-wanna-do-this">You wanna do this?</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=47</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=377</td>
+      <td>height=640]</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="heres-how">Here’s How:</h2>
+
+<p><strong>Note:</strong> For details on how to do the full-row colouring, see <a href="http://blog.differentpla.net/node/view/63">this</a>.</p>
+
+<p>The first thing to do is to intercept the relevant scrollbar messages. This involves adding code to handle <code class="highlighter-rouge">WM_VSCROLL</code>, and looking for <code class="highlighter-rouge">SB_THUMBTRACK</code> and <code class="highlighter-rouge">SB_THUMBPOSITION</code>. In the sample code, we’ll assume that you’ve got a class <code class="highlighter-rouge">CMyListCtrl</code>, derived from <code class="highlighter-rouge">CListCtrl</code>.</p>
+
+<p><code class="highlighter-rouge">SB_THUMBTRACK</code> is sent while the user is dragging the thumb. We want to display the tooltip in response. <code class="highlighter-rouge">SB_THUMBPOSITION</code> is sent when the user has finished dragging the thumb. We want to hide the tooltip.</p>
+
+<div class="snippet">
+    void CMyListCtrl::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+    {
+        SCROLLINFO si;
+        GetScrollInfo(SB_VERT, &amp;si, SIF_POS);
+
+        if (nSBCode == SB_THUMBTRACK)
+        {
+            CString s = FigureText(si.nPos);
+            DisplayThumbTrackToolTip(s);
+        }
+        else if (nSBCode == SB_THUMBPOSITION)
+        {
+            DestroyThumbTrackToolTip();
+        }
+
+        CListCtrl::OnVScroll(nSBCode, nPos, pScrollBar);
+    }
+
+</div>
+
+<p>Let’s look at <code class="highlighter-rouge">DisplayThumbTrackToolTip</code> first. It creates the tooltip if it’s not already created (using <code class="highlighter-rouge">CreateThumbTrackToolTip</code>). Since we’re trying to right-align the tooltip, we have to use <code class="highlighter-rouge">TTM_TRACKACTIVATE</code> and <code class="highlighter-rouge">TTM_TRACKPOSITION</code> to make the tooltip appear in a specific location. However, this causes flickering when we set the new text and then move the tooltip to the correct place. To solve this, we use a gnarly hack: we move the tooltip off the screen.</p>
+
+<p>According to some of the documentation, you have to ensure that the string you pass to UpdateTipText remains in scope until you’ve finished with the tooltip. We use <code class="highlighter-rouge">strdup</code> to make a copy, and then keep a pointer to it in <code class="highlighter-rouge">m_tooltipText</code>. This requires that we delete any previous text before we call <code class="highlighter-rouge">strdup</code> on the new text. We could probably keep the text around in a CString member, but I didn’t try that. We then set the text and make the call to adjust the tooltip position.</p>
+
+<div class="snippet">
+    void CMyListCtrl::DisplayThumbTrackToolTip(const char *toolTipText)
+    {
+        if (!CreateThumbTrackToolTip())
+            return;
+
+        /* Move the tooltip off the screen, so that it doesn't flicker when
+         * it's resized with the new text.
+         */
+        int xOffScreen = -4000;
+        int yOffScreen = -4000;
+        m_pToolTipCtrl-&gt;SendMessage(TTM_TRACKPOSITION, 0, MAKELONG(xOffScreen, yOffScreen));
+
+        TOOLINFO ti;
+        FillToolInfo(&amp;ti);
+        m_pToolTipCtrl-&gt;SendMessage(TTM_TRACKACTIVATE, TRUE, (LPARAM)&amp;ti);
+
+        if (m_tooltipText)
+            free(m_tooltipText);
+
+        m_tooltipText = strdup(toolTipText);
+        m_pToolTipCtrl-&gt;UpdateTipText(m_tooltipText, this);
+
+        AdjustThumbTrackToolTipPosition();
+    }
+
+</div>
+
+<p>Let’s take a quick look at the code that creates the CToolTipCtrl. There’s nothing particularly interesting in here, with the exception of the stuff to set the delay times.</p>
+
+<div class="snippet">
+    BOOL CMyListCtrl::CreateThumbTrackToolTip()
+    {
+        if (m_pToolTipCtrl)
+            return TRUE;	// Already created.
+
+        m_pToolTipCtrl = NEW CToolTipCtrl;
+        if (m_pToolTipCtrl &amp;&amp; m_pToolTipCtrl-&gt;Create(this))
+        {
+            TOOLINFO ti;
+            FillToolInfo(&amp;ti);
+
+            // We have to use SendMessage, because CToolTipCtrl::AddTool doesn't pass all of the flags.
+            m_pToolTipCtrl-&gt;SendMessage(TTM_ADDTOOL, 0, (LPARAM)&amp;ti);
+            m_pToolTipCtrl-&gt;SetDelayTime(TTDT_AUTOPOP, SHRT_MAX);   // stop the tooltip coming up automatically
+            m_pToolTipCtrl-&gt;SetDelayTime(TTDT_INITIAL, 0);
+            return TRUE;	// Created successfully.
+        }
+
+        // Something failed.  Clean up and leave.
+        delete m_pToolTipCtrl;
+        return FALSE;
+    }
+
+</div>
+
+<p>You can see <code class="highlighter-rouge">FillToolInfo</code> here. It’s basically copied verbatim from <code class="highlighter-rouge">CToolTipCtrl::AddTool()</code>, with the addition of the <code class="highlighter-rouge">TTF_ABSOLUTE</code> and <code class="highlighter-rouge">TTF_TRACK</code> flags.</p>
+
+<div class="snippet">
+    void CMyListCtrl::FillToolInfo(TOOLINFO *ti)
+    {
+        memset(ti, 0, sizeof(TOOLINFO));
+        ti-&gt;cbSize = sizeof(TOOLINFO);
+        ti-&gt;hwnd = GetParent()-&gt;GetSafeHwnd();
+        ti-&gt;uFlags = TTF_IDISHWND | TTF_ABSOLUTE | TTF_TRACK;
+        ti-&gt;uId = (UINT)GetSafeHwnd();
+    }
+
+</div>
+
+<p>The next piece of interesting code is <code class="highlighter-rouge">AdjustThumbTrackToolTipPosition()</code>. It moves the tooltip so that it’s vertically aligned with the mouse pointer, and so that its right edge is inset from the right-hand side of the listview control.</p>
+
+<div class="snippet">
+    void CMyListCtrl::AdjustThumbTrackToolTipPosition()
+    {
+        CRect toolTipRect;
+        m_pToolTipCtrl-&gt;GetWindowRect(&amp;toolTipRect);
+
+        CRect thisRect;
+        GetWindowRect(&amp;thisRect);
+
+        CPoint pt;
+        GetCursorPos(&amp;pt);
+
+        int xOffset = GetSystemMetrics(SM_CXVSCROLL) + GetSystemMetrics(SM_CXDLGFRAME);
+
+        int x = thisRect.right - toolTipRect.Width();
+        x -= xOffset;
+        int y = pt.y;
+
+        m_pToolTipCtrl-&gt;SendMessage(TTM_TRACKPOSITION, 0, MAKELONG(x, y));
+    }
+
+</div>
+
+<p>The code to destroy the tooltip (when handling SB_THUMBPOSITION):</p>
+
+<div class="snippet">
+    void CMyListCtrl::DestroyThumbTrackToolTip()
+    {
+        if (m_pToolTipCtrl)
+        {
+            m_pToolTipCtrl-&gt;DestroyWindow();
+            delete m_pToolTipCtrl;
+            m_pToolTipCtrl = NULL;
+        }
+
+        if (m_tooltipText)
+        {
+            free(m_tooltipText);
+            m_tooltipText = NULL;
+        }
+    }
+
+</div>
+
+<p>That’s about it for interesting code. There just remains the miscellaneous bits:</p>
+
+<div class="snippet">
+    class CMyListCtrl : public CListCtrl
+    {
+        // ...
+
+    private:
+        CToolTipCtrl *m_pToolTipCtrl;
+        char *m_tooltipText;
+    };
+
+</div>
+
+<div class="snippet">
+    CMyListCtrl::CFolderListCtrl()
+        : m_pToolTipCtrl(NULL), m_tooltipText(NULL)
+    {
+    }
+
+</div>
+
+<div class="snippet">
+    BOOL CMyListCtrl::PreTranslateMessage(MSG* pMsg)
+    {
+        if (m_pToolTipCtrl)
+            m_pToolTipCtrl-&gt;RelayEvent(pMsg);
+
+        return CListCtrl::PreTranslateMessage(pMsg);
+    }
+
+</div>
+
+<div class="snippet">
+    void CMyListCtrl::OnDestroy()
+    {
+        DestroyThumbTrackToolTip();
+
+        CListCtrl::OnDestroy();
+    }
+
+</div>
+
+<h2 id="thats-it">That’s it!</h2>
+
+<p>Of course, you have to go and implement <code class="highlighter-rouge">CString CMyListCtrl::FigureText(int nPos)</code>, but that’s your problem.</p>
+
+<p>Source code is attached.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

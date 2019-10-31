@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Linux on Sony Vaio - Intel i820 onboard soundcard</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Linux on Sony Vaio - Intel i820 onboard soundcard</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-01-17 14:39:00 +0000">2003-01-17 14:39:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><strong>Note:</strong> Caoilte wrote this. I’ve not had a chance to check it yet.</p>
+
+<p>For maximum compatability you will need to compile your kernel with the following options:</p>
+
+<div class="snippet">
+    CONFIG_SOUND=m (Sound ---&gt; Sound card support)
+    CONFIG_SOUND_OSS=m (Sound ---&gt; OSS sound modules)
+
+</div>
+
+<p>You do not need to set a low-level soundcard driver. We will configure that separately using the more sophisticated ALSA framework.</p>
+
+<p>To setup ALSA on your laptop you will need to install some extra debian packages:</p>
+
+<div class="snippet">
+    # apt-get install alsa-source alsa-base alsa-utils alsa-xmms dpkg-dev
+
+</div>
+
+<p>Follow the default <code class="highlighter-rouge">debconf</code> prompts except for the selection of cards to be built under alsa-source. Select <code class="highlighter-rouge">intel8x0</code> from the list.</p>
+
+<p>There should now be an <code class="highlighter-rouge">alsa-drivers.tar.gz</code> file in your <code class="highlighter-rouge">/usr/src</code> directory. Change to that directory and check before un-tarring it like this:</p>
+
+<div class="snippet">
+    # mkdir modules
+    # tar -zxf alsa-drivers-tar.gz modules
+
+</div>
+
+<p>For <code class="highlighter-rouge">make-kpkg</code> to find these modules you need to set the following environment variable:</p>
+
+<div class="snippet">
+    # export MODULE_LOC="/usr/src/modules/"
+
+</div>
+
+<p>Also append the line to your .bashrc so that it is set automatically in future (NB this assumes you use the default bash prompt).
+You are now ready to recompile your kernel. Follow the instructions for <a href="http://blog.differentpla.net/drupal-4.7.3/make-kpkg.html">make-kpkg</a> again, or if you have compiled with the above kernel options already change to the <code class="highlighter-rouge">/usr/src/linux</code> directory and run:</p>
+
+<div class="snippet">
+    # make-kpkg modules_image
+
+</div>
+
+<p>You should now have another <code class="highlighter-rouge">.deb</code> package in the parent directory called something like <code class="highlighter-rouge">alsa-modules-2.4.20_rc6+3+p0+whatever_i386.deb</code>. Install this:</p>
+
+<div class="snippet">
+    # dpkg -i alsa-modules-2.4.20_rc6+3+p0+whatever_i386.deb
+
+</div>
+
+<p>Your ALSA modules are installed. Run <code class="highlighter-rouge">modconf</code> as root to check (not sure - might need a reboot). Remember they are muted by default though, and that normal users cannot use them until they are added to the <code class="highlighter-rouge">audio</code> group in <code class="highlighter-rouge">/etc/group</code>. If you want to use the OSS compatability layer (for programs like realplayer) edit <code class="highlighter-rouge">/etc/alsa/alsa-base.conf</code>, <code class="highlighter-rouge">startosslayer=true</code></p>
+
+<p><strong>Credits:</strong> Caoilte O’Connor wrote this page of the instructions. Thanks for that, Caoilte.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Rendering Markdown in .NET</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Rendering Markdown in .NET</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-05-29 17:19:58 +0000">2013-05-29 17:19:58 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>There are several options for rendering Markdown to HTML in .NET. If you bring
+up the NuGet Package Manager dialog and search for “markdown”, you get three
+pages of results, including <code class="highlighter-rouge">MarkdownSharp</code>, which is the renderer used by
+Stack Overflow, so it must be good.</p>
+
+<p>More intriguingly, however, is <code class="highlighter-rouge">Kiwi.Markdown</code> which mentions support for
+GitHub-flavoured markdown and GitHub wiki pages. This sounds ideal, so we’ll
+quickly play with that.</p>
+
+<p>At this point, we need is a simple web application that we can host in IIS Express.
+We need to be able to provide it with a path containing a <code class="highlighter-rouge">README.md</code> file.</p>
+
+<h2 id="spike-rendering-markdown">Spike: Rendering Markdown</h2>
+
+<p>I’m going to use <strong>Nancy</strong> for this, for two reasons:</p>
+
+<ol>
+  <li>I think it’ll be lighter-weight than a full-blown ASP.NET MVC 4 application.</li>
+  <li>I really like it.</li>
+</ol>
+
+<p>So, the first thing we need is an “ASP.NET Empty Web Application”. I’ll call it
+“StartPage.WebApplication”. This gives us a C# web project that contains nothing
+more than a <code class="highlighter-rouge">Web.config</code> file.</p>
+
+<p>To this, we add the <code class="highlighter-rouge">Nancy.Hosting.Aspnet</code> NuGet package, and add the home page:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class HomeModule : NancyModule
+{
+    public HomeModule()
+    {
+        Get["/"] = _ =&gt; "Hello World";
+    }
+}
+</code></pre></div></div>
+
+<p>At this point, I double-check that it works in IIS Express if I run it as we’re
+planning to:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Start-Process $iisexpress `
+  ('/path:"{0}"' -f 'C:\Usersoger\Source\vs-start-page\StartPage.WebApplication'), '/port:15510' `
+  -WindowStyle Hidden
+</code></pre></div></div>
+
+<p>Yep. That’s all good.</p>
+
+<p>Next up is actually rendering something, so we’ll add the <code class="highlighter-rouge">Kiwi.Markdown</code> package
+to the project, and add some code to use it:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Get["/"] = context =&gt;
+    {
+        var contentProvider = new FileContentProvider(@"C:\Usersoger\Source\vs-start-page");
+        var converter = new MarkdownService(contentProvider);
+        var document = converter.GetDocument("README");
+        return document.Content;
+    };
+</code></pre></div></div>
+
+<p>Cool. That works. <code class="highlighter-rouge">MarkdownService</code> outputs an HTML snippet, rather than a full
+document, assuming that you’ll include it in something, but IE renders it fine,
+so we can call that a success.</p>
+
+<p><em>Note:</em> It turns out that <code class="highlighter-rouge">Kiwi.Markdown</code> uses <code class="highlighter-rouge">MarkdownSharp</code> anyway.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

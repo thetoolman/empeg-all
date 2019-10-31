@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Tag: chef</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../css/yeti-custom.css">
+<link rel="stylesheet" href="../css/site.css">
+
+<link rel="canonical" href="chef">
+<link type="application/atom+xml" rel="alternate" href="../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <h1>Tag: chef</h1>
+<ul>
+
+<li><a href="../blog/2014/11/30/chef-add-user/index.html">Using chef to add a user</a> (30 Nov 2014)</li>
+
+<li><a href="../blog/2014/11/30/starting-with-chef-solo/index.html">Starting with chef-solo</a> (30 Nov 2014)</li>
+
+<li><a href="../blog/2014/11/30/installing-chef-aws/index.html">Installing Chef in AWS</a> (30 Nov 2014)</li>
+
+<li><a href="../blog/2014/11/13/chef-solo-vagrant/index.html">Using Chef Solo with Vagrant</a> (13 Nov 2014)</li>
+
+<li><a href="../blog/2014/11/13/which-chef/index.html">Chef Server, Chef Zero or Chef Solo?</a> (13 Nov 2014)</li>
+
+<li><a href="../blog/2014/11/13/chef-and-berkshelf/index.html">Installing Chef and Berkshelf</a> (13 Nov 2014)</li>
+
+</ul>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="chef#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

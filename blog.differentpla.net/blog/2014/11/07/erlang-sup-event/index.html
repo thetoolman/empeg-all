@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Supervised event handlers in Erlang</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Supervised event handlers in Erlang</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-11-07 10:11:33 +0000">2014-11-07 10:11:33 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+    </div>
+    <p></p>
+    <p>I find Erlang’s <code class="highlighter-rouge">gen_event</code> behaviour to be fairly tricky to understand,
+despite the copious documentation on the subject:</p>
+
+<ul>
+  <li><a href="http://www.erlang.org/doc/design_principles/events.html">gen_event Behaviour</a> (Erlang documentation)</li>
+  <li><a href="http://www.erlang.org/doc/man/gen_event.html">gen_event man page</a> (Erlang documentation)</li>
+  <li><a href="http://learnyousomeerlang.com/event-handlers">Event Handlers</a> (Learn You Some Erlang)</li>
+</ul>
+
+<p>Where the documentation is weak, I think, is in explaining how to wire
+<code class="highlighter-rouge">gen_event</code> into your application’s supervision tree.</p>
+
+<p>This is my attempt to explain it, although I’m going to make a detour into
+implementing server-sent events in Cowboy.</p>
+
+<p>To discover how the supervision works, I spent some hours poking around in the
+source code for <a href="https://github.com/basho/lager">lager</a>, a popular logging
+library for Erlang.</p>
+
+<h2 id="the-event-manager">The Event Manager</h2>
+
+<p>There are three parts to <code class="highlighter-rouge">gen_event</code>: the “event manager” (what other
+frameworks would probably call the “event bus”), the event handlers, and the
+event publishers.</p>
+
+<p>We’ll look at the event manager first.</p>
+
+<p>This is created by <code class="highlighter-rouge">gen_event:start_link/0</code> or <code class="highlighter-rouge">gen_event:start_link/1</code>. You’ll
+usually give your event manager a name – otherwise you need to remember the
+pid.</p>
+
+<p>Most examples show this as:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{ok, Pid} = gen_event:start_link({local, my_event}).
+</code></pre></div></div>
+
+<p>So, how do we put this in our supervision tree?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% somewhere in my_sup:init/1...
+Children = [
+    {my_event, {gen_event, start_link, [{local, my_event}]},
+        permanent, 5000, worker, [dynamic]}
+    % , ...
+].
+</code></pre></div></div>
+
+<h2 id="adding-event-handlers">Adding Event Handlers</h2>
+
+<p>Great, now we’ve got an event manager, how do we add a handler?</p>
+
+<p>The documentation has:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ok = gen_event:add_handler(my_event, my_event_handler, []).
+</code></pre></div></div>
+
+<p>The question that it doesn’t answer is “when do I do this?”. To answer this
+question, we need to realise that your application’s supervision tree is built
+<em>in order</em>. That is: when <code class="highlighter-rouge">supervisor:start_link</code> returns successfully, the
+supervision tree is <a href="http://ferd.ca/it-s-about-the-guarantees.html">completely initialised</a>.</p>
+
+<p>So:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(my_sup).
+-behaviour(supervisor).
+-export([start_link/0, init/1]).
+
+start_link() -&gt;
+    {ok, Pid} = supervisor:start_link(?MODULE, []),
+    ok = gen_event:add_handler(my_event, my_event_handler, []).
+    {ok, Pid}.
+
+init([]) -&gt;
+    Children = [
+        {my_event, {gen_event, start_link, [{local, my_event}]},
+            permanent, 5000, worker, [dynamic]}
+    ],
+    {ok, { {one_for_one, 10, 60}, Children } }.
+</code></pre></div></div>
+
+<h2 id="implementing-event-handlers">Implementing Event Handlers</h2>
+
+<p>In the snippet above, we added a handler module <code class="highlighter-rouge">my_event_handler</code>. We should
+probably implement that. To do that, we need:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(my_event_handler).
+-export([start_link/0]).
+-behaviour(gen_event).
+
+% The rest is left as an exercise for the reader,
+% as one of my Discrete Maths lecturers was fond of saying :-)
+% ...
+</code></pre></div></div>
+
+<p>For details of the functions required, etc., consult the <a href="http://www.erlang.org/doc/man/gen_event.html#Module:init-1">gen_event
+documentation</a>.</p>
+
+<h2 id="raising-events">Raising events</h2>
+
+<p>To raise an event – to publish it to all currently-registered handlers, you
+can simply use <code class="highlighter-rouge">gen_event:notify/2</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% 'Event' is whatever you want it to be. For example:
+Event = {job_started, JobId, JobParams, os:timestamp()},
+gen_event:notify(my_event, Event).
+</code></pre></div></div>
+
+<p>This will, for each <code class="highlighter-rouge">my_event</code> handler, call <code class="highlighter-rouge">Handler:handle_event(Event, State)</code>.</p>
+
+<h2 id="notify-and-sync_notify">notify and sync_notify</h2>
+
+<p>But <code class="highlighter-rouge">gen_event</code> has more than just <code class="highlighter-rouge">notify/2</code>, and the handler must implement
+more than just <code class="highlighter-rouge">handle_event/2</code>.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">gen_event:notify/2</code> – raise an event asynchronously. It returns
+immediately.</li>
+  <li><code class="highlighter-rouge">gen_event:sync_notify/2</code> – raise an event, and wait for all of the
+handlers to receive it.</li>
+</ul>
+
+<h2 id="handle_info">handle_info</h2>
+
+<p><code class="highlighter-rouge">Handler:handle_info/2</code> is called whenever a normal process message is received
+by the event manager process. You might be wondering why you’d send a normal
+message to the event manager, given that it already has <code class="highlighter-rouge">notify/2</code>.</p>
+
+<p>This might be useful if, for example, your event handler wants to call
+<code class="highlighter-rouge">monitor</code> and receive the <code class="highlighter-rouge">'DOWN'</code> messages.</p>
+
+<h2 id="call-and-handle_call">call and handle_call</h2>
+
+<p>The difference between this and <code class="highlighter-rouge">notify</code> is that it allows you to easily send a
+message to <em>a particular handler</em>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gen_event:call(my_event, my_event_handler, Request).
+</code></pre></div></div>
+
+<h2 id="give-me-an-example">Give me an example</h2>
+
+<p>Here’s one: you’re writing a simple notification server, using
+<a href="https://github.com/ninenines/cowboy">Cowboy</a>. You’re using server-sent events
+to distribute the events to connected clients.</p>
+
+<p>This means that you have a cowboy handler that looks something like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(my_http_handler).
+% Note: cowboy 1.0, not master.
+-export([init/3, info/3, terminate/3]).
+
+init(_Type, Req, []) -&gt;
+    Headers = [{&lt;&lt;"content-type"&gt;&gt;, &lt;&lt;"text/event-stream"&gt;&gt;}],
+    {ok, Req2} = cowboy_req:chunked_reply(200, Headers, Req),
+    % @todo Subscribe to events...
+    {loop, Req2, undefined, infinity}.
+</code></pre></div></div>
+
+<p>So, how <em>does</em> the handler subscribe to the events? <code class="highlighter-rouge">gen_event</code> makes the
+assumption that we want to distribute events to <em>modules</em>, not to <em>processes</em>.</p>
+
+<p>We need an event handler that understands processes, and some way of
+registering our cowboy handler process with that handler.</p>
+
+<p>You could do this with some kind of process registry. The idea here is that
+<code class="highlighter-rouge">my_event_handler</code> does something like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% use gproc to send an {event, Event} message to every process
+% registered locally with the 'my_event_proc' property.
+handle_event(Event, State) -&gt;
+    gproc:send({p, l, my_event_proc}, {event, Event}),
+    {ok, State}.
+</code></pre></div></div>
+
+<p>The cowboy handler (from above) would subscribe like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>init(_Type, Req, []) -&gt;
+    % ...
+    gproc:reg({p, l, my_event_proc}),
+    % ...
+</code></pre></div></div>
+
+<p>Then it could send the event to the connected client like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>info({event, Event}, Req, State) -&gt;
+    % Convert the event to text (somehow):
+    Data = to_text(Event),
+    ok = cowboy_req:chunk(["data: ", Data, "\n", "\n"], Req),
+    {loop, Req, State}.
+</code></pre></div></div>
+
+<p>As another example, I found the <a href="https://github.com/brickcap/wrinqle">wrinqle</a>
+library which uses <code class="highlighter-rouge">pg2</code> instead of <code class="highlighter-rouge">gproc</code>.</p>
+
+<p>That’s great, but what if we don’t want to take a dependency on a process
+registry?</p>
+
+<p>That’s where you might use <code class="highlighter-rouge">gen_event:call</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% in my_http_handler
+init(_Type, Req, []) -&gt;
+    % ...
+    % call our handler specifically.
+    ok = gen_event:call(my_event, my_event_handler, {register, self()}),
+    % ...
+
+% in my_event_handler
+handle_call({register, Pid}, #state{ subs = Subs } = State) -&gt;
+    monitor(process, Pid),
+    State2 = State#state{ subs = [Pid|Subs] },
+    {ok, ok, State2}.
+</code></pre></div></div>
+
+<p>…and you’d need to remember to handle <code class="highlighter-rouge">'DOWN'</code> messages in
+<code class="highlighter-rouge">my_event_handler:handle_info</code>. See? I wasn’t making that part up either.</p>
+
+<h2 id="supervised-handlers">Supervised handlers</h2>
+
+<p>Where was I? Oh yeah, we’re supposed to be talking about supervised handlers.</p>
+
+<p>LYSE talks about <code class="highlighter-rouge">add_sup_handler</code>
+<a href="http://learnyousomeerlang.com/event-handlers#highlighter_642111">here</a>, and
+mentions some of the problems you might have with them.</p>
+
+<p>In short, you need an event handler guard to restart any crashed handlers.
+There’s an example of that <a href="https://erlangcentral.org/wiki/index.php?title=Gen_event_behavior_demystified#Fault_Tolerance">on Erlang
+Central</a>,
+but I felt that it leaves out some of the details.</p>
+
+<p>However, the lager source code provides a particularly good example of
+supervised handlers, so I’ve taken that apart and I’ll attempt to explain it
+here.</p>
+
+<p>The secret sauce is that you need a process to “supervise” the handler. This is
+hinted at in the documentation for <code class="highlighter-rouge">gen_event:add_sup_handler</code>:</p>
+
+<blockquote>
+  <p>Adds a new event handler in the same way as add_handler/3 but will also
+supervise the connection between the event handler and the calling process.</p>
+</blockquote>
+
+<p>What this actually <em>means</em> is that, for each handler, you need a process to
+handle <code class="highlighter-rouge">gen_event_EXIT</code> messages and (optionally) restart the handler. That
+process is <em>not</em> a supervisor, but it <em>does</em> need one.</p>
+
+<h3 id="top-level-supervisor">Top-level supervisor</h3>
+
+<p>Let’s start at the top. Here’s a top-level supervisor:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(my_event_sup).
+-behaviour(supervisor).
+-export([start_link/0, init/1]).
+
+start_link() -&gt;
+    % The name is optional.
+    supervisor:start_link(?MODULE, []).
+
+init([]) -&gt;
+    Children = [
+        % event manager
+        {my_event, {gen_event, start_link, [{local, my_event}]},
+            permanent, 5000, worker, [dynamic]},
+        % event handler guard supervisor
+        {my_event_guard_sup, {my_event_guard_sup, start_link, []},
+            permanent, 5000, supervisor, [my_event_guard_sup]}
+    ],
+    {ok, { {one_for_one, 10, 60}, Children } }.
+</code></pre></div></div>
+
+<p>This creates a supervisor with two children: the event manager and another
+supervisor. This child supervisor will be the supervisor for the event handler
+guards.</p>
+
+<h3 id="guard-supervisor">Guard Supervisor</h3>
+
+<p>Here’s the guard supervisor:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(my_event_guard_sup).
+-behaviour(supervisor).
+-export([start_link/0, init/1]).
+
+start_link() -&gt;
+    Name = {local, ?MODULE},
+    supervisor:start_link(Name, ?MODULE, []).
+
+init([]) -&gt;
+    % This is a 'simple_one_for_one' supervisor, so this must be a single
+    % child spec.
+    Children = [
+        {my_event_guard, {my_event_guard, start_link, []},
+            temporary, 5000, worker, [my_event_guard]}
+    ],
+    {ok, { {simple_one_for_one, 10, 60}, Children } }.
+</code></pre></div></div>
+
+<p>Some points of interest:</p>
+
+<ul>
+  <li>The supervisor is <code class="highlighter-rouge">simple_one_for_one</code>. This means that all of the children
+must be the same and that no children are started until <code class="highlighter-rouge">start_child</code> is
+called. See the <a href="http://www.erlang.org/doc/man/supervisor.html#Module:init-1">supervisor
+documentation</a>.</li>
+  <li>We use ‘temporary’ for the restart strategy; this means that the supervisor
+will never restart the child. Lager uses this; you might want ‘transient’ or
+‘permanent’ instead.</li>
+</ul>
+
+<h3 id="guard-process">Guard Process</h3>
+
+<p>The guard process starts with the usual boilerplate:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-module(my_event_guard).
+-behaviour(gen_server).
+-export([start_link/3]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2,
+         terminate/2, code_change/3]).
+</code></pre></div></div>
+
+<p>Then it gets a bit more complex. We define <code class="highlighter-rouge">start_link</code> as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>start_link(Event, Module, Config) -&gt;
+    gen_server:start_link(?MODULE, [Event, Module, Config], []).
+</code></pre></div></div>
+
+<p>Wait. Where did those arguments come from? We didn’t mention them in the child
+spec.</p>
+
+<p>The deal here is that, for <code class="highlighter-rouge">simple_one_for_one</code> supervisors, the call to
+<code class="highlighter-rouge">supervisor:start_child</code> <em>appends</em> its arguments to the ones in the child spec.</p>
+
+<p>So, if we call <code class="highlighter-rouge">supervisor:start_child(my_event_guard_sup, [my_event,
+my_event_handler, []])</code>, then those arguments will be appended to the empty
+list in the child spec, and will result in a call to <code class="highlighter-rouge">my_event_guard:start_link/3</code>.</p>
+
+<p>And that calls <code class="highlighter-rouge">gen_server:start_link</code>, passing those arguments, which results
+in a call to <code class="highlighter-rouge">my_event_guard:init/1</code>, which installs the given event handler,
+and remembers the details for later:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-record(state, {event, module, config}).
+
+init([Event, Module, Config]) -&gt;
+    install_handler(Event, Module, Config),
+    {ok, #state{event=Event, module=Module, config=Config}}.
+
+install_handler(Event, Module, Config) -&gt;
+    ok = gen_event:add_sup_handler(Event, Module, Config).
+</code></pre></div></div>
+
+<p>Ah, finally, the call to <code class="highlighter-rouge">add_sup_handler</code>. Note that lager does something a
+bit more
+<a href="https://github.com/basho/lager/blob/master/src/lager_handler_watcher.erl#L91">complicated</a>
+here.</p>
+
+<p>Then we can handle the <code class="highlighter-rouge">gen_event_EXIT</code> messages to restart (or not) the handler:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>handle_info({gen_event_EXIT, Module, normal}, #state{module=Module} = State) -&gt;
+    {stop, normal, State};
+handle_info({gen_event_EXIT, Module, shutdown}, #state{module=Module} = State) -&gt;
+    {stop, normal, State};
+handle_info({gen_event_EXIT, Module, Reason},
+        #state{event=Event, module=Module, config=Config} = State) -&gt;
+    install_handler(Event, Module, Config),
+    {noreply, State}.
+</code></pre></div></div>
+
+<h3 id="adding-supervised-event-handlers">Adding Supervised Event Handlers</h3>
+
+<p>So, again, when do I add my event handlers?</p>
+
+<p>Lager does it in <code class="highlighter-rouge">lager_app</code>. If we were to use that idea, it’d look something
+like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>start(_Type, _Args) -&gt;
+    Handlers = [
+        {my_event_handler, []},
+        {other_event_handler, [foo, bar, baz]}
+    ],
+
+    {ok, Pid} = my_event_sup:start_link(),
+    lists:foreach(
+        fun({Module, Config}) -&gt;
+            supervisor:start_child(my_event_guard_sup, [my_event, Module, Config])
+        end, Handlers),
+    {ok, Pid}.
+</code></pre></div></div>
+
+<p>Alternatively, you could use similar code in the top-level supervisor, as we
+did earlier.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>And that’s pretty much it.</p>
+
+<p>The key take-away here is that, when the documentation says:</p>
+
+<blockquote>
+  <p>Adds a new event handler in the same way as add_handler/3 but will also
+supervise the connection between the event handler and the calling process.</p>
+</blockquote>
+
+<p>It actually means:</p>
+
+<ul>
+  <li>You need a guard process to call <code class="highlighter-rouge">add_sup_handler</code> for the handler.</li>
+  <li>The guard process needs to handle <code class="highlighter-rouge">gen_event_EXIT</code> messages.</li>
+  <li>You probably want a guard process for each handler, though you don’t strictly
+<em>need</em> this.</li>
+  <li>The guard processes need a supervisor.</li>
+  <li>That guard supervisor needs a parent supervisor.</li>
+  <li>The parent supervisor should also supervise the event manager.</li>
+</ul>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

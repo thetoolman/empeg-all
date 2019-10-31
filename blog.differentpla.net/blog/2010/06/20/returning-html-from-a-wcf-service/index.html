@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Returning HTML from a WCF service</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Returning HTML from a WCF service</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2010-06-20 13:05:10 +0000">2010-06-20 13:05:10 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>I’m messing around with writing yet another a blog engine, as a way to learn ASP.NET MVC. One of the things that I’d like to do is have it support uploading from Windows Live Writer. This means that it needs to support XML-RPC and <a href="http://cyber.law.harvard.edu/blogs/gems/tech/rsd.html">Really Simple Discovery</a> (RSD). More on the XML-RPC stuff later.</p>
+
+<p>RSD is actually two-part. The URL that you provide to Live Writer is typically the index page of the blog. Live Writer expects to find a &lt;link rel=”EditURI” type=”application/rsd+xml” …/&gt; entry in the &lt;head&gt;.</p>
+
+<p>Since I’m spiking my XML-RPC solution in a console WCF application, I also need to support an index page and an RSD page. This essentially requires returning HTML from a WCF service.</p>
+
+<p>It’s quite easy:</p>
+
+<pre>ServiceHost discoveryServiceHost = new ServiceHost(typeof(ReallySimpleDiscovery));
+Uri discoveryAddress = baseUri;
+var discoveryEndpoint = discoveryServiceHost.AddServiceEndpoint(typeof(IReallySimpleDiscovery), new WebHttpBinding(WebHttpSecurityMode.None), discoveryAddress);
+discoveryEndpoint.Behaviors.Add(new WebHttpBehavior());
+discoveryServiceHost.Open();</pre>
+
+<p>IReallySimpleDiscovery is defined as follows:</p>
+
+<pre>[ServiceContract]
+public interface IReallySimpleDiscovery
+{
+	[OperationContract, WebGet(UriTemplate = "/")]
+	Stream Index();
+
+	[OperationContract, WebGet(UriTemplate = "/rsd.xml", ResponseFormat = WebMessageFormat.Xml)]
+	ReallySimpleDiscoveryFormatter Discover();
+}</pre>
+
+<p>Index is implemented as follows:</p>
+
+<pre>internal class ReallySimpleDiscovery : IReallySimpleDiscovery
+{
+	public Stream Index()
+	{
+		string html = "...";
+
+		// See http://blogs.msdn.com/b/justinjsmith/archive/2007/08/22/setting-http-headers-in-wcf-net-3-5.aspx
+		if (WebOperationContext.Current != null)
+			WebOperationContext.Current.OutgoingResponse.ContentType = "text/html";
+
+		byte[] htmlBytes = Encoding.UTF8.GetBytes(html);
+		return new MemoryStream(htmlBytes);
+	}</pre>
+
+<p>Obviously, I need to implement ReallySimpleDiscoveryFormatter, but this should be enough to show that you can return plain HTML from a WCF service. If you really need to.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

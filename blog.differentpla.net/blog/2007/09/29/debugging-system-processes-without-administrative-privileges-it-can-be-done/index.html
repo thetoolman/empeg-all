@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Debugging system processes without administrative privileges: it can be done</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Debugging system processes without administrative privileges: it can be done</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-09-29 14:14:09 +0000">2007-09-29 14:14:09 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>A short while ago, I asked whether it was possible to <a href="../../../08/13/debugging-system-processes-without-administrative-privileges-can-it-be-done/index.html">debug system processes without administrative privileges</a>. I ran into a brick wall and couldn’t figure it out.</p>
+
+<p>Today, inspiration strikes: <strong>Use MSVSMON, the remote debugger</strong>:</p>
+
+<ol>
+  <li>As Administrator (either through remote desktop, or Fast-User-Switching, run <code class="highlighter-rouge">msvsmon /noauth /anyuser /nosecuritywarn</code>. It’s in <code class="highlighter-rouge">C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\Remote Debugger\x86</code>. You have to run it with /noauth, because you want to connect from your non-Admin account to the Admin account.</li>
+  <li>Under Tools/Options remove the timeout setting (clear the edit box), otherwise MSVSMON will keep exiting.</li>
+  <li>Return to your non-Admin account.</li>
+  <li>In Visual Studio, bring up the project properties and go to the Debugging page. Set “Debugger to launch” to “Remote Windows Debugger”. Set “Remote Command” to $(TargetPath). Set “Connection” to “Remote with no authentication (Native only)”</li>
+  <li>Set your breakpoints and press F5.</li>
+</ol>
+
+<p>Note that it will punch a hole in the Windows firewall, even if you’re connecting to localhost, so don’t do this on a network that you don’t trust. Not least because it’s running with /noauth.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

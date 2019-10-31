@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>The case of the missing print jobs</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>The case of the missing print jobs</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-04-27 08:02:22 +0000">2013-04-27 08:02:22 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Having recently moved my home server (Windows 2012) from the hall cupboard to the corner of my study, I decided to connect it to my printer. This means that I can print from my laptop over wireless without needing to turn on the desktop PC that the printer was originally connected to.</p>
+
+<p>It didn’t work: Windows correctly installed the printer drivers, and added the printer as the default device, but whenever I attempted to print anything (even locally), nothing came out, but no error messages were displayed.</p>
+
+<p>In order to track down the problem, I tried printing using the XPS driver. That didn’t work either: the print job was reported as successful, but I ended up with zero-byte <code class="highlighter-rouge">.OXPS</code> files.</p>
+
+<p>Eventually, I looked in <em>Event Viewer</em> and found this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Log Name:      Microsoft-Windows-PrintService/Admin
+Source:        Microsoft-Windows-PrintService
+Date:          15/04/2013 19:06:39
+Event ID:      372
+Task Category: Printing a document
+Level:         Error
+Keywords:      Classic Spooler Event,Document Print Job
+User:          HOME\Administrator
+Computer:      SERVER.home.differentpla.net
+Description:
+The document Print Document, owned by Administrator, failed to print on printer
+Microsoft XPS Document Writer. Try to print the document again or restart the print spooler. 
+Data type: RAW. Size of the spool file in bytes: 67709. Number of bytes printed: 0.
+Total number of pages in the document: 2. Number of pages printed: 0.
+Client computer: \\SERVER. Win32 error code returned by the print processor: 5. Access is denied.
+</code></pre></div></div>
+
+<p>I searched the Internet for this particular Event ID, and for the error message. Almost everything was talking about printing from Terminal Services, which was not my problem, because I was trying to print locally.</p>
+
+<p>In the end, I found a <a href="http://support.microsoft.com/kb/962930">KB article</a>,
+which suggests giving Everyone permission on the <code class="highlighter-rouge">PRINTERS</code> folder.</p>
+
+<p>There’s no way that I’m doing that, so I looked around some more, and <a href="http://answers.microsoft.com/en-us/windows/forum/windows_7-hardware/win32-error-code-returned-by-the-print-processor-5/df308c63-c654-e011-8dfc-68b599b31bf5">found something</a> that mentioned using <em>Process Monitor</em> and looking at the <code class="highlighter-rouge">spoolsv.exe</code> process.</p>
+
+<p>That didn’t show anything interesting, but it did lead me to filtering on the <code class="highlighter-rouge">PRINTERS</code> folder. Instead of <code class="highlighter-rouge">spoolsv.exe</code>, I found a process named <code class="highlighter-rouge">printfilterpipelinesvc.exe</code>, which was getting <strong>ACCESS DENIED</strong> while attempting to create a <code class="highlighter-rouge">.TMP</code> file in the <code class="highlighter-rouge">PRINTERS</code> folder.
+Looking at the properties for that entry, we find that <code class="highlighter-rouge">printfilterpipelinesvc.exe</code> is running as <code class="highlighter-rouge">LOCAL SERVICE</code>.</p>
+
+<p>So, I just gave <code class="highlighter-rouge">LOCAL SERVICE</code> full control over the <code class="highlighter-rouge">PRINTERS</code> folder, and everything started working.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

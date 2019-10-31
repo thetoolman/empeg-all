@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Integrating direnv with python-build</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="col-md-9">
+    <article>
+        <h1>Integrating direnv with python-build</h1>
+        <div class="details">
+            <span class="created_at timeago" title="2019-01-30 17:09:00 +0000">2019-01-30 17:09:00 +0000</span>
+        </div>
+        <p></p>
+        <p>To integrate <code class="highlighter-rouge">direnv</code> with <code class="highlighter-rouge">python-build</code> – installation instructions <a href="../python-build/index.html">here</a> – add the following to <code class="highlighter-rouge">~/.direnvrc</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>use_python() {
+    PYTHON_VERSION="$1"
+
+    PYTHONS_DIR="$HOME/.pyenv/pythons"
+    PYTHON_PREFIX="$PYTHONS_DIR/$PYTHON_VERSION"
+    if [ -s "$PYTHON_PREFIX" ]; then
+        load_prefix "$PYTHON_PREFIX"
+    else
+        tput setaf 1
+        echo "Python $PYTHON_VERSION not available; using default"
+        echo "See http://blog.differentpla.net/blog/2019/01/30/python-build/"
+        tput sgr0
+    fi
+}
+</code></pre></div></div>
+
+<p>Then add (e.g.) the following to your project’s <code class="highlighter-rouge">.envrc</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>use python 2.7.15
+layout python
+</code></pre></div></div>
+
+<p><strong>Important:</strong> Make sure you’ve installed <code class="highlighter-rouge">virtualenv</code>, <em>outside</em> any virtualenv:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$(/usr/bin/python -m site --user-base)/bin/pip install --user virtualenv
+</code></pre></div></div>
+
+<p><em>The <code class="highlighter-rouge">$(...)</code> bit is to escape from your virtualenv, if you’re already in one. (<a href="https://github.com/sjml/dotfiles/blob/master/zsh.d.symlink/functions/pip">h/t</a>)</em></p>
+
+<p>The <code class="highlighter-rouge">layout python</code> takes care of setting up a Python virtualenv for you.</p>
+
+<p>If you’re using a <code class="highlighter-rouge">requirements.txt</code> file to track your Python requirements, you might want to add the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># We have no way to do this automatically, so hint, rather than assert.
+if [ -f requirements.txt ]; then
+    tput setaf 3
+    echo "(Maybe) Install missing python packages with 'pip install -r requirements.txt'"
+    tput sgr0
+fi
+</code></pre></div></div>
+
+<p>Note that I find <code class="highlighter-rouge">requirements.txt</code> to be a bit parochial, so at Electric Imp, we use <code class="highlighter-rouge">python_requirements.txt</code>.</p>
+
+    </article>
+</div>
+<div class="col-md-3">
+    <ul class="nav series">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            <li><a href="../direnv-tool-versions/index.html">Using direnv to manage tool versions</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-direnv/index.html">Installing direnv</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-kerl/index.html">Installing kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-erlang-with-kerl/index.html">Installing Erlang with kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../erlang-build-prerequisites/index.html">Building Erlang: Prerequisites (Ubuntu)</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../integrating-kerl-direnv/index.html">Integrating direnv with kerl</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../erlang-version/index.html">Getting Erlang version</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-kiex/index.html">Installing kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../installing-elixir-with-kiex/index.html">Installing Elixir with kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../integrating-kiex-direnv/index.html">Integrating direnv with kiex</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../python-build/index.html">Installing Python with python-build</a></li></li>
+        
+        
+        
+        
+        
+            <li class="active"><a href="index.html">Integrating direnv with python-build</a></li>
+        
+        
+        
+        
+        
+            <li><a href="../ruby-install/index.html">Installing Ruby with ruby-install</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../ruby-direnv/index.html">Integrating direnv with ruby-install</a></li></li>
+        
+        
+        
+        
+        
+            <li><a href="../nvm-direnv/index.html">Integrating direnv with nvm</a></li></li>
+        
+        
+        
+        
+        
+    </ul>
+</div>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

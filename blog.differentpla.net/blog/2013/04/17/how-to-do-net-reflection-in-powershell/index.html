@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>How to do .NET Reflection in PowerShell</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>How to do .NET Reflection in PowerShell</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-04-17 11:29:29 +0000">2013-04-17 11:29:29 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>This is all just .NET reflection code, converted from C# to PowerShell, but it can be useful…</p>
+
+<h2 id="finding-out-which-assemblies-are-loaded">Finding out which assemblies are loaded</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS&gt; [AppDomain]::CurrentDomain.GetAssemblies()
+
+GAC    Version        Location
+---    -------        --------
+True   v4.0.30319     C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll
+True   v4.0.30319     C:\Windows\Microsoft.Net\assembly\GAC_MSIL\Microsoft.PowerShell.ConsoleHost\v...
+# etc.
+</code></pre></div></div>
+
+<h2 id="finding-out-which-types-are-available-in-a-given-assembly">Finding out which types are available in a given assembly</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS&gt; $assembly = [AppDomain]::CurrentDomain.GetAssemblies() | where { $_.Location -like '*System.Numerics*' }
+PS&gt; $assembly.GetExportedTypes()
+
+IsPublic IsSerial Name                                     BaseType
+-------- -------- ----                                     --------
+True     True     BigInteger                               System.ValueType
+True     True     Complex                                  System.ValueType
+
+PS&gt; $assembly.GetExportedTypes() | % { $_.FullName }
+System.Numerics.BigInteger
+System.Numerics.Complex
+</code></pre></div></div>
+
+<h2 id="get-the-members-of-a-particular-type">Get the members of a particular type</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS&gt; [System.Numerics.Complex] | Get-Member
+# ...list of members...
+</code></pre></div></div>
+
+<h2 id="get-a-list-of-constructors-for-a-particular-type">Get a list of constructors for a particular type</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PS&gt; [Org.BouncyCastle.Asn1.X509.ExtendedKeyUsage].GetConstructors() |
+		foreach { $_.ToString() }
+
+Void .ctor(Org.BouncyCastle.Asn1.X509.KeyPurposeID[])
+Void .ctor(System.Collections.ArrayList)
+Void .ctor(System.Collections.IEnumerable)
+</code></pre></div></div>
+
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

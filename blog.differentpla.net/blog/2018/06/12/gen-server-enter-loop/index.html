@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>gen_server:enter_loop</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>gen_server:enter_loop</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2018-06-12 14:52:00 +0000">2018-06-12 14:52:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/erlang">erlang</a></span>
+        
+    </div>
+    <p></p>
+    <p>When you use <code class="highlighter-rouge">gen_server:start/3,4</code> or <code class="highlighter-rouge">gen_server:start_link/3,4</code>, the call
+blocks until the other process has finished running <code class="highlighter-rouge">init/1</code>.</p>
+
+<p>In particular, this can be a problem when your process is being started from a
+supervisor. If it takes a long time to start (or restart) the child process,
+the supervisor won’t handle any messages until it completes. This means that
+even seemingly simple calls such as <code class="highlighter-rouge">supervisor:which_children/1</code> will block
+until some unknown child process finishes (re-)starting.</p>
+
+<h2 id="dont-do-this">Don’t do this</h2>
+
+<p>Occasionally, you’ll see people suggest that you send yourself a message from
+<code class="highlighter-rouge">init/1</code>, like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>start_link() -&gt;
+    gen_server:start_link(?MODULE, [], []).
+
+init([]) -&gt;
+    self() ! continue_init,
+    {ok, #state{}}.
+
+handle_info(continue_init, State) -&gt;
+    {noreply, continue_init_slowly()}.
+</code></pre></div></div>
+
+<p>Most of the time, you’ll get away with this, because there’s no way for anyone
+else to send your process a message, and <code class="highlighter-rouge">continue_init</code> will be the first
+message your process sees.</p>
+
+<p>But: if your process registers a name, either through
+<code class="highlighter-rouge">gen_server:start_link(Name, Module, Args, Opts)</code> or explicitly by calling
+(e.g.) <code class="highlighter-rouge">register</code>, there opens a window where someone <em>could</em> send you a
+message which jumps the queue, arriving before <code class="highlighter-rouge">continue_init</code>, and before
+you’ve finished initialising.</p>
+
+<h2 id="gen_serverenter_loop345"><code class="highlighter-rouge">gen_server:enter_loop/3,4,5</code></h2>
+
+<p>The <em>correct</em> way to do this is to use <code class="highlighter-rouge">gen_server:enter_loop</code>, combined with
+either <code class="highlighter-rouge">proc_lib:spawn_link</code> or <code class="highlighter-rouge">proc_lib:start_link</code>.</p>
+
+<h3 id="proc_libspawn_link"><code class="highlighter-rouge">proc_lib:spawn_link</code></h3>
+
+<p><code class="highlighter-rouge">proc_lib:spawn_link</code> returns immediately, and leaves the specified function to
+run in the new process. In order to turn your new process into a <code class="highlighter-rouge">gen_server</code>,
+you need to call <code class="highlighter-rouge">gen_server:enter_loop</code> at the end of <code class="highlighter-rouge">init</code>.</p>
+
+<p>For example:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>start_link() -&gt;
+    Pid = proc_lib:spawn_link(?MODULE, init, [[]]),
+    {ok, Pid}.
+
+init([]) -&gt;
+    io:format("async init~n"),
+    timer:sleep(1000),
+    io:format("async init done~n"),
+    gen_server:enter_loop(?MODULE, [], #state{}).
+</code></pre></div></div>
+
+<h3 id="proc_libstart_link"><code class="highlighter-rouge">proc_lib:start_link</code></h3>
+
+<p>If you want to do some synchronous initialisation, you can use <code class="highlighter-rouge">proc_lib:start_link</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>start_link() -&gt;
+    % Returns the value passed to proc_lib:init_ack, below.
+    proc_lib:start_link(?MODULE, init, [[]]).
+
+init([]) -&gt;
+    io:format("sync init~n"),
+    timer:sleep(1000),
+    io:format("sync init done~n"),
+
+    proc_lib:init_ack({ok, self()}),
+
+    io:format("async init~n"),
+    timer:sleep(1000),
+    io:format("async init done~n"),
+
+    gen_server:enter_loop(?MODULE, [], #state{}).
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

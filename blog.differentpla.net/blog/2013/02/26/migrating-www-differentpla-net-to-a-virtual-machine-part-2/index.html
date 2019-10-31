@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Migrating www.differentpla.net to a virtual machine, part 2</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Migrating www.differentpla.net to a virtual machine, part 2</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-02-26 06:12:00 +0000">2013-02-26 06:12:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>Yesterday, I said that I’d be migrating my website to a virtual machine;
+originally, I’d planned to mess around with Linux Live CDs.</p>
+
+<p>However, while creating the virtual machine in Hyper-V, I discovered that it
+(at least in Windows 2012) has the ability to create a VHDX from a physical disk.
+And, fortunately, I had a test PC, on which I’d installed Windows 2012 Server,
+which had the case open…</p>
+
+<p>So: I extracted the hard disk from the existing Linux box, plugged it into the
+test PC and told Hyper-V to clone the disk. A couple of hours later, I had a
+.VHDX file containing an image of my Linux web server.</p>
+
+<p>Firing it up, however, revealed two problems:</p>
+
+<ol>
+  <li>No network connectivity.</li>
+  <li>Some things are really slow. In particular, console output is basically unusable.</li>
+</ol>
+
+<p>These are both caused by the same thing: no integration components are loaded.</p>
+
+<p>I found <a href="http://social.technet.microsoft.com/wiki/contents/articles/961.how-to-install-ubuntu-server-10-04-in-hyper-v.aspx">this page</a>,
+which explains how to add the relevant modules to Ubuntu 10.04.
+Unfortunately, it didn’t work for me: I got a kernel panic when I ran <code class="highlighter-rouge">insmod hv_netvsc.ko</code>.
+While <a href="http://www.vyatta.org/node/6236">this page</a> isn’t about Ubuntu, it would
+appear that I’m having the same problem.</p>
+
+<p>So, I used a “Legacy Network Adapter” instead. It wasn’t <code class="highlighter-rouge">eth0</code>, so I had to
+figure that out from:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cat /proc/net/dev
+</code></pre></div></div>
+
+<p>…which told me that the adapter was called <code class="highlighter-rouge">eth1</code>. At this point, I could
+edit the <code class="highlighter-rouge">/etc/network/interfaces</code> to configure the network adapter, and then
+run <code class="highlighter-rouge">ifup eth1</code> to bring up the network.</p>
+
+<p>Success!</p>
+
+<p>And now to upgrade to a more-recent version of Ubuntu (from Lucid Lynx to
+Precise Pangolin), so that I can get integration components that don’t panic
+the kernel…</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

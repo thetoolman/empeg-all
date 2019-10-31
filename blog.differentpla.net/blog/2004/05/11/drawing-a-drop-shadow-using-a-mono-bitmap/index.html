@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Drawing a drop shadow: using a mono bitmap</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Drawing a drop shadow: using a mono bitmap</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-05-11 09:24:00 +0000">2004-05-11 09:24:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>In an <a href="http://blog.differentpla.net/node/view/239">earlier article</a>, I showed how to draw a drop shadow with the help of the ImageList control.</p>
+
+<p>It occurred to me last night that there’s a simpler way to do the masking for the shadow.</p>
+
+<p>In the previous article, we used a colour bitmap and a special ROP code to draw the selected brush on the output DC.</p>
+
+<p>There’s an easier way: if we use a mono bitmap, SRCCOPY will do the necessary magic; as long as we’ve called <code class="highlighter-rouge">SetBkColor</code> and <code class="highlighter-rouge">SetTextColor</code> appropriately.</p>
+
+<pre>void DrawImageListItem(CDC *pDC, int x, int y,
+                            CImageList *piml, int nImage,
+                            COLORREF crBack, bool bDropShadow, COLORREF crShadow)
+{
+    if (bDropShadow)
+    {
+        // This is quite simple:
+        // We draw the mask in crShadow, offset slightly down &amp; right.
+        // We draw the item transparently, offset slightly up &amp; left.
+
+        // We need to know how big each item in the image list is.
+        int cx, cy;
+        ImageList_GetIconSize(piml-&gt;GetSafeHandle(), &amp;cx, &amp;cy);
+
+        // Drawing the drop shadow in the appropriate colour is trickier:
+        // we need to go via a memory DC.
+
+        // We need a memory DC, backed with some (mono) bits.
+        CDC memoryDC;
+        VERIFY(memoryDC.CreateCompatibleDC(pDC));
+        CBitmap memoryBitmap;
+        VERIFY(memoryBitmap.CreateBitmap(cx, cy, 1, 1, NULL));
+        CBitmap *oldMemoryBitmap = memoryDC.SelectObject(&amp;memoryBitmap);
+
+        // Draw the mask onto it.  Transparent parts of the image are white.
+        // Opaque parts are black.
+        piml-&gt;Draw(&amp;memoryDC, nImage, CPoint(0, 0), ILD_MASK);
+
+        pDC-&gt;SetBkColor(crBack);
+        pDC-&gt;SetTextColor(crShadow);
+        pDC-&gt;BitBlt(x + 1, y, cx, cy, &amp;memoryDC, 0, 0, SRCCOPY);
+
+        // Start cleaning up.
+        memoryDC.SelectObject(oldMemoryBitmap);
+
+        // That's given us a drop shadow.
+        // All we need to do now is put the normal image over the top.
+        piml-&gt;Draw(pDC, nImage, CPoint(x-1, y-1), ILD_NORMAL | ILD_TRANSPARENT);
+    }
+    else
+    {
+        // Then it's much, much simpler:
+        // just get the image list to draw on the DC directly.
+        piml-&gt;Draw(pDC, nImage, CPoint(x,y), ILD_NORMAL | ILD_TRANSPARENT);
+    }
+}</pre>
+
+<p>Essentially, when given a mono bitmap as the source, <code class="highlighter-rouge">BitBlt(..., SRCCOPY)</code> will treat black pixels as the foreground colour, and white pixels as the background colour.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

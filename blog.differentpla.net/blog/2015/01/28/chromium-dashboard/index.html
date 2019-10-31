@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Running Chromium as a Dashboard</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Running Chromium as a Dashboard</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2015-01-28 08:26:00 +0000">2015-01-28 08:26:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>On my desk I have a dashboard (an “information radiator”) that displays various
+useful things, such as the build status of various Jenkins jobs, clocks showing
+important timezones (Electric Imp is a distributed company), and so on.</p>
+
+<p>It’s built from an Acer nettop, and it runs Chromium in kiosk mode. Here’s how
+I got it to start everything automatically.</p>
+
+<h2 id="dashboard-web-server">Dashboard Web Server</h2>
+
+<p>The dashboard is implemented using <a href="http://dashing.io/">dashing</a>, and I use an
+upstart script (in <code class="highlighter-rouge">/etc/init/dashing.conf</code>) to ensure that it’s running at
+bootup:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!upstart
+description "Dashing dashboards"
+author "Roger Lipscombe"
+
+respawn
+start on runlevel [23]
+
+setuid dashboard
+setgid dashboard
+
+script
+  cd /home/dashboard/dashboard/
+  dashing start
+end script
+</code></pre></div></div>
+
+<p>Note that the script assumes that you have a <code class="highlighter-rouge">dashboard</code> user, and that dashing
+is installed in <code class="highlighter-rouge">/home/dashboard/dashboard</code>.</p>
+
+<h2 id="starting-x">Starting X</h2>
+
+<p>Great! I’ve got a web server running the dashboard software; now I need to
+display it somewhere. To do this I run an X session on the box.</p>
+
+<p>This is done with two files: <code class="highlighter-rouge">/etc/init/startx.conf</code> starts X:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!upstart
+description "Start X without a display manager or a window manager"
+author "Roger Lipscombe"
+
+# start/stop lifted from Mint's mdm.conf:
+start on ((filesystem
+           and runlevel [!06]
+           and started dbus
+           and (drm-device-added card0 PRIMARY_DEVICE_FOR_DISPLAY=1
+                or stopped udev-fallback-graphics))
+          or runlevel PREVLEVEL=S)
+
+stop on runlevel [016]
+
+script
+    USER="dashboard"
+    exec /bin/su -s /bin/sh -l -c "/usr/bin/startx" $USER
+end script
+</code></pre></div></div>
+
+<h2 id="running-chromium">Running Chromium</h2>
+
+<p>Chromium is then run from <code class="highlighter-rouge">/home/dashboard/.xinitrc</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+
+<span class="c"># Turn off screen blanking and power saving</span>
+xset s off
+xset <span class="nt">-dpms</span>
+
+<span class="c"># Rotate the screen (optional)</span>
+xrandr <span class="nt">--output</span> HDMI-1 <span class="nt">--rotate</span> left
+
+<span class="c"># Hide the mouse cursor.</span>
+unclutter <span class="nt">-grab</span> &amp;
+
+<span class="c"># Start the web browser, with an address...</span>
+<span class="k">while </span><span class="nb">true</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c"># Sleep for a bit; this gives the network a chance to recover, and</span>
+    <span class="c"># also allows us to do stuff remotely (like clear the cache) before</span>
+    <span class="c"># Chrome restarts.</span>
+    <span class="nb">sleep </span>5
+
+    <span class="c"># See http://stackoverflow.com/q/9792667/8446</span>
+    <span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'s/"exited_cleanly": false/"exited_cleanly": true/'</span> <span class="se">\</span>
+        ~/.config/chromium/Default/Preferences
+
+    <span class="c"># This doesn't go into the background, which is good.</span>
+    chromium-browser <span class="nt">--kiosk</span> http://localhost:3030/
+<span class="k">done</span>
+</code></pre></div></div>
+
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

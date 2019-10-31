@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Linux on Sony Vaio - Installing XFree86</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Linux on Sony Vaio - Installing XFree86</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-01-13 15:44:00 +0000">2003-01-13 15:44:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <h2 id="xfree86">XFree86</h2>
+
+<p>According to <a href="http://jhecking.netgaroo.com/asus_m1300.html">this page</a>, the
+Debian xserver-xfree86 package includes support for the Intel i815 chipset in
+the SRX87, so grab that using dselect or similar.</p>
+
+<p>Walk through the configuration options. You want to select the i810 option, and
+answer “Yes” when it asks if you’ve got an LCD display. Tell it to only support
+1024x768. Otherwise, the defaults should do. The mouse is PS/2 compatible and
+should be available on <code class="highlighter-rouge">/dev/psaux</code>.</p>
+
+<p>Since startx isn’t installed, you’ll also want to install some kind of
+<code class="highlighter-rouge">xdm</code>-like program. I chose <code class="highlighter-rouge">xdm</code>, in fact. It requires/suggests a bunch of
+other stuff. Accept the defaults.</p>
+
+<p>I tried starting X by simply running <code class="highlighter-rouge">xdm</code>, but the screen flickered a lot and
+nothing happened. Pressing Ctrl+C a couple of times eventually returned me to
+the prompt. Looking at <code class="highlighter-rouge">/var/log/xdm.log</code> revealed that I had no fonts
+installed.</p>
+
+<p>So you’ll also need a font server and some fonts. I installed <code class="highlighter-rouge">xfs-xtt</code> and
+<code class="highlighter-rouge">xfonts-base</code>.</p>
+
+<p>Try starting X:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># xdm
+</code></pre></div></div>
+
+<p>You should get a login prompt. It won’t be pretty, though:</p>
+
+<p><img src="http://blog.differentpla.net/images/1a5b10afc983b9a91e9bbb8b2027cec5-164.jpg" alt="" /></p>
+
+<p>Check that the touchpad moves the mouse pointer and that you can log in.</p>
+
+<p>Unfortunately, I couldn’t log in at this point – it just returned to the log
+in screen. Further investigation revealed the following message in
+<code class="highlighter-rouge">/home/roger/.xsession-errors</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Xsession: unable to start X session;
+no /home/roger/.xsession file, no /home/roger/.Xsession file,
+no session managers, no window managers, and no terminal emulators found.
+Aborting.
+</code></pre></div></div>
+
+<p>Enough of that, I installed <code class="highlighter-rouge">gdm</code> using dselect, because I figured that it’d
+drag in a session manager. It drags in a whole heap of other stuff as well,
+though. Time to make a cup of tea.</p>
+
+<p>I had to grab a GNOME-compatible window manager and <code class="highlighter-rouge">gnome-terminal</code>, and
+install <code class="highlighter-rouge">gnome-control-center</code>, but after that, it was more or less usable.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

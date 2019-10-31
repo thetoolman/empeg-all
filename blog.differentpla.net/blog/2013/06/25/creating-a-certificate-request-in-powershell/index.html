@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Creating a Certificate Request in PowerShell</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Creating a Certificate Request in PowerShell</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2013-06-25 18:56:28 +0000">2013-06-25 18:56:28 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>The <a href="http://www.bouncycastle.org/wiki/display/JA1/X.509+Public+Key+Certificate+and+Certification+Request+Generation#X.509PublicKeyCertificateandCertificationRequestGeneration-CreatingCertificationRequests">documentation</a> is for Java, and mentions the <code class="highlighter-rouge">PKCS10CertificationRequest</code> class.</p>
+
+<p>The equivalent in the .NET libraries is <code class="highlighter-rouge">Org.BouncyCastle.Pkcs.Pkcs10CertificationRequest</code>.</p>
+
+<h2 id="creating-a-simple-certificate-request">Creating a simple certificate request</h2>
+
+<p>Let’s give it a go:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$signatureAlgorithm = 'SHA256WithRSA'
+$subjectDN = New-X509Name 'CN=Whatever'
+$keyPair = New-KeyPair
+$req = New-Object Org.BouncyCastle.Pkcs.Pkcs10CertificationRequest(
+	$signatureAlgorithm, $subjectDN, $keyPair.Public, $null, $keyPair.Private)
+$bytes = $req.GetEncoded()
+$path = Join-Path (Resolve-Path .) 'certreq.csr'
+[System.IO.File]::WriteAllBytes($path, $bytes)
+</code></pre></div></div>
+
+<p>This writes a <code class="highlighter-rouge">.DER</code>-formatted certificate request to the file <code class="highlighter-rouge">certreq.csr</code>.
+If we inspect it by using OpenSSL, it looks pretty good:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\OpenSSL-Win64\bin\openssl.exe req -in .\certreq.csr -noout -text -inform der
+</code></pre></div></div>
+
+<p>This gives us:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Certificate Request:
+    Data:
+        Version: 0 (0x0)
+        Subject: CN=Whatever
+...etc.
+</code></pre></div></div>
+
+<h2 id="signing-the-request">Signing the request</h2>
+
+<p>If you send that request to an Active Directory Certificate Authority for signing
+(<strong>and select the Web Server template</strong>), it generates a server certificate.</p>
+
+<p>And that appears to be pretty much that.</p>
+
+<h2 id="wrap-up">Wrap-Up</h2>
+
+<p>I’ve added this as two new cmdlets, <code class="highlighter-rouge">New-CertificateRequest</code> and <code class="highlighter-rouge">Save-DerEncoded</code>,
+to my <a href="https://github.com/rlipscombe/PSBouncyCastle">PSBouncyCastle</a> module.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

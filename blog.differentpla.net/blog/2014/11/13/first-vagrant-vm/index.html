@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>First Vagrant VM</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>First Vagrant VM</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-11-13 10:18:45 +0000">2014-11-13 10:18:45 +0000</span>
+        
+    </div>
+    <p></p>
+    <p><em>This is part of my <a href="../website-rebuild/index.html">quest to sort out my website</a>.
+Bringing up the VM.</em></p>
+
+<p>To bring up a new VM using vagrant, we’re going to run <code class="highlighter-rouge">vagrant init</code>. This
+writes a skeleton <code class="highlighter-rouge">Vagrantfile</code> to the current directory, so we probably want
+to invent a directory to keep it in:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir -p ~/Vagrant/trusty64
+cd ~/Vagrant/trusty64
+vagrant init ubuntu/trusty64
+</code></pre></div></div>
+
+<p>This will create an example Vagrantfile. Before continuing, we’ll make a few
+tweaks to it.</p>
+
+<p>Note that if you don’t want the commented-out example sections, use the
+following instead:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vagrant init --minimal ubuntu/trusty64
+</code></pre></div></div>
+
+<h2 id="machine-name">Machine Name</h2>
+
+<p>We need to change the machine name in three places:</p>
+
+<ul>
+  <li>The <a href="http://stackoverflow.com/a/20431791/8446">name that Vagrant uses</a>.</li>
+  <li>The name that VirtualBox uses. The default is <a href="https://docs.vagrantup.com/v2/virtualbox/configuration.html">the name of the containing
+folder plus a
+timestamp</a>.</li>
+  <li>The name that the machine itself uses.</li>
+</ul>
+
+<p>To do this, we’ll need to make some changes to the <code class="highlighter-rouge">Vagrantfile</code>, as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HOST_NAME = "trusty64"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Ordinarily, Vagrant refers to this machine as 'default'. This changes that
+  # name.
+  config.vm.define HOST_NAME do |h|
+  end
+
+  # This is the hostname that the virtual machine uses internally.
+  config.vm.hostname = HOST_NAME
+
+  # VirtualBox configuration.
+  config.vm.provider "virtualbox" do |v|
+    # Use the specified name in VirtualBox as well.
+    v.name = HOST_NAME
+  end
+end
+</code></pre></div></div>
+
+<h2 id="memory-cpu-cores-etc">Memory, CPU cores, etc.</h2>
+
+<p>Again, this is from Vagrant’s <a href="https://docs.vagrantup.com/v2/virtualbox/configuration.html">documentation for Virtual
+Configuration</a>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>config.vm.provider "virtualbox" do |v|
+  v.memory = 2048
+  v.cpus = 2
+end
+</code></pre></div></div>
+
+<h2 id="ssh-tweaks">SSH tweaks</h2>
+
+<p>You might also want to add the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># SSH configuration
+config.ssh.forward_agent = true
+config.ssh.forward_x11 = true
+</code></pre></div></div>
+
+<h2 id="modeline-tweaks">Modeline tweaks</h2>
+
+<p>I prefer the modeline to be at the bottom of the file, so I usually move it.
+And, because I’m using vim, I edit it slightly:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># vim: sw=2:ts=2:sts=2:set ft=ruby:
+</code></pre></div></div>
+
+<p>I don’t know what the equivalent emacs modeline would be ;-)</p>
+
+<h2 id="turning-on-the-vm">Turning on the VM</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vagrant up
+</code></pre></div></div>
+
+<p>At this point you should have a running VM, configured appropriately. You can
+connect to it with:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vagrant ssh
+</code></pre></div></div>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

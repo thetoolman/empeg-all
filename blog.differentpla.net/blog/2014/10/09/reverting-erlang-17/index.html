@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Reverting Erlang 17</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Reverting Erlang 17</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2014-10-09 12:22:00 +0000">2014-10-09 12:22:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>We’ve found a couple of problems with Erlang R16 that mean that one of our
+projects requires Erlang 17. Conversely, we’ve found a couple of problems with
+Erlang 17 that mean that one of our <em>other</em> projects should stick with Erlang
+R16.</p>
+
+<p>In a <a href="../../../09/30/kerl-and-direnv/index.html">previous post</a>,
+I explained how to use <strong>kerl</strong> to install multiple Erlang versions, and how to
+use <strong>direnv</strong> to switch between them.</p>
+
+<p>One of our <em>other</em> <em>other</em> projects doesn’t work with <strong>direnv</strong>, and requires
+that the system-default Erlang version is R16.</p>
+
+<p>Fun, fun, fun.</p>
+
+<p>This post will tell you how to revert an Ubuntu box from Erlang 17 to Erlang
+R16.</p>
+
+<p>The following command will remove any system-installed Erlang packages:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get remove $(dpkg --get-selections | grep ^erlang | cut -f1)
+</code></pre></div></div>
+
+<p>The next bit varies, depending whether you’re on Ubuntu 12.04 (in which case
+you’ll want to use the Erlang Solutions packages) or 14.04 (in which case, you
+can use the Ubuntu packages, but might not want to).</p>
+
+<h2 id="ubuntu-1204">Ubuntu 12.04</h2>
+
+<p>I’ll assume that you’re using the Erlang Solutions packages to get version 17,
+in which case you’ll have a <code class="highlighter-rouge">/etc/apt/sources.list.d/erlang-solutions.list</code>
+file that looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>deb http://packages.erlang-solutions.com/ubuntu precise contrib
+</code></pre></div></div>
+
+<p>For <strong>12.04</strong> you need to create a file called (e.g.) <code class="highlighter-rouge">erlang-packages</code> containing the
+following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>erlang=1:16.b.3-3 erlang-appmon=1:16.b.3-3 erlang-asn1=1:16.b.3-3
+erlang-base=1:16.b.3-3 erlang-common-test=1:16.b.3-3
+erlang-corba=1:16.b.3-3 erlang-crypto=1:16.b.3-3 erlang-debugger=1:16.b.3-3
+erlang-dev=1:16.b.3-3 erlang-dialyzer=1:16.b.3-3 erlang-diameter=1:16.b.3-3
+erlang-edoc=1:16.b.3-3 erlang-eldap=1:16.b.3-3 erlang-erl-docgen=1:16.b.3-3
+erlang-et=1:16.b.3-3 erlang-eunit=1:16.b.3-3 erlang-examples=1:16.b.3-3
+erlang-gs=1:16.b.3-3 erlang-ic=1:16.b.3-3 erlang-ic-java=1:16.b.3-3
+erlang-inets=1:16.b.3-3 erlang-inviso=1:16.b.3-3
+erlang-jinterface=1:16.b.3-3 erlang-megaco=1:16.b.3-3
+erlang-mnesia=1:16.b.3-3 erlang-mode=1:16.b.3-3 erlang-observer=1:16.b.3-3
+erlang-odbc=1:16.b.3-3 erlang-os-mon=1:16.b.3-3
+erlang-parsetools=1:16.b.3-3 erlang-percept=1:16.b.3-3
+erlang-pman=1:16.b.3-3 erlang-public-key=1:16.b.3-3
+erlang-reltool=1:16.b.3-3 erlang-runtime-tools=1:16.b.3-3
+erlang-snmp=1:16.b.3-3 erlang-src=1:16.b.3-3 erlang-ssh=1:16.b.3-3
+erlang-ssl=1:16.b.3-3 erlang-syntax-tools=1:16.b.3-3
+erlang-test-server=1:16.b.3-3 erlang-toolbar=1:16.b.3-3
+erlang-tools=1:16.b.3-3 erlang-tv=1:16.b.3-3 erlang-typer=1:16.b.3-3
+erlang-webtool=1:16.b.3-3 erlang-wx=1:16.b.3-3 erlang-xmerl=1:16.b.3-3
+</code></pre></div></div>
+
+<p>Then run the following command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get install `cat erlang-packages`
+</code></pre></div></div>
+
+<h2 id="ubuntu-1404">Ubuntu 14.04</h2>
+
+<p>If you’ve used the Erlang Solutions packages, you’ll probably have a
+<code class="highlighter-rouge">/etc/apt/sources.list.d/erlang-solutions.list</code> file that looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>deb http://packages.erlang-solutions.com/ubuntu trusty contrib
+</code></pre></div></div>
+
+<p>Your next decision: use the Ubuntu-provided Erlang R16 packages, or the Erlang
+Solutions-provided packages?</p>
+
+<p>Note that the Ubuntu packages don’t seem to include <code class="highlighter-rouge">erlang-wx</code>, which means
+that <code class="highlighter-rouge">observer</code> won’t work.</p>
+
+<h3 id="erlang-solutions-packages">Erlang Solutions Packages</h3>
+
+<p>For the <strong>Erlang Solutions packages</strong>, edit your
+<code class="highlighter-rouge">/etc/apt/sources.list.d/erlang-solutions.list</code> file so that it mentions
+<code class="highlighter-rouge">precise</code>, rather than <code class="highlighter-rouge">trusty</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>deb http://packages.erlang-solutions.com/ubuntu precise contrib
+</code></pre></div></div>
+
+<p>Then create an <code class="highlighter-rouge">erlang-packages</code> file, as shown in the <strong>12.04</strong> section,
+above.</p>
+
+<p>Then run the following commands:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
+sudo apt-get install `cat erlang-packages`
+</code></pre></div></div>
+
+<h3 id="ubuntu-packages">Ubuntu Packages</h3>
+
+<p>For the <strong>Ubuntu packages</strong>, create a file called (e.g.) <code class="highlighter-rouge">erlang-packages</code>
+containing the following:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>erlang=1:16.b.3-dfsg-1ubuntu2.1
+erlang-appmon=1:16.b.3-dfsg-1ubuntu2.1
+erlang-asn1=1:16.b.3-dfsg-1ubuntu2.1
+erlang-base=1:16.b.3-dfsg-1ubuntu2.1
+erlang-common-test=1:16.b.3-dfsg-1ubuntu2.1
+erlang-corba=1:16.b.3-dfsg-1ubuntu2.1
+erlang-crypto=1:16.b.3-dfsg-1ubuntu2.1
+erlang-debugger=1:16.b.3-dfsg-1ubuntu2.1
+erlang-dev=1:16.b.3-dfsg-1ubuntu2.1
+erlang-dialyzer=1:16.b.3-dfsg-1ubuntu2.1
+erlang-diameter=1:16.b.3-dfsg-1ubuntu2.1
+erlang-edoc=1:16.b.3-dfsg-1ubuntu2.1
+erlang-eldap=1:16.b.3-dfsg-1ubuntu2.1
+erlang-erl-docgen=1:16.b.3-dfsg-1ubuntu2.1
+erlang-et=1:16.b.3-dfsg-1ubuntu2.1
+erlang-eunit=1:16.b.3-dfsg-1ubuntu2.1
+erlang-examples=1:16.b.3-dfsg-1ubuntu2.1
+erlang-gs=1:16.b.3-dfsg-1ubuntu2.1
+erlang-ic=1:16.b.3-dfsg-1ubuntu2.1
+erlang-ic-java=1:16.b.3-dfsg-1ubuntu2.1
+erlang-inets=1:16.b.3-dfsg-1ubuntu2.1
+erlang-jinterface=1:16.b.3-dfsg-1ubuntu2.1
+erlang-megaco=1:16.b.3-dfsg-1ubuntu2.1
+erlang-mnesia=1:16.b.3-dfsg-1ubuntu2.1
+erlang-mode=1:16.b.3-dfsg-1ubuntu2.1
+erlang-observer=1:16.b.3-dfsg-1ubuntu2.1
+erlang-odbc=1:16.b.3-dfsg-1ubuntu2.1
+erlang-os-mon=1:16.b.3-dfsg-1ubuntu2.1
+erlang-parsetools=1:16.b.3-dfsg-1ubuntu2.1
+erlang-percept=1:16.b.3-dfsg-1ubuntu2.1
+erlang-pman=1:16.b.3-dfsg-1ubuntu2.1
+erlang-public-key=1:16.b.3-dfsg-1ubuntu2.1
+erlang-reltool=1:16.b.3-dfsg-1ubuntu2.1
+erlang-runtime-tools=1:16.b.3-dfsg-1ubuntu2.1
+erlang-snmp=1:16.b.3-dfsg-1ubuntu2.1
+erlang-src=1:16.b.3-dfsg-1ubuntu2.1
+erlang-ssh=1:16.b.3-dfsg-1ubuntu2.1
+erlang-ssl=1:16.b.3-dfsg-1ubuntu2.1
+erlang-syntax-tools=1:16.b.3-dfsg-1ubuntu2.1
+erlang-test-server=1:16.b.3-dfsg-1ubuntu2.1
+erlang-toolbar=1:16.b.3-dfsg-1ubuntu2.1
+erlang-tools=1:16.b.3-dfsg-1ubuntu2.1
+erlang-tv=1:16.b.3-dfsg-1ubuntu2.1
+erlang-typer=1:16.b.3-dfsg-1ubuntu2.1
+erlang-webtool=1:16.b.3-dfsg-1ubuntu2.1
+erlang-xmerl=1:16.b.3-dfsg-1ubuntu2.1
+</code></pre></div></div>
+
+<p>Then run the following command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get install `cat erlang-packages`
+</code></pre></div></div>
+
+<h2 id="did-that-work">Did that work?</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ erl
+Erlang R16B03-1 (erts-5.10.4) [source] [64-bit] [smp:12:12] [async-threads:10] [kernel-poll:false]
+
+Eshell V5.10.4  (abort with ^G)
+1&gt;
+</code></pre></div></div>
+
+<p>…seems to have done.</p>
+
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using CListCtrl::SortItems</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using CListCtrl::SortItems</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-05-19 14:38:00 +0000">2004-05-19 14:38:00 +0000</span>
+        
+    </div>
+    <p></p>
+    <p>In my <a href="http://blog.differentpla.net/node/view/253">previous article</a>, I explained how to use <code class="highlighter-rouge">LPSTR_TEXTCALLBACK</code> and <code class="highlighter-rouge">LVN_GETDISPINFO</code>.</p>
+
+<p>This article will show how to use <code class="highlighter-rouge">SortItems</code> to sort the items in the list.</p>
+
+<p>Why would we want to do this? If we’d just stored the text in the list control, rather than use <code class="highlighter-rouge">LPSTR_TEXTCALLBACK</code>, it would have sorted for us.</p>
+
+<p>Well, yes it would, but it would have been wrong. In the last article, we used a variety of functions (e.g. <code class="highlighter-rouge">StrFormatKBSize</code>) to produce the strings that went into the list control. When sorting, we’d prefer to order the underlying values, not the formatted text.</p>
+
+<p>This is where <code class="highlighter-rouge">SortItems</code> comes in.</p>
+
+<h2 id="calling-sortitems">Calling SortItems</h2>
+
+<p>When you call <code class="highlighter-rouge">SortItems</code>, you need to pass a comparison function, like this:</p>
+
+<pre>int CALLBACK CompareFunction(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);</pre>
+
+<p><code class="highlighter-rouge">lParam1</code> and <code class="highlighter-rouge">lParam2</code> are the <code class="highlighter-rouge">lParam</code> values from the two items to be compared. <code class="highlighter-rouge">lParamSort</code> is user-defined data passed to <code class="highlighter-rouge">SortItems</code>. The return value of your comparison function should be like that of <code class="highlighter-rouge">strcmp</code>. That is: it should return a negative value if lhs &lt; rhs, a positive value if lhs &gt; rhs, or zero if lhs is equal to rhs.
+Our comparison function looks like this:</p>
+
+<pre>int CALLBACK CompareFunction(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+    int iSubItem = (int)lParamSort;
+
+    const FileItem *item1 = reinterpret_cast&lt;const FileItem *&gt;(lParam1);
+    const FileItem *item2 = reinterpret_cast&lt;const FileItem *&gt;(lParam2);
+
+    switch (iSubItem)
+    {
+    case SUBITEM_NAME:
+        {
+            CString name1 = item1-&gt;GetName();
+            CString name2 = item2-&gt;GetName();
+
+            return name1.CompareNoCase(name2);
+        }
+
+    case SUBITEM_SIZE:
+        {
+            LONGLONG size1 = item1-&gt;GetSize();
+            LONGLONG size2 = item2-&gt;GetSize();
+
+            return (size1 == size2) ? 0 : (size1 &lt; size2) ? -1 : 1;
+        }
+
+    case SUBITEM_MODIFIED:
+        {
+            FILETIME mod1 = item1-&gt;GetModified();
+            FILETIME mod2 = item2-&gt;GetModified();
+
+            return CompareFileTime(&amp;mod1, &amp;mod2);
+        }
+    }
+
+    return 0;
+}</pre>
+
+<p>As you can see, we can use the same function for sorting on each of the different columns if we pass the sub-item ID in <code class="highlighter-rouge">lParamSort</code>. This function also demonstrates how to compare different types of data. Note that the string comparison is not technically correct: it doesn’t take into account locale settings.</p>
+
+<p>We call it from our <code class="highlighter-rouge">HDN_ITEMCLICK</code> handler:</p>
+
+<pre>void CListSortDlg::OnHdnItemclickListctrl(NMHDR *pNMHDR, LRESULT *pResult)
+{
+    LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+
+    int nCol = phdr-&gt;iItem;
+
+    LVCOLUMN column;
+    memset(&amp;column, 0, sizeof(LVCOLUMN));
+    column.mask = LVCF_SUBITEM;
+    VERIFY(m_listCtrl.GetColumn(nCol, &amp;column));
+    int iSubItem = column.iSubItem;
+
+    // We need to sort by iSubItem.
+    VERIFY(m_listCtrl.SortItems(CompareFunction, iSubItem));
+
+    *pResult = 0;
+}&lt;/pre&gt;
+</LPNMHEADER></pre>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

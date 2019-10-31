@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Implementing a paged Options dialog</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
+
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Implementing a paged Options dialog</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2004-10-24 12:42:00 +0000">2004-10-24 12:42:00 +0000</span>
+        
+        <span class="label label-default"><a href="../../../../../tag/csharp">csharp</a></span>
+        
+        <span class="label label-default"><a href="../../../../../tag/windows-forms">windows-forms</a></span>
+        
+    </div>
+    <p></p>
+    <p>Several popular applications implement their options dialog as a collection of pages. Here’s one way to do this in your application.</p>
+
+<p>For example, Internet Explorer uses the familiar tabbed dialog:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=51</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=575</td>
+      <td>height=640]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Visual Studio .NET uses a tree control to organise its options:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=53</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=640</td>
+      <td>height=402]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Mozilla FireFox uses a list control to group its options:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=50</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=640</td>
+      <td>height=524]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>We’ll look at implementing a paged dialog, using a list control, as FireFox does it.</p>
+
+<p>Our overall aim is that we can use the dialog like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>private void toolsOptionsMenuItem_Click(object sender, System.EventArgs e)
+{
+    OptionsDialog dlg = new OptionsDialog();
+    dlg.Pages.Add(new GeneralOptionsPage());
+    dlg.Pages.Add(new DisplayOptionsPage());
+    dlg.Pages.Add(new AdvancedOptionsPage());
+    DialogResult result = dlg.ShowDialog(this);
+}
+</code></pre></div></div>
+
+<p>We’ll have a dialog (here called <code class="highlighter-rouge">OptionsDialog</code>) to which we’ll add the pages, and it’ll be responsible for displaying a list, and switching between them.</p>
+
+<p>First, we need the <code class="highlighter-rouge">OptionsDialog</code> class. It’s a normal dialog, which contains 3 panels. I’ve hilighted the panels in this picture:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=54</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=640</td>
+      <td>height=462]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The panel across the bottom contains the OK and Cancel buttons; the panel on the left contains the ListView control which will display the icons and text; and the panel on the right is empty – it’ll hold the currently active page.</p>
+
+<p>By setting the Dock, DockBorder and Anchor properties of the various controls on the form, we can ensure that this dialog will resize to accomodate different-sized pages. In order to prevent the user resizing the options dialog, we set <code class="highlighter-rouge">FormBorderStyle</code> to <code class="highlighter-rouge">FixedDialog</code>.</p>
+
+<p>We then need to take a look at the code for <code class="highlighter-rouge">OptionsDialog</code>.</p>
+
+<p>The first item is the <code class="highlighter-rouge">Pages</code> collection. It’s nothing particularly clever:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ArrayList _pages = new ArrayList();
+
+public IList Pages
+{
+    get { return _pages; }
+}
+</code></pre></div></div>
+
+<p>This probably ought to be made type-safe in future, but it’ll do for now.
+Each page in this collection will derive from a common base class. Since Windows.Forms doesn’t define one, I’ll call this <code class="highlighter-rouge">PropertyPage</code>, similar to that in Win32.</p>
+
+<p>It looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class PropertyPage : System.Windows.Forms.UserControl
+{
+    // ...
+    public new virtual string Text
+    {
+        get { return this.GetType().Name; }
+    }
+
+    public virtual Image Image
+    {
+        get { return null; }
+    }
+
+    public virtual void OnSetActive()
+    {
+    }
+
+    public virtual void OnApply()
+    {
+    }
+}
+</code></pre></div></div>
+
+<p>More interesting is the code that handles the <code class="highlighter-rouge">Load</code> event:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>private void OptionsDialog_Load(object sender,
+    System.EventArgs e)
+{
+</code></pre></div></div>
+
+<p>First we load a default image to be used in the list box if the page itself doesn’t provide one:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    Bitmap defaultImage = new Bitmap(GetType(),
+        "Bitmaps.NullOptionsPage.bmp");
+    imageList.Images.Add(defaultImage);
+</code></pre></div></div>
+
+<p>Then we iterate over the pages, adding each one to the right-hand panel and to the list box, and working out the size of the largest page, so that we can resize the dialog nicely.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    Size maxPageSize = pagePanel.Size;
+
+    foreach (PropertyPage page in _pages)
+    {
+        pagePanel.Controls.Add(page);
+
+        AddListItemForPage(page);
+
+        if (page.Width &gt; maxPageSize.Width)
+            maxPageSize.Width = page.Width;
+        if (page.Height &gt; maxPageSize.Height)
+            maxPageSize.Height = page.Height;
+
+        page.Dock = DockStyle.Fill;
+        page.Visible = false;
+    }
+</code></pre></div></div>
+
+<p>Note that we set the initial value of <code class="highlighter-rouge">maxPageSize</code> to the size of the right-hand panel. This allows us to control the minimum size of the options dialog, in case the pages are very small.</p>
+
+<p>Note also that we set the <code class="highlighter-rouge">Dock</code> property of each page. More importantly, note that we do this <em>after</em> we’ve looked at its size.</p>
+
+<p>The next few lines resize the Options Dialog so that the largest dialog page fits:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    Size newSize = new Size();
+    newSize.Width = maxPageSize.Width + (this.Width - pagePanel.Width);
+    newSize.Height = maxPageSize.Height + (this.Height - pagePanel.Height);
+
+    this.Size = newSize;
+    CenterToParent();
+</code></pre></div></div>
+
+<p>Finally we select the first item in the list box:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    if (listView.Items.Count != 0)
+        listView.Items[0].Selected = true;
+}
+</code></pre></div></div>
+
+<p>Adding an item to the list box looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void AddListItemForPage(PropertyPage page)
+{
+    int imageIndex = 0;
+
+    Image image = page.Image;
+    if (image != null)
+    {
+        imageList.Images.Add(image);
+        imageIndex = imageList.Images.Count - 1;
+    }
+
+    ListViewItem item = new ListViewItem(page.Text, imageIndex);
+    item.Tag = page;
+    listView.Items.Add(item);
+}
+</code></pre></div></div>
+
+<p>Then, when the user selects an item in the list, we switch out the right-hand page:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PropertyPage _activePage;
+
+private void listView_SelectedIndexChanged(object sender, System.EventArgs e)
+{
+    if (_activePage != null)
+        _activePage.Visible = false;
+
+    if (listView.SelectedItems.Count != 0)
+    {
+        ListViewItem selectedItem = listView.SelectedItems[0];
+        PropertyPage page = (PropertyPage)selectedItem.Tag;
+        _activePage = page;
+    }
+
+    if (_activePage != null)
+    {
+        _activePage.Visible = true;
+        _activePage.OnSetActive();
+    }
+}
+</code></pre></div></div>
+
+<p>Then all we have to is define a couple of pages to go in the options dialog, and we end up with this:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[img_assist</td>
+      <td>nid=52</td>
+      <td>title=</td>
+      <td>desc=</td>
+      <td>link=none</td>
+      <td>align=left</td>
+      <td>width=640</td>
+      <td>height=410]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Source code is <a href="https://github.com/rlipscombe/paged-options-dialog">on github</a>.</p>
+
+</article>
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>
