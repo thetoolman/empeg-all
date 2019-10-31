@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>empeg tools</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2008/05/14/empeg-tools/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>empeg tools</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2008-05-14 06:28:15 +0000">2008-05-14 06:28:15 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <p>In response to <a href="http://empegbbs.com/ubbthreads.php/ubb/showflat/Number/306574">this thread</a> on the empeg BBS, I hacked together a couple of small tools for the empeg car player.</p>
+
+<p>They’re not particularly well-integrated yet, but that’ll come later.</p>
+
+<p>They’re command-line programs, so you’ll need to open a console window before running them. They all require .NET 2.0, which is installed by default on Windows Vista, but you might need to download and install it on other OS versions and editions. They also work fine on Mono.</p>
+
+<h2 id="findempeg">FindEmpeg</h2>
+
+<p>This program looks for empegs on the local network. Run it with no arguments, as follows:</p>
+
+<pre>C:\Temp&gt;FindEmpeg.exe
+crowley at 10.0.0.7
+crowley at 10.0.0.7
+^C</pre>
+
+<p>It’ll scan the local network once every thirty seconds, displaying the empeg’s name and its IP address. Press Ctrl+C to stop it.</p>
+
+<p>Note that the Windows Vista firewall might prompt you to unblock the application. It seems to still work OK even if you don’t.</p>
+
+<h2 id="empegget">EmpegGet</h2>
+
+<p>Given the IP address of the empeg found above, this downloads the database files from the empeg. They’re placed into the current directory (this will be fixed later). Run it as follows:</p>
+
+<pre>C:\Temp&gt;EmpegGet.exe 10.0.0.7
+Getting empeg database from 10.0.0.7
+Copying http://10.0.0.7/empeg/var/database3 to ./database3
+Copying http://10.0.0.7/empeg/var/tags to ./tags
+Copying http://10.0.0.7/empeg/var/playlists to ./playlists</pre>
+
+<p>It requires the following:</p>
+
+<ul>
+  <li>Your empeg must be running v3.0-alpha.</li>
+  <li>Your empeg must be running the Hijack kernel.</li>
+  <li>The HTTP server must be enabled in the Hijack kernel.</li>
+</ul>
+
+<p>You can see if it succeeded, because the database files are placed in the current directory:</p>
+
+<ul>
+  <li>database3</li>
+  <li>playlists</li>
+  <li>tags</li>
+</ul>
+
+<h2 id="empegdump">EmpegDump</h2>
+
+<p>This parses the database files downloaded above and dumps them, in depth-first order, to the screen. I’ll add XML, HTML or XPS output in a later release:</p>
+
+<pre>C:\Temp&gt;EmpegDump.exe
+00000100: empeg-car
+ 00000120: Artists
+  00000130: 1000 Clowns
+   00000140: (Not the) Greatest Rapper
+    00000150: (Not the) Greatest Rapper (LP Version)
+    00000160: (Not the) Greatest Rapper (Instrumental)
+    00000170: Rainy Days (LP Version)
+  000183f0: 2 Many DJ's
+   00018400: As Heard On Radio Soulwax Pt. 2
+    00018410: Peter Gunn (Live) &amp; Where's Your Head At (Head-A-Pella)
+(etc.)</pre>
+
+<p>Each line shows the FID in hex, followed by the title, indented under the parent playlist.</p>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

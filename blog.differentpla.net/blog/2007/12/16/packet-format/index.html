@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Packet format</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2007/12/16/packet-format/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Packet format</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2007-12-16 18:18:47 +0000">2007-12-16 18:18:47 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <p>The format of the packets in the empeg’s TCP/IP protocol owe a lot to the fact that the empeg mk1 communicated over a serial link. This means that there’s a certain amount of cruft still in the protocol.</p>
+
+<p>Most of this information is in the <code class="highlighter-rouge">emptool</code> sources, but I’m going to explain some of it in more detail here.</p>
+
+<p>As revealed by Wireshark, the first thing that emplode asks for is the player’s type. Let’s take a quick look at the request packet:</p>
+
+<pre>02 04 00 07 00 95 00 81 80 07 00 00 00 FC 43</pre>
+
+<p>This breaks down into a header, payload and trailer:</p>
+
+<h2 id="header">Header</h2>
+
+<pre><u>02 04 00 07 00 95 00 81 80</u> 07 00 00 00 FC 43</pre>
+
+<p>All packets start with 0x02. The emptool source code calls this PSOH. This is left over from the serial protocol. It’s a pseudo-SOH (start-of-header). It signals the start of the packet.</p>
+
+<p>The next two bytes (<code class="highlighter-rouge">04 00</code>) are the size of the payload. Note that the empeg protocol is little-endian. This is because the x86 is little-endian, and Linux on the empeg uses the ARM in little-endian mode. It would have been wasteful to convert to network byte order (big-endian) and back again, so everything’s in little-endian.</p>
+
+<p>With that in mind, we can see that the payload is 4 bytes.</p>
+
+<p>The next byte (<code class="highlighter-rouge">07</code>) is the opcode. 0x07 is OP_STATFID, which is used to discover the size of a file on the empeg, so that we can allocate enough memory, and so that we can report progress.</p>
+
+<p>The next byte (<code class="highlighter-rouge">00</code>) is the optype. 0x00 is OPTYPE_REQUEST, so this is a request packet.</p>
+
+<p>The last 4 bytes (<code class="highlighter-rouge">95 00 81 80</code>) are the packet ID. I’ll talk about packet IDs in the future.</p>
+
+<h2 id="payload">Payload</h2>
+
+<pre>02 04 00 07 00 95 00 81 80 <u>07 00 00 00</u> FC 43</pre>
+
+<p>We know from looking at the header that the payload size is 4 bytes. It’s little endian, so it’s a seven.</p>
+
+<h2 id="trailer">Trailer</h2>
+
+<pre>02 04 00 07 00 95 00 81 80 07 00 00 00 <u>FC 43</u></pre>
+
+<p>The trailer is the CRC16 of the packet, starting with the opcode (i.e. opcode, optype, packet id and payload).</p>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>Using rsync to Synchronise empegs</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2002/03/07/using-rsync-to-synchronise-empegs/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>Using rsync to Synchronise empegs</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2002-03-07 12:21:00 +0000">2002-03-07 12:21:00 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <h2 id="introduction">Introduction</h2>
+
+<p>A while ago, I published my <a href="/blog/2002/03/18/lazy-bastards-guide-to-cloning-your-empeg/">Lazy Bastard’s Guide to Cloning your empeg</a>. This has worked successfully for me and other people. However, it has one major limitation – it’s an all-or-nothing operation – it clones the entire empeg. If you add a bunch of tracks to one of your empegs, you end up having to copy <em>all</em> of your tracks again.</p>
+
+<p>In this document, I’ll present an alternative: using <a href="http://rsync.samba.org">rsync</a> to keep a pair of empegs in sync.</p>
+
+<p>This procedure is not without its limitations – it only works one way, so you have to upload your tracks to one of your empegs (call it the master), and then replicate it to the other (the slave). For me, this isn’t a problem.</p>
+
+<h2 id="caveat">Caveat</h2>
+
+<p>This is not for the faint-hearted. If you’re not reasonably competent with Linux (or another Unix), then turn back now.</p>
+
+<h2 id="the-plan">The Plan</h2>
+
+<p>I originally attempted to get rsync working <a href="/rsh-client.html">using rsh</a>. However, I couldn’t get a rsh server working on the empeg, so I gave up. I didn’t try very hard, though, so I may try again later.</p>
+
+<p>Instead, we’ll use rsync as a daemon on one of the empegs, and connect to it from the other.</p>
+
+<h2 id="installing-rsync">Installing rsync</h2>
+
+<p>As with my <a href="/blog/2002/03/18/lazy-bastards-guide-to-cloning-your-empeg/">cloning guide</a>, we’ll grab the .deb files from a Debian mirror, remove the stuff we don’t need, and then send them to the empeg.</p>
+
+<p>For this, you’ll need the <a href="http://ftp.us.debian.org/debian/dists/potato/main/binary-arm/net/rsync_2.3.2-1.2.deb">rsync_2.3.2-1.2.deb</a> file. Extract it, remove the /usr/share parts, and then pack it back up. Send this to the empeg, and then extract it. I generally store the .tar.gz files in /drive0, so that the files don’t get overwritten by upgrades, and I can reinstate the software by unpacking them again.</p>
+
+<p>Anyway, binaries and source are <a href="/~roger/empeg/car/files/">here</a>.</p>
+
+<p>Install rsync on both empegs.</p>
+
+<h2 id="rsyncdconf">rsyncd.conf</h2>
+
+<p>It doesn’t particularly matter whether you run rsync as a daemon on the source empeg or on the destination empeg. In this case, we’ll run it on the source empeg.</p>
+
+<p>The first thing we need is a configuration file. This should be named <code class="highlighter-rouge">/etc/rsyncd.conf</code>:</p>
+
+<pre>log file = /drive0/rsyncd.log
+pid file = /drive0/rsyncd.pid
+uid = root
+gid = root
+
+[drive0]
+    path = /drive0
+    use chroot = no
+    read only = no
+
+[drive1]
+    path = /drive1
+    use chroot = no
+    read only = no</pre>
+
+<p>If you’re planning on running this on the source empeg, then you can remove the “read only” lines.</p>
+
+<h2 id="hostname">hostname</h2>
+
+<p>Because rsync calls <code class="highlighter-rouge">uname(2)</code> to find out the hostname of the empeg, you’ll need to set it first. If you don’t, you’ll see:</p>
+
+<pre>gethostbyname: "Unknown host" (none)</pre>
+
+<p>in the log file.
+The <em>easy</em> way to fix it is to put some stuff in /etc/hosts, like this:</p>
+
+<pre>127.0.0.1 localhost
+my-empeg-ip my-empeg-name (none)</pre>
+
+<p>The <em>right</em> way to fix it is to install <code class="highlighter-rouge">hostname</code>, from <a href="http://ftp.us.debian.org/debian/dists/stable/binary-arm/base/hostname_2.07.deb">hostname_2.07.deb</a>, and then to use this to set the hostname of the empeg that will be running rsync as a daemon. You can grab a copy from <a href="/files/">here</a>.</p>
+
+<p>Even if you fix it the right way, you’ll still need to put some stuff in /etc/hosts, but you can forget the “(none)” hack:</p>
+
+<pre>127.0.0.1 localhost
+192.168.0.1 my-empeg my-empeg.whatever.tld</pre>
+
+<p>Note that the hostname you set with <code class="highlighter-rouge">hostname</code> must be listed in /etc/hosts, or resolvable via DNS.</p>
+<h2 id="uidgid">uid/gid</h2>
+
+<p>Because we’ve specified a uid and gid in rsyncd.conf, we need to make sure that these IDs resolve properly. If we don’t do this, we’ll see “@ERROR: invalid uid” at the client, with a corresponding “Invalid uid root” message in the log file; or the corresponding errors, but with “gid” instead of “uid”.</p>
+
+<p>To fix it:</p>
+
+<pre>$ **echo "root::0:0:root:/:/bin/sh" &gt;&gt; /etc/passwd**
+$ **echo "root:x:0:" &gt;&gt; /etc/group**</pre>
+
+<h2 id="start-the-rsync-daemon">Start the rsync daemon</h2>
+
+<pre>source-empeg:/# **rsync --daemon**</pre>
+
+<p>Note: check that it’s running (using ps), because the rsync daemon isn’t particularly talkative when it bails. If it’s not running, check the log file, and then have a look in the troubleshooting section, below.</p>
+
+<h2 id="start-the-rsync-client">Start the rsync client</h2>
+
+<pre>dest-empeg:/drive0# **rsync -auv --delete rsync://source-empeg/drive0/fids .**</pre>
+
+<p>Do the same, but for drive1.
+Note that the <strong>–delete</strong> removes files from the destination if they’re not present on the source. You might want to throw a <strong>-n</strong> (dry run – display actions without doing them) in there first.</p>
+
+<h2 id="rebuild-the-database">Rebuild the database</h2>
+
+<p>Remove the <code class="highlighter-rouge">database</code>, <code class="highlighter-rouge">playlists</code>, <code class="highlighter-rouge">tags</code> files from <code class="highlighter-rouge">/empeg/var</code> on the destination empeg. Restart the player. It’ll rebuild the database.</p>
+
+<h1 id="troubleshooting">Troubleshooting</h1>
+
+<h2 id="neighbour-table-overflow">neighbour table overflow</h2>
+
+<p>If you get</p>
+
+<pre># **ping toothgnip**
+neighbour table overflow
+ping: sendto: No buffer space available
+ping: wrote toothgnip 64 chars, ret=-1</pre>
+
+<p>…then do this:</p>
+<pre># **ifconfig lo 127.0.0.1**</pre>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>

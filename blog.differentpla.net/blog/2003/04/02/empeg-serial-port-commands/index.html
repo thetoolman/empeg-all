@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>empeg: Serial Port Commands</title>
+<meta name="description" content="Jekyll sources for blog.differentpla.net">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
+<!-- theme is https://bootswatch.com/yeti/ -->
+<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="/css/yeti-custom.css">
+<link rel="stylesheet" href="/css/site.css">
+
+<link rel="canonical" href="http://blog.differentpla.net/blog/2003/04/02/empeg-serial-port-commands/">
+<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+</head>
+
+
+<body>
+
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <article>
+    <h1>empeg: Serial Port Commands</h1>
+    <div class="details">
+        <span class="created_at timeago" title="2003-04-02 10:29:00 +0000">2003-04-02 10:29:00 +0000</span>
+        
+        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        
+    </div>
+    <p></p>
+    <p>You can send the empeg player commands using the serial port. This is a list.</p>
+
+<p>Case is ignored. Some commands do different things, depending on state. Each command usually needs to see LF afterwards.</p>
+
+<h2 id="menu-navigation">Menu Navigation</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>M</td>
+
+<td>Open menu/select menu item</td>
+
+</tr>
+
+<tr>
+<td>*</td>
+
+<td>Cancel menu</td>
+
+</tr>
+
+<tr>
+<td>N</td>
+
+<td>Next menu item</td>
+
+</tr>
+
+<tr>
+<td>P</td>
+
+<td>Previous menu item</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="track-navigation">Track Navigation</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>Space</td>
+
+<td>Play</td>
+
+</tr>
+
+<tr>
+<td>C</td>
+
+<td>Play</td>
+
+</tr>
+
+<tr>
+<td>W</td>
+
+<td>Pause</td>
+
+</tr>
+
+<tr>
+<td>N</td>
+
+<td>Track Forward</td>
+
+</tr>
+
+<tr>
+<td>P</td>
+
+<td>Track Back</td>
+
+</tr>
+
+<tr>
+<td>F</td>
+
+<td>Start Fast Forward</td>
+
+</tr>
+
+<tr>
+<td>B</td>
+
+<td>Start Rewind</td>
+
+</tr>
+
+<tr>
+<td>A</td>
+
+<td>Cancel FFWD/REW</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="visualsinfo">Visuals/Info</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>V</td>
+
+<td>Next Visual</td>
+
+</tr>
+
+<tr>
+<td>S</td>
+
+<td>Next Info</td>
+
+</tr>
+
+<tr>
+<td>D</td>
+
+<td>Next Info</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="quittingrestarting">Quitting/Restarting</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>Q</td>
+
+<td>Quit the player.</td>
+
+</tr>
+
+<tr>
+<td>R</td>
+
+<td>Restart the player.</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="volume-control">Volume Control</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>+</td>
+
+<td>CONTROL_VOLUMEUP</td>
+
+</tr>
+
+<tr>
+<td>-</td>
+
+<td>CONTROL_VOLUMEDOWN</td>
+
+</tr>
+
+<tr>
+<td>K</td>
+
+<td>CONTROL_LOUDNESSDOWN</td>
+
+</tr>
+
+<tr>
+<td>L</td>
+
+<td>CONTROL_LOUDNESSUP</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="input-selector">Input Selector</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>[</td>
+
+<td>CONTROL_EMPEG</td>
+
+</tr>
+
+<tr>
+<td>]</td>
+
+<td>CONTROL_TUNER</td>
+
+</tr>
+
+<tr>
+<td>=</td>
+
+<td>CONTROL_AUX</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="tuner">Tuner</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>]</td>
+
+<td>CONTROL_TUNER</td>
+
+</tr>
+
+<tr>
+<td>`</td>
+
+<td>CONTROL_RADIO_STORE</td>
+
+</tr>
+
+<tr>
+<td>;</td>
+
+<td>CONTROL_TUNEUP</td>
+
+</tr>
+
+<tr>
+<td>.</td>
+
+<td>CONTROL_TUNEDOWN</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<h2 id="miscellaneous">Miscellaneous</h2>
+
+<table>
+<tbody>
+<tr>
+<th>Command</th>
+
+<th>Action</th>
+
+</tr>
+
+<tr>
+<td>*</td>
+
+<td>Mark Track</td>
+
+</tr>
+
+<tr>
+<td>0-9</td>
+
+<td>CONTROL_NUMBER0-CONTROL_NUMBER9</td>
+
+</tr>
+
+<tr>
+<td>\</td>
+
+<td>CONTROL_SLUMBER</td>
+
+</tr>
+
+<tr>
+<td>|</td>
+
+<td>M_COMMAND_CACHE_NOW</td>
+
+</tr>
+
+<tr>
+<td>#_fid_</td>
+
+<td>REPLACE</td>
+
+</tr>
+
+<tr>
+<td>#_fid_-</td>
+
+<td>ENQUEUE</td>
+
+</tr>
+
+<tr>
+<td>#_fid_+</td>
+
+<td>APPEND</td>
+
+</tr>
+
+<tr>
+<td>#_fid_!</td>
+
+<td>INSERT</td>
+
+</tr>
+
+<tr>
+<td>~</td>
+
+<td>SuggestDiskSpinning</td>
+
+</tr>
+
+<tr>
+<td>@</td>
+
+<td>EnsureDiskSpinning</td>
+
+</tr>
+
+<tr>
+<td>%</td>
+
+<td>CONTROL_SHUFFLE</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</article>
+
+</div>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.timeago').timeago();
+        $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
+            $(this).append(
+            '<a class="anchorlink" title="Link to ' +
+                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+            });
+        });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40120477-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+
+</html>
