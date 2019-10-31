@@ -1,0 +1,52 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (Win98; U) [Netscape]">
+   <title>Linux empsync - manage Empeg music files</title>
+</head>
+<body>
+
+<h2> empsync -- mirror .mp3 files from Linux
+to the <a href="http://www.empeg.com">Empeg car player</a>.</h2>
+This is a hacked-up front end to "<tt>emptool-1.01</tt>"
+(from Empeg), which will mirror the contents of a Linux <tt>/mp3/artists/_all/</tt>
+hierarchy onto an /artists/all playlist on the Empeg car player unit.
+<p><a href="empsync.help">Read the (built-in) helpfile</a> first,
+<br>Or <a href="empsync">fetch the code</a>
+(single large gawk script), make it executable (<tt>chmod +x empsync</tt>),
+and then run it by name.
+<p>By default, it just prints out the built-in help and quits.&nbsp;&nbsp;
+When run with appropriate options, it inspects your .mp3 files, compares
+them with the Empeg, and uses <tt>emptool-1.01</tt> to prepare to update
+the Empeg as needed.&nbsp; No changes are actually done unless the "sync"
+option is also specified on the <tt>empsync</tt> command line.
+<p>WARNING: perform several trial runs (without the "sync" option)
+<br>to see what might happen <u>before</u> allowing it to
+totally mess up your
+<br>Empeg musical playlists (<i>not likely, but there may be bugs</i>).
+<p>Use at your own risk -- I do, and it works for me.&nbsp; YMMV.
+<p><tt>cat curses > /dev/null</tt>
+<br><tt>cat praise suggestions | mail</tt> <a href="mailto:mlord@pobox.com">mlord@pobox.com</a>
+<p>I have other improvements under development, including
+the ability to auto-generate alphabetical artist grouping and random album/track/genre
+playlists for the Empeg.
+<p>The current plan is for the playlist hierarchy to look
+something like:
+<br>&nbsp;<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/artists/_all/&lt;artists>/&lt;albums>/&lt;songs></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /artists/A-D/&lt;artists></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /artists/E-K/&lt;artists></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /artists/L-S/&lt;artists></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /artists/T-Z/&lt;artists></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /random/tracks/&lt;all_songs_shuffled></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /random/albums/&lt;all_albums_shuffled></tt>
+<p>All entries outside of /artists and /random are left alone
+by the toolset,
+<br>allowing user customizations to co-exist with the auto-generated stuff.
+<p>Enjoy!
+<p>Mark Lord
+<br>(the original Linux IDE guy)
+<br>&nbsp;
+</body>
+</html>

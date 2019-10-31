@@ -1,0 +1,104 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Detailed VolAdj Parameters</title>
+</head>
+<body bgcolor=white>
+<A HREF=index.html><IMG SRC=up.jpg BORDER=1 align=top></A>
+<A href="http://sourceforge.net"><IMG src="http://sourceforge.net/sflogo.php?group_id=43347&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+<h2>
+Detailed VolAdj Parameters
+</h2>
+Voladj parameters can be tweaked in the config.ini file, using sets of five integers, as follows:
+<pre style=\"font-family: monospace, Courier\">
+	voladjlow=0x1800,100,0x1000,25,60    ;default value shown
+	voladjmed=0x2000,409,0x1000,27,70    ;default value shown
+	voladjhigh=0x2000,3000,0xc00,30,80   ;default value_shown
+</pre>
+The meaning of each of these is described below:
+<h4>factor/second</h4>
+The rate of change of the volume. Expressed as a fixed point number, with the point 16 bits in. e.g. a factor of
+two per second would be (2 << 16) 
+
+<h4>minimum volume</h4>
+This is the smallest volume that you would you like to hear, in sample size. 
+
+<h4>headroom</h4>
+After calculating the multiplier, it will be multiplied by this factor. This has the effect that large samples (especially
+freak samples) are less likely to cause radical volume changes to avoid clipping. Expressed as a fixed point number like
+factor/second. e.g. 0.75 is (3 << 14), 0.5 is (1 << 15) 
+
+<h4>real silence</h4>
+If the maximum sample size for a chunk is less than this amount, then it is assumed to be silence, so the volume is
+gradually reduced back to normal. Expressed as a sample size. 
+
+<h4>fake silence</h4>
+If the maximum sample size for a chunk is equal to this amount, then it will try to scale it to the "minimum volume"
+parameter above. If the size is between real silence and fake silence, it is treated as though it was fake silence. 
+<hr>
+<h2>From The files of Tony Fabris:,</h2>
+<p>
+From my old "Picker and Voladj for Dummies" readme file: 
+<p>
+The first parameter is the "factor per second". 
+This is then shifted left 16 bits and expressed as 
+an int. So to make voladj turn up the volume so 
+that the output is increased by a factor of two 
+every second, you set this to (2 << 16). Weird 
+things can happen if you set this very high or 
+very low, but it should be OK to give it sensible 
+values. 
+<p>
+The second parameter is the minimum volume. It 
+attempts to make this the quietest thing you hear. 
+The units are sample magnitudes. If you set this 
+to 0, then none of the other parameters should 
+have any effect. If you set it to (1<<15)-1 then 
+in theory everything should be the same volume, 
+but more likely is that my log routines would get 
+confused. Best to stick with numbers less than 
+30000, I think. 
+<p>
+The third parameter is the "headroom". This 
+attempts to reduce the number of times that a 
+hasty volume correction is needed to prevent 
+clipping. This is a fraction between 0 and 1, 
+shifted left 16 bits and converted to an int.
+You should probably set this to 1 << 16. 
+<p>
+The fourth parameter (real_silence) is the sample 
+magnitude below which we assume that there is no 
+listenable music present, so we gradually turn the 
+volume back down. 
+<p>
+The fifth parameter (fake_silence) is the sample 
+magnitude that will get mapped to minvol. This 
+must be greater than real_silence.
+<p>
+If your samples are between real_silence and 
+fake_silence, then they are treated as if they 
+were of magnitude fake_silence. 
+<p>
+Note: 
+Pass in the left shifted values (0x20000 for the 
+first parameter). In an attempt to make it a bit 
+easier to remember, sample magnitudes are just 
+raw, and (possibly) fractional values are 
+expressed as fixed point, with 16 bits to the 
+right of the point. 
+<p>
+Editor's note: In the descriptions above, notations such 
+as "2 << 16" represent a Left Bitshift operation. For 
+instance, "2 << 16" represents 2 left-shifted 16 bits, 
+which works out to hexadecimal 0x20000 or decimal 131072. 
+<p>
+You can pass either the 
+hexadecimal values ( 0x20000 ) on the command line or their 
+decimal equivalents ( 131072 ).  When using the hex values,
+make sure to precede them with the 
+"0x" prefix so that the software knows it's a hex number. 
+Note that you can use the Windows Calculator in Scientific 
+mode to convert numbers between decimal and hexidecimal if 
+you need to. 
+</body>
+</html>

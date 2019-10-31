@@ -1,0 +1,77 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <title>Hijack Kernel Feature List</title>
+</head>
+<body bgcolor=white>
+<A HREF=index.html><IMG SRC=up.jpg BORDER=1 align=top></A>
+<A href="http://sourceforge.net"><IMG src="http://sourceforge.net/sflogo.php?group_id=43347&type=1" width="88" height="31" border="0" alt="SourceForge Logo"></A>
+<h2>
+[ir_translate] Support For The Sony Stalk
+</h2>
+As of v245, Hijack now includes full support for the Sony Stalk interface.
+
+If you have a Sony "Rotary Commander" RM-X4S connected to a Tuner module,
+then Hijack can intercept and translate the various buttons on the device,
+similar to the way it handles buttons on the IR remotes.
+<p>
+The Stalk has ten individual buttons, plus a shift function,
+giving a total of twenty assignable actions.  These can be referenced
+in the [ir_translate] section using the following button "names":
+<pre style=\"font-family: monospace, Courier\">
+KOff KSource KAtt KFront KNext KPrev KVolUp KVolDown KRear KBottom
+</pre>
+Buttons pressed while the "Vol" knob is pressed in ("shifted")
+are mapped to the following codes.  In this way, the "shift" function
+of the Stalk is kept distinct from the "Shift state" functionality
+of Hijack's pre-existing [ir_translate] functionality:
+<pre style=\"font-family: monospace, Courier\">
+KSOff KSSource KSAtt KSFront KSNext KSPrev KSVolUp KSVolDown KSRear KSBottom
+</pre>
+The Front, Bottom, and Rear names refer to the three unlabelled buttons on the Stalk.
+Next and Prev refer to the Seek rotary, and the rest are pretty much as factory labelled
+on the Stalk.  Hijack automatically compensates for "left" mounted operations,
+which can be specified in config.ini using Emplode.
+<p>
+These button names can be used like any other buttons in the [ir_translate] section of config.ini
+<h2>Related config.ini stuff</h2>
+In addition to the new button names, there are a few related options for the [hijack]
+section of config.ini<pre style=\"font-family: monospace, Courier\">
+	[hijack]
+	stalk_debug=1	;; dump out all intercepted/generated stalk packets
+
+	;; Min/max A/D pairs for all ten buttons on a Right mounted Stalk
+	;; Button order is: KOff,KSource,KAtt,KFront,KNext,KPrev,KVolUp,KVolDown,KRear,KBottom
+	stalk_rhs=aa,aa,bb,bb,cc,cc,dd,dd,ee,ee,ff,ff,gg,gg,hh,hh,ii,ii,jj,jj
+
+	;; min/max A/D pairs for all ten buttons on a Left mounted Stalk
+	;; In real-life, each digit pair will typically be given in hex, with 0x in front of the two digits.
+	stalk_lhs=aa,aa,bb,bb,cc,cc,dd,dd,ee,ee,ff,ff,gg,gg,hh,hh,ii,ii,jj,jj
+
+	;; Here are the built-in factory defaults for a Right-Hand-Side stalk:
+	stalk_rhs=0x00,0x07,0x10,0x1c,0x24,0x30,0x34,0x40,0x42,0x4e,0x54,0x60,0x68,0x74,0x7e,0x8a,0x94,0xa0,0xa0,0xb5
+
+	;; Real-life example for Roger's modified Ford Escort stalk clone:
+	;; (not all buttons are usable here, as you can see from the 0xff,0xff pairs:
+	stalk_lhs=0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x3c,0x3e,0x5d,0x5f,0x21,0x23,0x0c,0x0e,0xff,0xff,0xff,0xff
+</pre>
+<h2>Additional Notes</h2>
+Each of those labelled buttons (KOff,KSource,...) on the Stalk are implemented in hardware with a simple resistor and a switch. The stalk interface consists of three wires: Power supply out, and two returns: one return from the "Shift" switch, and another from all of the buttons wired together. What the software sees, is an A/D conversion value based on the size of resistor attached to the button that is being pressed. This gives a number in the range 00..255. Different resistors give different numbers. Even the same resistors can give different numbers, depending upon component variations, and environmental conditions (temperature), quality of the electrical connections, etc..
+<p>
+There is a default "range" of acceptable A/D values from each button, wired into the player software, and also now in Hijack (the same for both).
+<p>
+The stalk_lhs and stalk_rhs parameters in config.ini allow the advanced user to override the built-in A/D values with a custom set of ranges, two numbers (low,high) per button. This allows compensating for an out-of-spec Stalk, or even use of a third-party (or hacked together) stalk-style control that plugs into the same hardware interface.
+<p>
+The reason for separate stalk_lhs (Left Hand Side) and stalk_rhs (Right Hand Side) values is just a coding convenience within Hijack.
+<p>
+Here is the default (built-in) setting for stalk_rhs:
+<pre style=\"font-family: monospace, Courier\">
+stalk_rhs=0x00,0x07,0x10,0x1c,0x24,0x30,0x34,0x40,0x42,0x4e,0x54,0x60,0x68,0x74,0x7e,0x8a,0x94,0xa0,0xa0,0xb5
+</pre>
+Note that the final two buttons listed overlap -- which is an error, but that's what the documentation on RioCar.Org claims for the player software, so the bug is faithfully duplicated in Hijack.
+<p>
+The Hijack Button Codes Display (from the Hijack menu) can be used to display Stalk codes as the buttons are pressed.
+<p>
+That's all for now.  A volunteer to update this would be appreciated.
+</body>
+</html>

@@ -1,0 +1,50 @@
+
+Empeg synchronization tool for GNU/Linux
+Version 2.3,  (C) Mark Lord,  17-Apr-2002
+
+Usage:  empsync [options] [sync]
+
+Where:  audit      == audit only (default)
+        upload     == audit + upload new/modified tracks
+        upload=n   == audit + upload only "n" (or fewer) tracks
+        info       == audit + update existing track info
+        sort       == audit + force song order by tracknr
+        dsort      == audit + sort playlists alphabetically
+        nodel      == do not delete any tunes from the player
+        sync       == audit + commit changes
+        verbose    == show all interactions with 'emptool'
+        /dev/xxxx  == use empeg connected to this device
+        nn.nn.nn.nn == use empeg connected to this IP address
+        serial     == use empeg connected to /dev/ttyS0
+        usb        == use empeg connected to /dev/ttyUSB0
+
+This command is used to mirror the /mp3/all directory
+from the host filesystem onto the /all playlist (directory)
+on the Empeg car player.  No other playlists on the Empeg are affected
+by ANY of the operations performed herein.
+
+Music files within the host /mp3 filesystem should be organized/named as:
+
+          /mp3/all/<group>/<album>/<tracknr> - <song>.mp3
+    or    /mp3/all/<group>/<album>/<tracknr>.<song>.mp3
+
+All characters except '/', '"', '{', '}' are valid in pathnames.
+Underscores are converted to spaces when uploading playlists and files.
+
+To identify the artist for an individual song as being different from
+the "group" of the album, the artist name may be embedded within braces:
+
+          /mp3/all/<group>/<album>/<tracknr>.<song>{artist}.mp3
+    or    /mp3/all/<group>/<album>/<tracknr>.{artist}<song>.mp3
+
+Because the TAG fields within the .mp3 files are often abbreviated
+(and 'emptool-1.0' doesn't support ID3v2 completely), all music uploaded
+is named using the Linux filesystem name info (above) rather than the TAGs.
+
+The "info" option can be used to rename existing music in the same way.
+
+No changes are made on the Empeg itself unless "sync" is specified.
+A trial run, without "sync", is recommended for the first few runs.
+
+Requires an executable copy of '' somewhere in the user's PATH.
+

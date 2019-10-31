@@ -1,0 +1,676 @@
+#!/bin/gawk -f
+
+function print_help_and_exit(rc)
+{
+	print "";
+	print "Empeg synchronization tool for GNU/Linux";
+	print "Version 2.3,  (C) Mark Lord,  17-Apr-2002";
+	print "";
+	print "Usage:  empsync [options] [sync]";
+	print;
+	print "Where:  audit      == audit only (default)";
+	print "        upload     == audit + upload new/modified tracks";
+	print "        upload=n   == audit + upload only \"n\" (or fewer) tracks";
+	print "        info       == audit + update existing track info";
+	print "        sort       == audit + force song order by tracknr";
+	print "        dsort      == audit + sort playlists alphabetically";
+	print "        nodel      == do not delete any tunes from the player";
+	print "        sync       == audit + commit changes";
+	print "        verbose    == show all interactions with 'emptool'";
+	print "        /dev/xxxx  == use empeg connected to this device";
+	print "        nn.nn.nn.nn == use empeg connected to this IP address";
+	print "        serial     == use empeg connected to /dev/ttyS0";
+	print "        usb        == use empeg connected to /dev/ttyUSB0";
+	print "";
+	print "This command is used to mirror the /mp3/all directory";
+	print "from the host filesystem onto the /all playlist (directory)";
+	print "on the Empeg car player.  No other playlists on the Empeg are affected";
+	print "by ANY of the operations performed herein.";
+	print "";
+	print "Music files within the host /mp3 filesystem should be organized/named as:";
+	print "";
+	print "          /mp3/all/<group>/<album>/<tracknr> - <song>.mp3";
+	print "    or    /mp3/all/<group>/<album>/<tracknr>.<song>.mp3";
+	print "";
+	print "All characters except '/', '\"', '{', '}' are valid in pathnames.";
+	print "Underscores are converted to spaces when uploading playlists and files.";
+	print "";
+	print "To identify the artist for an individual song as being different from";
+	print "the \"group\" of the album, the artist name may be embedded within braces:";
+	print "";
+	print "          /mp3/all/<group>/<album>/<tracknr>.<song>{artist}.mp3";
+	print "    or    /mp3/all/<group>/<album>/<tracknr>.{artist}<song>.mp3";
+	print "";
+	print "Because the TAG fields within the .mp3 files are often abbreviated";
+	print "(and 'emptool-1.0' doesn't support ID3v2 completely), all music uploaded";
+	print "is named using the Linux filesystem name info (above) rather than the TAGs.";
+	print "";
+	print "The \"info\" option can be used to rename existing music in the same way.";
+	print "";
+	print "No changes are made on the Empeg itself unless \"sync\" is specified.";
+	print "A trial run, without \"sync\", is recommended for the first few runs.";
+	print "";
+	print "Requires an executable copy of '"invoke_emptool"' somewhere in the user's PATH.";
+	print "";
+	exit rc;
+}
+
+##################################################################################
+
+## BUGS: "emptool ls -elr" fails to list empty playlists to us,
+##       so we don't see them and thus don't clean them up.
+##       This could someday be fixed by doing ls manually on each directory.
+
+##################################################################################
+
+function emptool_fifo_prompt()
+{
+	if (config_verbose)
+		printf emptool_cwd;
+}
+
+function emptool_fifo_close()
+{
+	emptool_fifo_open=0;
+	close(emptool_fifo);
+	system("/bin/rm "emptool_fifo);
+}
+
+function emptool_fifo_execute(command,  line,a,f1,f12)
+{
+	## The command prompting from emptool is unpredictable.
+	## We fix it, making it more predictable,
+	## by appending an "invalid" command to every operation.
+	## This way, we can just do getlines until the error msg.
+
+	delete emptool_fifo_out;
+	emptool_fifo_count=0;
+	emptool_fifo_out[0]=" ";
+	print command "invalid" | emptool_pipe;
+	do {
+		if (getline < emptool_fifo <= 0) {
+			print "ERROR: read from fifo failed; emptool probably died!"
+			exit 1;
+		}
+		line=$0;
+		while (substr(line,1,length(emptool_cwd)) == emptool_cwd) {
+			line=substr(line,length(emptool_cwd)+1);
+			while (length(line) > 0 && substr(line,1,1) == " ") {
+				line=substr(line,2);
+			}
+		}
+		delete a;
+		split(line,a);
+		f1=a[1];
+		f12=a[1]" "a[2];
+		if (f1 == "2403") {
+			emptool_cwd=substr($0,index($0,"\"")+1);
+			emptool_cwd=substr(emptool_cwd,1,length(emptool_cwd)-1)">";
+		}
+		if (f12 == "Connection closed") {
+			emptool_fifo_close();
+			return;
+		}
+		if (f1 != "" && f1 != "expand:" && f12 != "4400 Unknown") {
+			emptool_fifo_out[++emptool_fifo_count]=line;
+			##  if (config_verbose || substr(line,1,2) == "21")
+			if (config_verbose || (match(line,"^[0-9][0-9][0-9][0-9] ") == 1 && f1 != "2402" && f1 != "2403" && f1 != "2404" && f1 != "4404")) {
+				print line;
+			}
+		}
+	} while (f12 != "4400 Unknown");
+}
+
+function emptool_fifo_init()
+ {
+	emptool_fifo="/tmp/emptool_fifo"PROCINFO["pid"];
+	emptool_pipe=invoke_emptool" >"emptool_fifo;
+	system("/usr/bin/mkfifo "emptool_fifo " 2>/dev/null");
+	emptool_cwd="/>";
+	emptool_fifo_open=1;
+	emptool_fifo_execute("");
+	emptool_fifo_prompt();
+}
+
+function emptool_fifo_send(command, a)
+{
+	split(command,a);
+	if (emptool_fifo_open) {
+		## Gets confused on invalid commands, so we prevent them completely
+		if (config_verbose)
+			print command;
+		if (index(" help ls cd mklist link rm repair upload lookup set unset move config sync quit ",a[1])) {
+			emptool_fifo_execute(command"\n");
+		} else if (command != "") {
+			print "ERROR: Unknown emptool command: " command;
+			emptool_fifo_close();
+			exit 1;
+		}
+		emptool_fifo_prompt();
+	} else if (a[1] != "quit") {
+		print "ERROR: emptool fifo has shutdown: "command;
+		exit 1;
+	}
+}
+
+##################################################################################
+
+## remove leading/trailing spaces
+function strip(s)
+{
+	if (length(s)) {
+		gsub("^ *","",s);
+		gsub(" *$","",s);
+	}
+	return s;
+}
+
+function rm_playlist(fid,title,   i)
+{
+	if (config_rm_okay) {
+		sub("/$","",title);
+		nuked[title]=1;
+		print "NUKING:   "title;
+		delete mp3_dir_list[title];
+		if (fid != "")
+			sub("/[^/]*$","/",title);
+		out[++nout]="rm -r \""title fid"\"";
+	}
+}
+
+function rm_tune(fid,title,cur_playlist)
+{
+	if (config_rm_okay) {
+		delete mp3_file[title];
+		out[++nout]="rm    \""cur_playlist"/" fid"\"";
+		if (--playlist_size[cur_playlist] <= 0) {
+			print "EMPTYDIR: "cur_playlist;
+			rm_playlist(fid,cur_playlist);
+		}
+	}
+}
+
+function bquote(s)
+{
+	s=strip(s);
+	gsub(" ","\\ ",s);
+	return s;
+}
+
+function prune_tree(line,    d1,d2,nfields,fid,type,size,title,song)
+{
+	## Parse the input line, isolating each field
+	nfields=split(line,fields);
+	fid=fields[1];
+	type=fields[2];
+	size=fields[nfields];
+	if (!index(line,"/")) {
+		print "ERROR: no pathname: "line;
+		exit 1;
+	}
+	title=line;
+	sub("[^/]*/","/",title);
+	sub("[ /]*"size"$","",title);
+
+	## Ignore everything except for the master directory
+
+	if (substr(title"/",1,length(music_dir)+1) != music_dir"/") {
+		print "nomatch: "title;
+		return;
+	}
+	playlist_exists[top_dir] = 1;
+	playlist_exists[music_dir] = 1;
+	## Beware of multiple occurances of the same fid
+	if (types[fid] != "") {
+		print "ERROR: duplicate FID: "line;
+		return;		## exit 1 ??
+	}
+
+	if (type == "playlist") {
+		cur_playlist=title;
+		if (index(title,"\"")) {
+			print "DQUOTE:   "title;
+			rm_playlist(fid,title);
+			return;
+		} else if (mp3_dir_list[title] == "") {
+			print "NOTFOUND: "title;
+			rm_playlist(fid,title);
+			return;
+		} else if (size == 0) {
+			print "EMPTYDIR: "title;
+			rm_playlist(fid,title);
+			return;
+		}
+		#if (config_dsort) {
+		#	out[++nout]="set options= \""title"\"";
+		#}
+		playlist_exists[title]=1;
+		playlist_size[title]=size;
+	} else if (type != "tune") {
+		print "ERROR: unknown type: " line;
+		exit 1;
+	} else {
+		if (prev_type == "playlist")
+			albums[++nalbums]=fid;
+		if (substr(title,1,length(cur_playlist)+1) != cur_playlist"/") {
+			print "ERROR: playlist mismatch: "line;
+			print "ERROR: cur_playlist:      "cur_playlist;
+			print "ERROR: title:             "title;
+			exit 1;
+		}
+		if (nuked[cur_playlist])
+			return;
+		song=substr(title,length(cur_playlist"/")+1);
+		my_index=title" "size;
+		if (index(song,"\"")) {
+			print "DQUOTE:   "title;
+			rm_tune(fid,title,cur_playlist);
+			return;
+		} else if (index(song,"{") || index(song,"}")) {
+			print "BRACKET:  "title;
+			rm_tune(fid,title,cur_playlist);
+			return;
+		} else if (index(song,"/")) {
+			print "SLASH:    "title;
+			rm_tune(fid,title,cur_playlist);
+			return;
+		} else if (mp3_file[my_index] == "") {
+			print "NOTFOUND: "title;
+			rm_tune(fid,title,cur_playlist);
+			return;
+		} else {
+			++empeg_tunecount;
+			if (size != mp3_size[my_index]) {
+				print "NEWSIZE: old="size",new="mp3_size[my_index]", "title;
+				if (config_upload) {
+					out[++nout]="rm    \""cur_playlist"/"fid"\"";
+					return;
+				}
+			}
+			mp3_fid[my_index]=fid;
+			fid_tracknr[fid]=mp3_tracknr[my_index];
+			if (config_info) {
+				print "SETINFO:  "title;
+				out[++nout]="set title="bquote(mp3_title[my_index])" \""cur_playlist"/"fid"\"";
+				out[++nout]="set artist="bquote(mp3_artist[my_index])" \""cur_playlist"/"fid"\"";
+				out[++nout]="set tracknr="bquote(mp3_tracknr[my_index])" \""cur_playlist"/"fid"\"";
+				out[++nout]="set source="bquote(mp3_album[my_index])" \""cur_playlist"/"fid"\"";
+				out[++nout]="set codec=mp3 \""cur_playlist"/"fid"\"";
+				out[++nout]="unset year \""cur_playlist"/"fid"\"";
+				## Other attributes used by the player:
+				# copyright: 0=none or 1=yes
+				# marked: "" or "yes"
+				# play_count: nnn (number of times track has been played with v2.x player s/w)
+				# skipped_count (number of times track was skipped with v2.x player s/w)
+				# codec: "mp3", "wma", or "wav"
+				# genre: (string)
+				# comment: (string)
+			}
+		}
+	}
+	types[fid]=type;
+	prev_type=type;
+}
+
+## This routine parses the host /mp3 filesystem,
+## recording all songs titles in a format for later comparism
+## with those found on the Empeg unit.
+##
+function find_host_mp3_files(    find_mp3,mp3file,path,song,tracknr,album,group,artist,empeg_name)
+{
+	if (config_verbose)
+		print "Searching for .mp3 music files under "mp3_prefix music_dir;
+	mp3_count=0;
+	find_mp3="/usr/bin/find "mp3_prefix music_dir"/ -type f -name \\*.mp3 -printf '%s %p\n' | sort -fk2";
+	while (find_mp3|getline > 0) {
+		mp3file=substr($0,index($0," ")+1);
+		size=$1;
+		path=substr(mp3file,length(mp3_prefix)+1+length(music_dir)+1);
+		## Get rid of excess spaces and underscores
+		gsub("_"," ",path);
+		gsub("  *"," ",path);
+		gsub("/ *","/",path);
+		gsub(" */","/",path);
+		sub(" *$","",path);
+		path=music_dir"/"path;
+
+		## Separate the song from the path:
+		song=path;
+		sub("/[^/]*$","",path);
+		sub(".*/","",song);
+		sub(" *[.]mp3$","",song);
+
+		## Separate the tracknr from the song
+		tracknr=song;
+		sub("[^0-9].*","",tracknr);
+		if (tracknr == "")
+			tracknr="";
+		sub("^[0-9]+[-. ]*","",song);
+
+		## Extract the album from the path
+		album=path;
+		sub(".*/","",album);
+
+		## Extract the group from the path
+		group=path;
+		sub("/[^/]*$","",group);
+		sub(".*/","",group);
+
+		## Separate the {artist} from the song, using the group as a default
+		artist=song"{"group"}";
+		sub("[^{]*[{]","",artist);
+		sub("[}].*$","",artist);
+		sub("[- ]*[{].*[}][- ]*","",song);
+
+		empeg_name=path"/"song" "size;
+		mp3_dir_list[path]=1;
+		mp3_file[empeg_name]=mp3file;
+		mp3_size[empeg_name]=size;
+		mp3_inorder[++mp3_count]=empeg_name;
+		mp3_playlist[empeg_name]=path;
+		mp3_artist[empeg_name]=artist;;
+		mp3_album[empeg_name]=album;;
+		mp3_tracknr[empeg_name]=tracknr;;
+		mp3_title[empeg_name]=song;;
+	}
+	close(find_mp3);
+	print "LINUX: Found "mp3_count" .mp3 files under "mp3_prefix music_dir"/";
+}
+
+## This routine does the equivalent of a blind "mkdir -" and "cd"
+## to a playlist (directory) on the Empeg.
+##
+function cd_playlist(playlist,   path,part,tail)
+{
+	if (playlist == cwd_playlist)
+		return;
+	cwd_playlist = playlist;
+	path=cwd_playlist;
+	if (path == "/") {
+		emptool_fifo_send("cd /");
+		return;
+	}
+	sub("/$","",path);
+	while (path != "" && !playlist_exists[path]) {	## was: path != "/"
+		part=path;
+		gsub(".*/","",part);
+		gsub("/[^/]*$","",path);
+		tail=part"/"tail;
+	}
+	emptool_fifo_send("cd \""path"\"");
+	while (tail != "") {
+		part=substr(tail,1,index(tail"/","/")-1);
+		tail=substr(tail,length(part)+2);
+		emptool_fifo_send("mklist -p \""part"\"");
+		emptool_fifo_send("cd  \""part"\"");
+		path=path"/"part;
+		playlist_exists[path]=1;
+	}
+	return;
+}
+
+
+## This routine sorts the tunes within a playlist by tracknr,
+## or alphabetically if the playlist contains just other playlists.
+##
+function sort_playlist(      x,line,pcount,sort,count)
+{
+	if (config_verbose)
+		print "";
+	print "SORTING:  "cwd_playlist;
+	sort="awk 'BEGIN{";
+	emptool_fifo_send("move -l * /tmp");
+	count=0;
+	while (emptool_fifo_count > 0) {
+		line=emptool_fifo_out[emptool_fifo_count--];
+		delete x;
+		split(line,x);
+		if (x[2] == "tune") {
+			++count;
+			tracknr=fid_tracknr[x[1]];
+			sub("^[0-9]$","0&",tracknr);
+			sort=sort"print \""x[1]" "tracknr"\";";
+		} else if (x[2] == "playlist") {
+			++count;
+			sub(".*/","",line);
+			sub(" *[^ ]*$","",line);
+			gsub("[^a-zA-Z0-9_]","",line);
+			sort=sort"print \""x[1]" 0 "line"\";";
+		} else if (x[1] == "2402") {
+			if (x[4] != count) {
+				print "ERROR: Huh? 'mv -l' claims "x[4]" items, but we got "count
+				exit 1;
+			}
+		} else {
+			print "ERROR: unexpected response: "line
+			exit 1;
+		}
+	}
+	sort=sort"exit;}'|sort -fk2";
+	while (sort | getline > 0)
+		emptool_fifo_send("move /tmp/"$1" .");
+	close(sort);
+}
+
+## Here, we upload any new/missing/replaced tunes to the Empeg
+##
+function upload_new_tunes(mp3_count,    song,fid,playlist,i)
+{
+	while (mp3_count > 0) {
+		song=mp3_inorder[mp3_count--];
+		fid=mp3_fid[song];
+		if (fid == "") {
+			playlist=mp3_playlist[song];
+			cd_playlist(playlist);
+			print "UPLOAD:   "song;
+			emptool_fifo_send("upload -l \""mp3_file[song]"\"");
+			for (i=1; fid == "" && i <= emptool_fifo_count; ++i) {
+				if (substr(emptool_fifo_out[i],1,5) == "2402 ") {
+					fid=emptool_fifo_out[i+1];
+				}
+			}
+			sub(" *","",fid);
+			sub(" .*","",fid);
+			new_fids[song]=fid;
+			fid_tracknr[fid]=mp3_tracknr[song];
+			emptool_fifo_send("set title="bquote(mp3_title[song])" "fid);
+			emptool_fifo_send("set artist="bquote(mp3_artist[song])" "fid);
+			emptool_fifo_send("set tracknr="bquote(mp3_tracknr[song])" "fid);
+			emptool_fifo_send("set source="bquote(mp3_album[song])" "fid);
+			emptool_fifo_send("set codec=mp3 "fid);
+			emptool_fifo_send("unset year "fid);
+			if (--config_upload <= 0)
+				break;
+		}
+	}
+	config_upload=1;
+}
+
+## This implements the "sort" and "dsort" functions,
+## as well as forcing a "sort" on any playlists to which
+## tunes were freshly uploaded.
+##
+function sort_stuff(mp3_count,   song,fid,forced,force_sort,playlist,i)
+{
+	forced=0;
+	emptool_fifo_send("mklist -p tmp");
+	while (mp3_count > 0) {
+		song=mp3_inorder[mp3_count--];
+		fid=mp3_fid[song];
+		force_sort=0;
+		if (fid == "" && config_upload) {
+			fid=new_fids[song];
+			force_sort=1;
+			forced=1;
+		}
+		if (fid != "") {
+			if (config_sort || force_sort) {
+				playlist=mp3_playlist[song];
+				if (!sorted[playlist]) {
+					sorted[playlist]=1;
+					cd_playlist(playlist);
+					sort_playlist();
+				}
+			}
+			if (config_dsort) {
+				playlist=mp3_playlist[song];
+				gsub("/[^/]*$","",playlist);
+				if (!sorted[playlist]) {
+					cd_playlist(playlist);
+					sort_playlist();
+					sorted[playlist]=1;
+				}
+			}
+		}
+	}
+	if (config_dsort || forced) {
+		cd_playlist(music_dir);
+		sort_playlist();
+		sorted[music_dir]=1;
+	}
+	emptool_fifo_send("cd /");
+	emptool_fifo_send("move tmp/* \"Unattached items\"");
+	emptool_fifo_send("rm -r tmp");
+}
+
+function audit_empeg_music_directory(    get_tree)
+{
+	get_tree="echo ls -lr "music_dir" | "invoke_emptool;
+	while (get_tree|getline > 0 && $1 != "2402");
+	while (get_tree|getline > 0) {
+		if (NF > 1 && $1 != "/>") {
+			prune_tree($0);
+		}
+	}
+	close(get_tree);
+}
+
+function parse_args(    i)
+{
+	config_audit=0;
+	config_upload=0;
+	config_info=0;
+	config_sort=0;
+	config_dsort=0;
+	config_sync=0;
+	config_verbose=0;
+	config_rm_okay=1;
+	config_dev="";
+
+	if (ARGC < 2)
+		print_help_and_exit(1);
+	for (i=1; i< ARGC; ++i) {
+		       if (ARGV[i] == "upload") {
+			config_upload=999999;
+		} else if (substr(ARGV[i],1,7) == "upload=") {
+			config_upload=substr(ARGV[i],8);
+			if (match(config_upload,"[^0-9]"))
+				print_help_and_exit(1);
+		} else if (ARGV[i] == "info") {
+			config_info=1;
+		} else if (substr(ARGV[i],1,5) == "nodel") {
+			config_rm_okay=0;
+		} else if (ARGV[i] == "sort") {
+			config_sort=1;
+		} else if (substr(ARGV[i],1,5) == "/dev/") {
+			config_dev=ARGV[i];
+		} else if (ARGV[i] == "serial") {
+			config_dev="/dev/ttyS0";
+		} else if (ARGV[i] == "usb") {
+			config_dev="/dev/ttyUSB0 --usb";
+		} else if (ARGV[i] == "dsort") {
+			config_dsort=1;
+		} else if (ARGV[i] == "audit") {
+			config_audit=1;
+		} else if (ARGV[i] == "verbose") {
+			config_verbose=1;
+		} else if (ARGV[i] ~ "^[0-9]*[.][0-9]*[.][0-9]*[.][0-9]*$") {
+			config_dev=ARGV[i];
+		} else if (ARGV[i] == "sync") {
+			config_sync=1;
+		} else {
+			print "Bad commandline option: '"ARGV[i]"'";
+			print_help_and_exit(1);
+		}
+	}
+}
+
+## main()
+BEGIN {
+	nfids=0;
+	ntunes=0;
+	nplaylists=0;
+	ntunes=0;
+	nalbums=0;
+	empeg_tunecount=0;
+	cur_playlist="/";
+	backslash="\134";
+	prev_type="";
+	mp3_prefix="/mp3";
+	top_dir="/";
+	music_dir=top_dir"all";
+	nuked[top_dir]=1;
+	nuked[music_dir]=1;
+	nuked["/Unattached items"]=1;
+	nout=0;
+	emptool_version="v2.00-beta12"
+
+	parse_args();
+	invoke_emptool="emptool"
+
+	if (invoke_emptool " --help" | getline <= 0) {
+		print "ERROR: unable to invoke "invoke_emptool;
+		exit 1;
+	}
+	close(invoke_emptool " --help");
+	if ($0 != "emptool version "emptool_version) {
+		print "WARNING: this utility requires version "emptool_version" of emptool";
+	}
+
+	if (!config_sync)
+		print "Trial run only; changes will NOT be committed to the Empeg."
+	find_host_mp3_files();
+
+	#t = invoke_emptool" -c "config_dev;
+	#while (t | getline > 0) {
+	#	if ($6" "$7 == "found at")
+	#		invoke_emptool = invoke_emptool" "$8;
+	#}
+	#close(t);
+	invoke_emptool = invoke_emptool" "config_dev;
+
+	if (config_verbose)
+		print "Auditing Empeg "music_dir" playlist:";
+	audit_empeg_music_directory();
+	print "EMPEG: Found "empeg_tunecount" music files under "music_dir;
+
+	## Create top level music directory if it doesn't already exist:
+	emptool_fifo_init();
+	cwd_playlist="";
+	cd_playlist(music_dir);
+	cd_playlist("/");
+
+	## Send commands queued up during the audit:
+	for (i=1; i <=nout; ++i) {
+		emptool_fifo_send(out[i]);
+	}
+	emptool_fifo_send("cd /");
+
+	if (config_upload) {
+		cd_playlist("/");
+		upload_new_tunes(mp3_count);
+	}
+	if (config_upload || config_sort || config_dsort) {
+		cd_playlist("/");
+		sort_stuff(mp3_count);
+	}
+
+	if (config_sync)
+		emptool_fifo_send("sync");
+	else
+		emptool_fifo_send("quit");
+	emptool_fifo_send("quit");
+	print "";
+	print "All operations completed."
+	exit 0;
+}
