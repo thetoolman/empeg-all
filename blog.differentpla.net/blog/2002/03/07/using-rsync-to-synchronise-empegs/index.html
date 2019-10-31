@@ -10,12 +10,12 @@
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
 <!-- theme is https://bootswatch.com/yeti/ -->
-<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
-<link rel="stylesheet" href="/css/yeti-custom.css">
-<link rel="stylesheet" href="/css/site.css">
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
 
-<link rel="canonical" href="http://blog.differentpla.net/blog/2002/03/07/using-rsync-to-synchronise-empegs/">
-<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
 </head>
 
 
@@ -25,7 +25,7 @@
     <div class="container">
         <div class="navbar-header">
             <ul class="nav navbar-nav navbar-left">
-                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
             </ul>
         </div>
     </div>
@@ -39,13 +39,13 @@
     <div class="details">
         <span class="created_at timeago" title="2002-03-07 12:21:00 +0000">2002-03-07 12:21:00 +0000</span>
         
-        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        <span class="label label-default"><a href="../../../../../tag/empeg">empeg</a></span>
         
     </div>
     <p></p>
     <h2 id="introduction">Introduction</h2>
 
-<p>A while ago, I published my <a href="/blog/2002/03/18/lazy-bastards-guide-to-cloning-your-empeg/">Lazy Bastard’s Guide to Cloning your empeg</a>. This has worked successfully for me and other people. However, it has one major limitation – it’s an all-or-nothing operation – it clones the entire empeg. If you add a bunch of tracks to one of your empegs, you end up having to copy <em>all</em> of your tracks again.</p>
+<p>A while ago, I published my <a href="../../18/lazy-bastards-guide-to-cloning-your-empeg/index.html">Lazy Bastard’s Guide to Cloning your empeg</a>. This has worked successfully for me and other people. However, it has one major limitation – it’s an all-or-nothing operation – it clones the entire empeg. If you add a bunch of tracks to one of your empegs, you end up having to copy <em>all</em> of your tracks again.</p>
 
 <p>In this document, I’ll present an alternative: using <a href="http://rsync.samba.org">rsync</a> to keep a pair of empegs in sync.</p>
 
@@ -57,17 +57,17 @@
 
 <h2 id="the-plan">The Plan</h2>
 
-<p>I originally attempted to get rsync working <a href="/rsh-client.html">using rsh</a>. However, I couldn’t get a rsh server working on the empeg, so I gave up. I didn’t try very hard, though, so I may try again later.</p>
+<p>I originally attempted to get rsync working <a href="http://blog.differentpla.net/rsh-client.html">using rsh</a>. However, I couldn’t get a rsh server working on the empeg, so I gave up. I didn’t try very hard, though, so I may try again later.</p>
 
 <p>Instead, we’ll use rsync as a daemon on one of the empegs, and connect to it from the other.</p>
 
 <h2 id="installing-rsync">Installing rsync</h2>
 
-<p>As with my <a href="/blog/2002/03/18/lazy-bastards-guide-to-cloning-your-empeg/">cloning guide</a>, we’ll grab the .deb files from a Debian mirror, remove the stuff we don’t need, and then send them to the empeg.</p>
+<p>As with my <a href="../../18/lazy-bastards-guide-to-cloning-your-empeg/index.html">cloning guide</a>, we’ll grab the .deb files from a Debian mirror, remove the stuff we don’t need, and then send them to the empeg.</p>
 
 <p>For this, you’ll need the <a href="http://ftp.us.debian.org/debian/dists/potato/main/binary-arm/net/rsync_2.3.2-1.2.deb">rsync_2.3.2-1.2.deb</a> file. Extract it, remove the /usr/share parts, and then pack it back up. Send this to the empeg, and then extract it. I generally store the .tar.gz files in /drive0, so that the files don’t get overwritten by upgrades, and I can reinstate the software by unpacking them again.</p>
 
-<p>Anyway, binaries and source are <a href="/~roger/empeg/car/files/">here</a>.</p>
+<p>Anyway, binaries and source are <a href="http://blog.differentpla.net/~roger/empeg/car/files/">here</a>.</p>
 
 <p>Install rsync on both empegs.</p>
 
@@ -106,7 +106,7 @@ The <em>easy</em> way to fix it is to put some stuff in /etc/hosts, like this:</
 <pre>127.0.0.1 localhost
 my-empeg-ip my-empeg-name (none)</pre>
 
-<p>The <em>right</em> way to fix it is to install <code class="highlighter-rouge">hostname</code>, from <a href="http://ftp.us.debian.org/debian/dists/stable/binary-arm/base/hostname_2.07.deb">hostname_2.07.deb</a>, and then to use this to set the hostname of the empeg that will be running rsync as a daemon. You can grab a copy from <a href="/files/">here</a>.</p>
+<p>The <em>right</em> way to fix it is to install <code class="highlighter-rouge">hostname</code>, from <a href="http://ftp.us.debian.org/debian/dists/stable/binary-arm/base/hostname_2.07.deb">hostname_2.07.deb</a>, and then to use this to set the hostname of the empeg that will be running rsync as a daemon. You can grab a copy from <a href="http://blog.differentpla.net/files/">here</a>.</p>
 
 <p>Even if you fix it the right way, you’ll still need to put some stuff in /etc/hosts, but you can forget the “(none)” hack:</p>
 
@@ -158,9 +158,9 @@ ping: wrote toothgnip 64 chars, ret=-1</pre>
 
 </div>
 
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -168,7 +168,7 @@ $(document).ready(function() {
         $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
             $(this).append(
             '<a class="anchorlink" title="Link to ' +
-                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
             });
         });
 </script>
