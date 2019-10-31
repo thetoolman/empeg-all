@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width initial-scale=1" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<title>A bug in libgnutls</title>
+<title>Updating libgnutls28 on Ubuntu trusty</title>
 <meta name="description" content="Jekyll sources for blog.differentpla.net">
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
 <!-- theme is https://bootswatch.com/yeti/ -->
-<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
-<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
-<link rel="stylesheet" href="../../../../../css/site.css">
+<link rel="stylesheet" href="../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../css/site.css">
 
-<link rel="canonical" href="index.html">
-<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
+<link rel="canonical" href="libgnutls-patch.2">
+<link type="application/atom+xml" rel="alternate" href="../../../../feed.xml" title="Roger's Blog" />
 </head>
 
 
@@ -25,7 +25,7 @@
     <div class="container">
         <div class="navbar-header">
             <ul class="nav navbar-nav navbar-left">
-                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
+                <li><a class="navbar-brand" href="../../../../index.html">Roger's Blog</a></li>
             </ul>
         </div>
     </div>
@@ -36,69 +36,108 @@
 <div class="container">
     <div class="col-md-9">
     <article>
-        <h1>A bug in libgnutls</h1>
+        <h1>Updating libgnutls28 on Ubuntu trusty</h1>
         <div class="details">
-            <span class="created_at timeago" title="2017-10-27 09:06:00 +0000">2017-10-27 09:06:00 +0000</span>
+            <span class="created_at timeago" title="2017-10-27 09:10:00 +0000">2017-10-27 09:10:00 +0000</span>
         </div>
         <p></p>
-        <h2 id="background">Background</h2>
+        <p>Previously, I <a href="libgnutls-bug/index.html">posted about a bug</a> we’d fallen foul of in libgnutls28 on Ubuntu 14.04. There’s a <a href="https://bugs.launchpad.net/ubuntu/+source/gnutls28/+bug/1722411">patch</a>.</p>
 
-<p>An <a href="https://electricimp.com/">Electric Imp</a> customer reported that, after a recent server deploy, their agent could no longer connect to a Google API.</p>
+<p>Here’s how to apply it.</p>
 
-<p>We could reproduce it with the following agent code:</p>
+<h2 id="get-the-source-code">Get the source code</h2>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>local req = http.get("https://sheets.googleapis.com/$discovery/rest?version=v4");
-req.setvalidation(VALIDATE_USING_SYSTEM_CA_CERTS);
-req.sendasync(function(res) {
-    server.log(res.statuscode);  // should be 200; was 60
-});
+<p>We’ll need to <a href="https://askubuntu.com/questions/28372/how-do-i-get-and-modify-the-source-code-of-packages-installed-through-apt-get">build the Ubuntu package from source</a>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ apt-get source libgnutls28-dev
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+Picking 'gnutls28' as source package instead of 'libgnutls28'
+E: Unable to find a source package for gnutls28
 </code></pre></div></div>
 
-<p>In an Electric Imp agent, HTTP status codes &lt; 100 are curl error codes; error 60 is <code class="highlighter-rouge">CURLE_SSL_CACERT</code>.</p>
+<p>Oh. We’re <a href="https://unix.stackexchange.com/questions/158395/apt-get-build-dep-is-unable-to-find-a-source-package">missing a <code class="highlighter-rouge">deb-src</code> entry</a> corresponding to the <code class="highlighter-rouge">deb</code> entry for the <code class="highlighter-rouge">gnutls</code> package.</p>
 
-<p>It was possible to work around the problem by turning off certificate validation. Obviously this is not ideal.</p>
+<p>However, in order to add the <code class="highlighter-rouge">deb-src</code> entry, we need to <a href="https://askubuntu.com/questions/8560/how-do-i-find-out-which-repository-a-package-comes-from">find the <code class="highlighter-rouge">deb</code> entry</a> in the first place.</p>
 
-<h2 id="investigation">Investigation</h2>
+<p>First: what version of the package are we using? Different versions could come from different repositories.</p>
 
-<ul>
-  <li>We <em>couldn’t</em> reproduce the problem in our staging environment. This is good, because it gives us a working platform to compare with.</li>
-  <li>I <em>could</em> reproduce the problem on my development PC. This is good, because it means it’s quicker to experiment with tests and fixes.</li>
-  <li>I <em>couldn’t</em> reproduce the problem using <code class="highlighter-rouge">curl</code> or <code class="highlighter-rouge">openssl s_client</code> or <code class="highlighter-rouge">gnutls-cli</code>.</li>
-</ul>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ dpkg -s libgnutls28-dev
+Package: libgnutls28-dev
+...
+Version: 3.2.11-2ubuntu1.1
+...
+</code></pre></div></div>
 
-<p>Because this had something to do with server certificate verification, I guessed that it had something to do with the root CA store, which is stored in <code class="highlighter-rouge">/etc/ssl/certs/</code> on Ubuntu.</p>
+<p>Next: where did each version come from?</p>
 
-<p>This is managed by the <code class="highlighter-rouge">ca-certificates</code> package on Ubuntu.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ apt-cache showpkg libgnutls28-dev
+Package: libgnutls28-dev
+Versions:
+3.2.11-2ubuntu1.1 (/var/lib/apt/lists/archive.ubuntu.com_ubuntu_dists_trusty-updates_universe_binary-amd64_Packages) (/var/lib/apt/lists/security.ubuntu.com_ubuntu_dists_trusty-security_universe_binary-amd64_Packages) (/var/lib/dpkg/status)
+  ...
 
-<p>Looking at the installed version of this package on the working versus non-working servers (including my PC) showed that a recent Ubuntu update had made some changes to the root certificates and, presumably, broken something.</p>
+3.2.11-2ubuntu1 (/var/lib/apt/lists/archive.ubuntu.com_ubuntu_dists_trusty_universe_binary-amd64_Packages)
+  ...
 
-<p>That is: the (working) server in staging was using an older version of the package, compared to the (broken) server in production (and my development PC).</p>
+</code></pre></div></div>
 
-<p>We pre-load the CA trust list in our code (it’s expensive to parse all those certificates on every outbound agent connection). Fortunately, there’s a single PEM file with all of the certificates in: <code class="highlighter-rouge">/etc/ssl/certs/ca-certificates.crt</code>, which makes it easy to try alternative CA bundles when testing.</p>
+<p>Next: where’s the <code class="highlighter-rouge">deb</code> entry for that repository?</p>
 
-<p>I grabbed the (working) <code class="highlighter-rouge">ca-certificates.crt</code> file from the staging server and confirmed that an agent running on my PC worked. Then I double-checked that with the system-installed file, it didn’t work.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ grep -R trusty-updates /etc/apt/sources.list /etc/apt/sources.list.d/
+/etc/apt/sources.list.d/official-package-repositories.list:deb http://archive.ubuntu.com/ubuntu trusty-updates main restricted universe multiverse
+</code></pre></div></div>
 
-<p>I found the <a href="https://launchpad.net/ubuntu/+source/ca-certificates/20170717~14.04.1">relevant change</a> to the <code class="highlighter-rouge">ca-certificates</code> package, and what seemed to be the <a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=858064">corresponding upstream Debian bug</a>.</p>
+<p>Exercise for the reader: add the corresponding <code class="highlighter-rouge">deb-src</code> line to that file.</p>
 
-<p>Comparing the two files revealed that several certificates had been removed from the CA bundle, <em>including</em> the root CA used by <code class="highlighter-rouge">googleapis.com</code>. This shouldn’t have been a problem, because one of the intermediate CA certificates that Google are using <em>is</em> in the CA bundle.</p>
+<p>Let’s try that again.</p>
 
-<p>But: other clients (<code class="highlighter-rouge">curl</code>, etc.) were still working, just not ours.</p>
+<h2 id="building-from-source">Building from source</h2>
 
-<p>At this point, while I got on with putting together an <a href="https://stackoverflow.com/help/mcve">MCVE</a>, I posted a <a href="https://security.stackexchange.com/questions/171983/server-certificate-terminates-in-removed-ca-certificate-still-works">question on security.stackexchange.com</a>, where Steffen Ulrich pointed out that there had been a bug in OpenSSL where it was ignoring trusted intermediate CA certificates and then failing because it couldn’t find the root CA.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo apt-get build-dep libgnutls28-dev
+</code></pre></div></div>
 
-<p>This <em>exactly</em> describes the problem that we were seeing.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ apt-get source libgnutls28-dev  # no sudo!
+$ cd gnutls28-3.2.11
+$ dpkg-buildpackage -rfakeroot -uc -b
+</code></pre></div></div>
 
-<p>Except that we use GnuTLS for our certificate handling, not OpenSSL. For agents, anyway.</p>
+<p>Well, that appeared to work. We now have a bunch of <code class="highlighter-rouge">.deb</code> files in the parent directory.</p>
 
-<h2 id="mvce">MVCE</h2>
+<p>Time to apply the patch.</p>
 
-<p>Today, I managed to put together a short-ish piece of C++, cobbled together from the GnuTLS examples, which reproduces the problem – which I posted with a <a href="https://stackoverflow.com/questions/46935436/gnutls-doesnt-correctly-verify-certs-for-googleapis-com">question to StackOverflow</a>. I won’t bother reproducing it here.</p>
+<h2 id="apply-the-patch">Apply the patch</h2>
 
-<p>A little while later, after a bit of back-and-forth in comments, Steffen replied saying that he’d found a corresponding <a href="https://bugs.launchpad.net/ubuntu/+source/gnutls28/+bug/1722411">bug report</a> against libgnutls28 on Ubuntu 14.04.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd ..
+$ wget https://bugs.launchpad.net/ubuntu/+source/gnutls28/+bug/1722411/+attachment/5039125/+files/gnutls28_3.2.11-2ubuntu1.1_lp1722411_v2.debdiff
+</code></pre></div></div>
 
-<p>That bug report includes a patch.</p>
+<p><strong>Important:</strong> The first patch attached to the bug has a memory leak; the link above is to the fixed patch.</p>
 
-<p><a href="../libgnutls-patch.2">Here’s how to apply it</a>.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ patch -p0 &lt; gnutls28_3.2.11-2ubuntu1.1_lp1722411_v2.debdiff
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd gnutls28-3.2.11
+$ dpkg-buildpackage -rfakeroot -uc -b
+</code></pre></div></div>
+
+<p>And <em>that</em> appears to work. Another bunch of <code class="highlighter-rouge">.deb</code> files appears.</p>
+
+<h2 id="try-it-out">Try it out</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo dpkg -i ../*.deb
+</code></pre></div></div>
+
+<p>Then I recompiled and re-tested my MCVE. The request to <code class="highlighter-rouge">googleapis.com</code> succeeded.</p>
+
+<h2 id="next-steps">Next steps</h2>
+
+<ol>
+  <li>Test the fix, locally, with an agent.</li>
+  <li>Install the fix on our “canary” server. Work with the customer to confirm that it’s fixed for them, too.</li>
+  <li>Work with our DevOps team to get the patch installed on the production servers in the next production deploy.</li>
+</ol>
 
     </article>
 </div>
@@ -745,13 +784,13 @@ req.sendasync(function(res) {
         
         
         
-            <li class="active"><a href="index.html">A bug in libgnutls</a></li>
+            <li><a href="libgnutls-bug/index.html">A bug in libgnutls</a></li></li>
         
         
         
         
         
-            <li><a href="../libgnutls-patch.2">Updating libgnutls28 on Ubuntu trusty</a></li></li>
+            <li class="active"><a href="libgnutls-patch.2">Updating libgnutls28 on Ubuntu trusty</a></li>
         
         
         
@@ -814,7 +853,7 @@ $(document).ready(function() {
         $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
             $(this).append(
             '<a class="anchorlink" title="Link to ' +
-                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
+                $(this).text() + '" href="libgnutls-patch.2#' + $(this).attr('id') + '"></a>');
             });
         });
 </script>
