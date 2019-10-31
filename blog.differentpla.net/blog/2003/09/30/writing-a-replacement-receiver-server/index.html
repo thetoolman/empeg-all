@@ -10,12 +10,12 @@
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
 <!-- theme is https://bootswatch.com/yeti/ -->
-<link rel="stylesheet" href="/css/yeti/bootstrap.min.css">
-<link rel="stylesheet" href="/css/yeti-custom.css">
-<link rel="stylesheet" href="/css/site.css">
+<link rel="stylesheet" href="../../../../../css/yeti/bootstrap.min.css">
+<link rel="stylesheet" href="../../../../../css/yeti-custom.css">
+<link rel="stylesheet" href="../../../../../css/site.css">
 
-<link rel="canonical" href="http://blog.differentpla.net/blog/2003/09/30/writing-a-replacement-receiver-server/">
-<link type="application/atom+xml" rel="alternate" href="http://blog.differentpla.net/feed.xml" title="Roger's Blog" />
+<link rel="canonical" href="index.html">
+<link type="application/atom+xml" rel="alternate" href="../../../../../feed.xml" title="Roger's Blog" />
 </head>
 
 
@@ -25,7 +25,7 @@
     <div class="container">
         <div class="navbar-header">
             <ul class="nav navbar-nav navbar-left">
-                <li><a class="navbar-brand" href="/">Roger's Blog</a></li>
+                <li><a class="navbar-brand" href="../../../../../index.html">Roger's Blog</a></li>
             </ul>
         </div>
     </div>
@@ -39,7 +39,7 @@
     <div class="details">
         <span class="created_at timeago" title="2003-09-30 23:01:00 +0000">2003-09-30 23:01:00 +0000</span>
         
-        <span class="label label-default"><a href="/tag/empeg">empeg</a></span>
+        <span class="label label-default"><a href="../../../../../tag/empeg">empeg</a></span>
         
     </div>
     <p></p>
@@ -68,7 +68,7 @@
 
 <h2 id="the-http-server">The HTTP server</h2>
 
-<p>The easiest thing to write is going to be the webserver, so armed with a copy of RFC2616, I quickly hacked something simple together. You can find the source code <a href="/node/view/46">here</a>. Currently, this just echoes the client request. I’ll be adding the other features required by the Rio Receiver as I figure them out.</p>
+<p>The easiest thing to write is going to be the webserver, so armed with a copy of RFC2616, I quickly hacked something simple together. You can find the source code <a href="http://blog.differentpla.net/node/view/46">here</a>. Currently, this just echoes the client request. I’ll be adding the other features required by the Rio Receiver as I figure them out.</p>
 
 <h2 id="getting-started">Getting started</h2>
 
@@ -90,7 +90,7 @@
 
 <p>This address refers to the portmap daemon. If the portmapper is running on a non-standard port (i.e. other than 111), this should be specified in the response. The included server software runs its portmapper on port 21076, and would respond with, e.g. “http://192.168.0.3:21076/descriptor.xml”.</p>
 
-<p>Because I don’t particularly fancy implementing an NFS server in C# just yet, I’m going to use my Linux box as the <a href="/node/view/14">NFS server</a>.</p>
+<p>Because I don’t particularly fancy implementing an NFS server in C# just yet, I’m going to use my Linux box as the <a href="http://blog.differentpla.net/node/view/14">NFS server</a>.</p>
 
 <h2 id="multiple-services-in-the-same-binary">Multiple Services in the Same Binary</h2>
 
@@ -106,7 +106,7 @@
 </ul>
 
 <p>The NFS and HTTP services depend on the Service Discovery service.
-You can find source for this <a href="/node/view/45">here</a>. This assumes that you’ve got a copy of <a href="http://msdn.microsoft.com/archive/default.asp?url=/archive/en-us/dnarpic/html/msdn_scmslite.asp">the SC.EXE</a> utility. I’ve written some batch files to make installation easier..</p>
+You can find source for this <a href="http://blog.differentpla.net/node/view/45">here</a>. This assumes that you’ve got a copy of <a href="http://msdn.microsoft.com/archive/default.asp?url=/archive/en-us/dnarpic/html/msdn_scmslite.asp">the SC.EXE</a> utility. I’ve written some batch files to make installation easier..</p>
 
 <h2 id="http-server-discovery">HTTP server discovery</h2>
 
@@ -120,7 +120,7 @@ You can find source for this <a href="/node/view/45">here</a>. This assumes that
 
 <h2 id="layout">/layout</h2>
 
-<p>The next thing that the Receiver does is ask for its <a href="/node/view/12">layout definitions</a>. In the stock server, these are stored as files in the webserver’s directory. For now, we’ll go and grab them from the location where the stock server has them installed, by poking around in the registry.</p>
+<p>The next thing that the Receiver does is ask for its <a href="http://blog.differentpla.net/node/view/12">layout definitions</a>. In the stock server, these are stored as files in the webserver’s directory. For now, we’ll go and grab them from the location where the stock server has them installed, by poking around in the registry.</p>
 
 <hr />
 
@@ -130,9 +130,9 @@ You can find source for this <a href="/node/view/45">here</a>. This assumes that
 
 </div>
 
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.0/jquery.timeago.min.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -140,7 +140,7 @@ $(document).ready(function() {
         $('div.body > h1, h2, h3, h4, h5, h6').each(function(i) {
             $(this).append(
             '<a class="anchorlink" title="Link to ' +
-                $(this).text() + '" href="#' + $(this).attr('id') + '"></a>');
+                $(this).text() + '" href="index.html#' + $(this).attr('id') + '"></a>');
             });
         });
 </script>
