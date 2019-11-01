@@ -1,0 +1,997 @@
+/* --------------------------------------------- */
+
+/*  Stylesheet for cushman.net                   */
+
+/*  Site powered by WordPress (wordpress.org)    */
+
+/*  Author: Mark Cushman                         */
+
+/* --------------------------------------------- */
+
+
+
+body				{
+
+					min-width: 550px;
+
+					border: 1px solid #430;
+
+					margin: 30px 50px 20px 50px;
+
+					font-family: verdana, sans-serif;
+
+					font-size: 0.8em;
+
+					color: #430;
+
+					background: #7692AD;
+
+				}
+
+
+
+img				{
+
+					border-width: 0px;
+
+				}
+
+
+
+.main_title			{
+
+					margin: 0px;
+
+					padding: 0px;
+
+				}
+
+				
+
+.search_title			{
+
+					margin-bottom: 1em;
+
+				}
+
+
+
+br				{
+
+					/* clear: left; */
+
+				}
+
+/* ------------------- */
+
+/*  Header Title Logo  */
+
+/* ------------------- */
+
+
+
+#header 			{
+
+					border-bottom: 7px solid #985;
+
+					background: #457;
+
+				}
+
+
+
+#header #background		{
+
+					position: absolute;
+
+					right: 52px;
+
+					top: 39px;
+
+				}
+
+
+
+#header #logo			{
+
+					height: 81px;
+
+					padding-top: 13px;
+
+					padding-left: 12px;
+
+					color: #9ac;
+
+					border-bottom: 1px solid #430;
+
+				}
+
+								
+
+/* ------------------- */
+
+/*  Body Container     */
+
+/* ------------------- */
+
+
+
+#container			{
+
+					border-top: 1px solid #430;
+
+					background-image: url(http://cushman.net/wp-content/themes/cushman/sidebar_bg.gif);
+
+					background-repeat: repeat-y;
+
+					background-position: right;
+
+					background: #fff;
+
+				}
+
+				
+
+/* ------------------- */
+
+/*  Navigation         */
+
+/* ------------------- */
+
+
+
+#navigation 			{
+
+					float: right;
+
+					width: 170px;
+
+					padding: 12px 12px 12px 22px;
+
+					padding-top: 17px;
+
+				}
+
+
+
+#navigation ul			{
+
+					list-style: none;
+
+					margin: 0em;
+
+					padding: 0em;
+
+				}
+
+
+
+#navigation ul li		{
+
+					margin-bottom: 1.4em;
+
+					font-size: 1em;
+
+					font-weight: bold;
+
+					letter-spacing: -1px;
+
+				}
+
+
+
+#navigation ul li ul li		{
+
+					margin: 0.5em 0em 0.5em 1.4em;
+
+					font-size: 0.95em;
+
+					font-weight: normal;
+
+					letter-spacing: 0px;
+
+				}
+
+
+
+#navigation ul li ul li	ul li	{
+
+					margin: 0.6em 0em 0.6em 1.5em;
+
+				}
+
+				
+
+/* ------------------- */
+
+/*  Search Form        */
+
+/* ------------------- */
+
+
+
+#searchform			{
+					margin: 0px;
+
+					padding: 0px;
+					border: 0px;
+
+				}
+
+
+
+#search_box			{
+
+					letter-spacing: -1px;
+
+					border: 1px solid #430;
+
+				}
+
+
+
+#search_button			{
+
+					margin-left: 2px;
+
+					border: 1px solid #430;
+
+					background: #ecf29c;
+
+					letter-spacing: -1px;
+
+					font-weight: bold;
+
+					color: #875;
+
+				}
+
+
+
+fieldset			{
+					border: 0px;
+					padding: 0px;
+					margin: 0px;
+				}
+
+
+
+/* ------------------- */
+
+/*  Content Container  */
+
+/* ------------------- */
+
+
+
+#content 			{
+
+					margin: 0px 202px 0px 0px;
+
+					padding: 12px 18px 12px 18px;
+
+					background: #fff;
+
+				}
+
+
+
+h2	/* any title */		{
+
+					float: left;
+
+					color: #ba8;
+
+					font-size: 1.7em;
+
+					font-weight: bold;
+
+					margin: 0.2em 0em 0.5em 0em;
+
+					padding: 0em;
+
+					letter-spacing: -2px;
+
+				}
+
+
+
+h2.search			{
+
+					margin-bottom: 0.5em;
+
+				}
+
+
+
+/* ------------------ */
+
+/*  Footer            */
+
+/* ------------------ */
+
+
+
+#footer 			{
+
+					clear: both;
+
+					padding: 3px 10px 4px 12px;
+
+					border-top: 1px solid #430;
+
+					background: #985;
+
+					font-weight: normal;
+
+					letter-spacing: -1px;
+
+					color: #dc9;
+
+				}
+
+
+
+/* ----------------- */
+
+/*  Links            */
+
+/* ----------------- */
+
+
+
+#navigation a			{
+
+					color: #430;
+
+					text-decoration: none;
+
+					padding: 2px;
+
+				}
+
+
+
+#navigation a:hover		{
+
+					color: #430;
+
+					background-color: #B2A780;
+
+				}
+
+
+
+.post a				{
+
+					color: #430;
+
+					font-weight: bold;
+
+					text-decoration: none;
+
+					padding: 1px;
+
+				}
+
+
+
+.post a:hover			{
+
+					color: #430;
+
+					background-color: #D8CDA5;
+
+				}
+
+
+
+.post_text a,
+
+.page_text a,
+
+.post_excerpt a,
+
+.post small a			{
+
+					color: #059;
+
+					font-weight: normal;
+
+					text-decoration: underline;
+
+					padding: 0px;
+
+				}
+
+
+
+a.tt-flickr,
+
+a.tt-flickr:hover		{
+
+					background-color: #fff;
+
+					text-decoration: none;
+
+					border: 0px;
+
+				}
+
+
+
+#footer a,
+
+#footer a:hover			{
+
+					color: #dc9;
+
+					text-decoration: none;
+
+				}
+
+
+
+/* ------------------------ */
+
+/*  Post Details            */
+
+/* ------------------------ */
+
+
+
+.post				{
+
+					float: left;
+
+					clear: left;
+
+					width: 100%;
+
+					padding-bottom: 1.2em;
+
+					margin: 0em;
+
+				}
+
+
+
+.post .post_category		{
+
+					float: right;
+
+					text-align: right;
+
+					line-height: 2em;
+
+					letter-spacing: -1px;
+
+				}
+
+				
+
+.post .post_category b		{
+
+					letter-spacing: -1px;
+
+					padding-left: 1px;
+
+				}
+
+
+
+.post .post_title		{
+
+					font-size: 1.4em;
+
+					font-weight: bold;
+
+					letter-spacing: -1px;
+
+					padding-bottom: 3px;
+
+					border-bottom: 1px solid #430;
+
+				}
+
+
+
+.post .post_title small		{
+
+					font-size: 0.7em;
+
+					font-weight: normal;
+
+					letter-spacing: -1px;
+
+					margin-left: 4px;
+
+				}
+
+
+
+.post .post_date		{
+
+					clear: left;
+
+					float: left;
+
+					width: 4.2em;
+
+					padding: 0.5em 0em 0.5em 0em;
+
+					text-align: center;
+
+					font-weight: bold;
+
+					letter-spacing: -1px;
+
+					line-height: 0.9;
+
+					color: #875;
+
+					border: 1px solid #542;
+
+					border-top-width: 0px;
+
+					background: #ecf29c;
+
+				}
+
+
+
+.post .small_date		{
+
+					font-size: 1em;
+
+				}
+
+
+
+.post .post_date .month		{
+
+					font-size: 1.2em;
+
+				}
+
+
+
+.post .post_date .day		{
+
+					font-size: 2em;
+
+				}
+
+
+
+.post .post_date .year		{
+
+					font-size: 1em;
+
+				}
+
+
+
+.post p				{
+
+					margin: 0em 0em 1.2em 0em;
+
+				}
+
+				
+
+.post_text			{
+
+					clear: right;
+
+					margin-left: 4.7em;
+
+					padding: 0.5em 0.5em 0em 0.5em;
+
+				}
+
+				
+
+.page_text			{
+
+					clear: right;
+
+					padding: 0.5em 0.5em 0em 0.5em;
+
+				}
+
+				
+
+.post_text blockquote		{
+
+					background-image: url(http://cushman.net/wp-content/themes/cushman/quote.gif);
+
+					background-repeat: no-repeat;
+
+					margin: 0em 2.5em 1.2em 1.0em;
+
+					padding-left: 35px;
+
+				}
+
+
+
+.page_text .indent,
+
+.post_text .indent		{
+
+					/* border-left: 4px solid #cb9; */
+
+					margin: 0em 2.5em 1.2em 2.0em;
+
+					padding-left: 0.5em;
+
+				}
+
+
+
+.post_text .image		{
+
+					float: left;
+
+					padding: 10px;
+
+				}
+
+
+
+.post .code			{
+
+					font-family: monospace;
+
+					font-size: 1.2em;
+
+					font-weight: bold;
+
+				}
+
+
+
+.post .notehead 		{
+
+					margin-top: 1em;
+
+					padding: 0.5em;
+
+					border: 1px solid #430;
+
+					border-bottom-width: 0px;
+
+					font-weight: bold;
+
+					background: #dc9;
+
+				}
+
+
+
+.post .note 			{
+
+					padding: 1em;
+
+					border: 1px solid #430;
+
+					background: #f9f9f9;
+
+					margin-bottom: 1em;
+
+				}
+
+				
+
+.post .note ol			{
+
+					padding-top: 1em;
+
+				}
+
+
+
+.post .note div			{
+
+					padding-top: 1em;
+
+				}
+
+				
+
+.post ol li			{
+
+					padding-bottom: 1em;
+
+				}
+
+
+
+/* ------------------------ */
+
+/*  Post Summary Details    */
+
+/* ------------------------ */
+
+
+
+.post .post_summary		{
+
+					letter-spacing: -1px;
+
+					margin: 0em 3em 0em 3em;
+
+					border-bottom: 1px solid #430;
+
+				}
+
+
+
+.post .post_summary .title	{
+
+					font-size: 1.4em;
+
+					margin-bottom: 0.2em;
+
+				}
+
+
+
+.post .post_summary .details	{
+
+					font-size: 1em;
+
+					margin-bottom: 0.2em;
+
+				}
+
+
+
+.post .post_excerpt		{
+
+					padding: 0.5em 3.5em 0em 3.5em;
+
+				}
+
+
+
+strong.search-excerpt		{
+
+					color: #059;
+
+				}
+
+
+
+/* ------------------------ */
+
+/*  Post Contents           */
+
+/* ------------------------ */
+
+
+
+.indent1			{
+
+					display: block;
+
+					margin: 0em 0em 0em 0em;
+
+					padding: 0.2em;
+
+				}
+
+				
+
+.indent2			{
+
+					display: block;
+
+					margin: 0em 0em 0em 2em;
+
+					padding: 0.2em;
+
+				}
+
+				
+
+.indent3			{
+
+					display: block;
+
+					margin: 0em 0em 0em 4em;
+
+					padding: 0.2em;
+
+				}
+
+
+
+.sectionhead			{
+
+					display: block;
+
+					margin-top: 2em;
+
+					margin-bottom: 1em;
+
+					padding: 0.2em;
+
+					font-size: 1.5em;
+
+					background: #D8CDA5;
+
+					border: 1px solid #985;
+
+				}
+
+				
+
+.section			{
+
+					display: block;
+
+					margin: 0em 0em 0.5em 1em;
+
+					padding: 0.3em;
+
+					font-size: 1.2em;
+
+					font-weight: bold;
+
+				}
+
+				
+
+.subsection			{
+
+					display: block;
+
+					margin-left: 4em;
+
+					margin-bottom: 1em;
+
+					font-weight: bold;
+
+				}
+
+
+
+.ssubsection			{
+
+					display: block;
+
+					padding-left: 2em;
+
+				}
+
+
+
+.sectiontable			{
+
+					margin-left: 5em;
+
+					margin-right: 3em;
+
+					margin-bottom: 1.5em;
+
+				}
+
+
+
+.manual p			{
+
+					display: block;
+
+					margin-left: 4em;
+
+				}
+
+				
+
+.manual p img			{
+
+					float: left;
+
+					margin: 0em 2em 2em 0em;
+
+					padding: 6px;
+
+					border: 1px solid #985;
+
+				}
+
+				
+
+.manual p .noborder		{
+
+					border-width: 0px;
+
+				}
+
+
+
+.instruction .note		{
+
+					padding-top: 1.5em;
+
+				}
+
+				
+
+/* ------------------------ */
+
+/*  Page Bar Links Style    */
+
+/* ------------------------ */
+
+
+
+.pagebar 			{
+
+					clear: both;
+
+					padding: 0em;
+
+					margin: 0em;
+
+					font-weight: bold;
+
+					font-family: sans-serif;
+
+				}
+
+
+
+.pagebar a,
+
+.pagebar a:visited,
+
+.pageList .this-page		{
+
+					color: #430;
+
+					padding: 2px 6px; 
+
+					border: solid 1px #985; 
+
+					text-decoration: none;
+
+				}
+
+
+
+.pagebar a:hover		{
+
+					background: #D8CDA5;
+
+				}
+
+
+
+.pagebar .break			{
+
+					padding: 2px 6px; 
+
+					border: none; 
+
+					text-decoration: none;
+
+				}
+
+
+
+.pagebar .this-page		{
+
+					color: #dc9;
+
+					background: #985;
+
+					padding: 2px 6px; 
+
+					border: 1px solid #985; 
+
+					font-weight: bold;
+
+				}
