@@ -1,0 +1,60 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Hugo Fiennes">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (Win95; I) [Netscape]">
+   <TITLE>Inside the MP3mobile</TITLE>
+</HEAD>
+<BODY>
+
+<H2>
+Pictures of the embedded MP3 player's hardware&nbsp;
+<HR WIDTH="100%"></H2>
+First, the actual unit: it's long and thin, as the space it fits into is
+also long and thin! The lower bit is the actual computer box, which houses
+the embedded PC, hard disk, and I/O connectors. The louvres at the front
+are for the cooling air to exit: the ones in the top are directly above
+the CPU fan. The air blows from the back of the unit (where a 50mm Pentium
+heatsink fan is mounted), past the PSU and through a hole into the main
+computer case. The connector to the right of the fan is the Neutrik Speakon
+socket, where the power goes in. Also at the front is the 25-way D connector,
+which houses keypad scan, display drive &amp; power, COM2 serial I/O (for
+the mobile phone) and 10-base-T ethernet: below this are the two phono
+sockets for audio out. To remove the unit from the car, I just have to
+remove the 25-way D, the audio and the power - much neater than connections
+for everything individually.
+<CENTER><IMG SRC="casefront.jpg" HSPACE=40 HEIGHT=240 WIDTH=320 ALIGN=LEFT><IMG SRC="caseback.jpg" HEIGHT=240 WIDTH=320></CENTER>
+
+
+<P>Next, some pictures of the inside of the case. The wiring isn't very
+neat (a slight understatement...) but the extra power wire lets me hook
+it up to a real PSU indoors if required. The ribbon cable is all over the
+place as the SBC uses IDC plugs for practically all its I/O (serial, video,
+audio, parallel...) - the audio stuff gets straight into sheilded cable
+within a few millimeters though, in an effort to preserve audio quality.
+<CENTER><IMG SRC="topview.jpg" HEIGHT=240 WIDTH=320></CENTER>
+
+
+<P>The inside of the PSU part: on the left is the PIC16LC84 board, with
+ribbon cable going off to the other end of the case where it goes into
+the 25-way D connector (which connects to the keypad) and to COM1. The
+component bolted to the case is the VN05 solid-state switch. The board
+on the right is the switch-mode PSU, and the gunk it's all covered in is
+hot melt glue to help prevent components from wobbling about and breaking
+tracks. As you can see, the ait blows in from the fan, over the PSU and
+through the hole by the PIC board into the main box.
+<CENTER><IMG SRC="psubox.jpg" HEIGHT=240 WIDTH=320></CENTER>
+
+
+<P>The hard disk is mounted in a little U-shaped bracket hanging from the
+lid of the box. As you can see, the disk is semi-shock mounted using gromits
+in the holes in the cradle, between the cradle and the hard disk, and between
+the cradle and the plastic screw-head.The white bit is some fanfold paper
+pretending to be a gromit, because I lost one!
+<CENTER><IMG SRC="hddmount.jpg" HEIGHT=240 WIDTH=320></CENTER>
+
+<HR WIDTH="100%">
+<BR><A HREF="index.html">Return to main page</A>
+<BR>&nbsp;
+</BODY>
+</HTML>

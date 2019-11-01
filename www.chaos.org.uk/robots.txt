@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /cgi
+Disallow: cgi
+Disallow: /php
+Disallow: /icon

@@ -1,0 +1,642 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Hugo Fiennes">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.5b1 [en] (WinNT; I) [Netscape]">
+   <TITLE>The MP3mobile!</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+The MP3mobile&nbsp;
+<HR WIDTH="100%"></H1>
+This page documents my efforts at fitting my car with a MP3 player: I'm
+still twiddling with lots of bits of the setup, and so this page will change
+when things do with the setup. Hopefully, this page will help anyone else
+trying to do the same thing! There are now some pictures (thanks to <A HREF="http://www.reality.demon.co.uk/">Patrick</A>,
+who lent me his Mustek VDC-200).
+<P>First of all: a disclaimer. Basically, all this worked for me. If it
+doesn't work for you, burns down your house/car/household pet, that's your
+problem. People building PSUs, it's a good idea to test them (voltage,
+current, etc) under load (eg: a partially dead hard disk) before plugging
+in an expensive PC motherboard which it may well blow up.
+<p>For those of you looking for a complete, built, in-dash player should look
+at my <b>empeg</b> unit (<a href="http://www.empeg.com">http://www.empeg.com</a>
+which is very cute ;)
+<P>As this page is getting pretty big now, here's an index:
+<UL>
+<LI>
+<A HREF="index.html#Why">Why</A> the mp3mobile was created</LI>
+
+<LI>
+<A HREF="index.html#How">How it looks</A> - pictures of it in operation</LI>
+
+<LI>
+<A HREF="index.html#Techie">Techie details</A> on the power supply and so on</LI>
+
+<LI>
+<A HREF="index.html#Software">Software</A> - including bits to download</LI>
+
+<LI>
+<A HREF="index.html#Commercial">Commercial version</A> in development</LI>
+
+<LI>
+<A HREF="index.html#News">News</A> - TV appearance &amp; all! (updated 8th April 1999)</LI>
+</UL>
+
+<H2>
+<A NAME="Why"></A>Why?</H2>
+The whole idea got rolling when I decided I wanted to upgrade my car stereo
+in my <A HREF="http://www.cryton.demon.co.uk/mx5">Mazda MX5</A> (Miata
+to Americans, Eunos Roadster for Japanese!). Up until MP3mobile, I'd been
+using a Sony TCD-D3 DAT walkman on a car-mount arm as the primary audio
+source, which was great: long play, good quality audio - just that I never
+seemed to have the tapes with me that suited my mood, and the D3 doesn't
+have useful things like track programming or repeat. While looking at new
+head units/autochangers, two thoughts struck me:
+<UL>
+<LI>
+6 or 10 CDs isn't a very big choice - even blowing your own CDRs with your
+favourite music, it still means that you have a pretty limited selection,
+and the slow disc change doesn't help when you're flitting around tunes
+trying to find what you want.</LI>
+
+<LI>
+The boot in the MX5 is small enough already without an autochanger box
+taking up room.</LI>
+
+<LI>
+The price of a new head unit and autochanger is awfully close to a complete
+PC.</LI>
+</UL>
+So, I built an in-car MP3 player. The result isn't minature, like the MPman,
+but does take no 'user-accessible' space in the car interior, and is pretty
+secure. Possible future commercial versions will most likely be the same
+form factor as a normal radio/cassette. The rest of this page goes into
+mind-numbing detail about how it was built and things to look out for if
+you try this yourself - but the basic concept is simple: a wide range of
+great quality music (all of which I like, unlike compilations) whenever
+I want it.
+<P>The final result is immensely wonderful, and impresses the hell out
+of most hackerish people (like me). Non-computer people just wonder why
+you havn't got a CD player. But, with my setup (based on RedHat Linux 5.0)
+I can do these things:
+<UL>
+<LI>
+NFS mount my car from my laptop (there's a loose 10-base-T cable behind
+the drivers seat) and squirt new tunes into it.</LI>
+
+<LI>
+Hook up my GSM-modem to the car (so you can telnet into it and run emacs
+at 60mph :-) ).</LI>
+
+<LI>
+Hook up a GPS unit, so you could finger the car and find out exactly where
+a car full of computer equipment suitable for stealing is located.</LI>
+
+<LI>
+Compile as I go round bends.</LI>
+
+<LI>
+Coredump as I change gear :-)</LI>
+</UL>
+None of these things can be done with an autochanger. Sorry, but you lose
+:-)
+<P>Future plans include:
+<UL>
+<LI>
+418Mhz low-power radio link to allow me to upgrade the software when the
+car is in the garage 30m or so from the flat.</LI>
+
+<LI>
+Link into the car's engine management to monitor boost pressure, etc</LI>
+
+<LI>
+Voice-command of the music functions.</LI>
+</UL>
+
+<H2>
+<A NAME="How"></A>How it looks</H2>
+Here are some pictures of the system's display: mounted just below the
+stock radio/cassette unit, it's very unobtrusive. The lefthand part of
+the display usually scrolls the title/artist information, with the right
+hand side showing elapsed time. The sexy spun-aluminium gearknob is a Voodoo
+knob (see <A HREF="http://www.miata.net">miata.net</A>'s marketplace section).
+You can also see the audio output from the MP3 player going into the CD-in
+jack on the front of the radio.
+<CENTER><IMG SRC="greenday.jpg" HEIGHT=240 WIDTH=320><IMG SRC="radiohead.jpg" HEIGHT=240 WIDTH=320></CENTER>
+
+<P>...and yes, I own all the CDs that the music on the system has been
+compressed from. Below you see the ridiculous looking exclaimation mark
+on the VFD display :-)
+<BR>&nbsp;
+<BR>&nbsp;
+<CENTER>
+<P><IMG SRC="sash.jpg" HEIGHT=320 WIDTH=240></CENTER>
+
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<P>And if you type *2, you get a random play of tunes from the year you
+enter (via the ID3 year tag). Very 'golden year', isn't it?
+<BR>&nbsp;
+<BR>&nbsp;
+<CENTER>
+<P><IMG SRC="enteryear.jpg" HEIGHT=240 WIDTH=320></CENTER>
+
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<H2>
+<A NAME="Techie"></A>The Techie Details</H2>
+(abandon hope here if you're not technical)
+<H3>
+Where?</H3>
+I'd seen some articles on fitting rear-deck speakers into MX5's, which
+noted that there was room either side of the fuel tank on the rear shelf
+to fit some extra speakers - so, I opened up the rear deck (lots and lots
+of bolts, carpet, clips...) and found two ducts that go from just behind
+the front seats into the boot which are about 16cm wide by 9 tall by 50
+or so deep - ideal :-) The larger one of these ducts (the one which doesn't
+lead to the spare tyre mountings) is where the MP3mobile is situated.
+<H3>
+The Processor &amp; hard drive</H3>
+Now all I needed was a computer. Ideally, I wanted to use an ARM-based
+machine, because I like them - unfortunately, there wasn't anything easily
+off-the-shelf that was usable, so I decided to look for small PCs. After
+a couple of months of keeping an eye out for a suitable broken laptop (486dx100+,
+dead screen, dead keyboard, onboard sound...) I gave up and started looking
+for embedded industrial control computers.
+<P>Quite soon, I found the <A HREF="http://www.advantech.com.tw">Advantech</A>
+PCM-5862 'biscuit PC'. This board puts an entire Pentium PC (including:
+2 72-pin SIMM sockets, Socket7 (to 200Mhz), 10-base-T Ethernet, 16-bit
+audio, 2xUSB, EIDE, Floppy, 4xSerial, Parallel, PCI slot, PC/104 slot,
+SVGA with monitor and LCD drive) into the footprint of a 5.25" disk drive
+- and best of all, runs from a single +5v supply. I found an importer,
+found out the price (urk, not cheap - I paid 293+VAT from <A HREF="http://www.ucs.co.uk">UCS</A>
+in the UK), screamed a bit, then bought it anyway: it's still cheaper than
+an autochanger...
+<P>Next was a CPU - I didn't need anything powerful, and ended up with
+a secondhand Cyrix P150: this is actually fairly marginal for mp3 decoding
+- I'd underestimated how bad the FPU is in those things when compared to
+a genuine Intel. It soon got replaced by a P166MMX (see below).
+<P>The hard disk I chose was a <A HREF="http://www.hitachi.com">Hitachi</A>
+2.1Gb 2.5" laptop drive - after much umming and aaahing, I decided to go
+for a 2.5" even though the capacity was way down on what I could get for
+the same price in 3.5". Basically, the Hitachi drive could withstand operating
+shock of 100G (300G non-operating), and ran off a teensy little 0.5A at
++5v. The Adavantech board's EIDE is on a 2.5" drive connector anyway, so
+attaching it was no problem. I had thought of using a small HDD and a 5-CD
+EIDE changer, but the fact that most CD-ROMs nowadays are incredibly plasticky
+put me off somewhat.
+<H3>
+Power Supply</H3>
+With the whole system together, I needed to power it: my power supply design
+expertise doesn't extend very far at all, but even I knew that using 7805's
+to drop +12-16v down to 5v at up to 5A was going to generate a LOT of heat,
+so I searched the web for a suitable switch-mode PSU chip - the <A HREF="http://www.st.com">SGS-Thompson</A>
+L4970A is rated at 10A, and the datasheet includes some helpful example
+circuits (hint: I'm using the one entitiled 'Low cost 5.1v 10A power supply'
+in the .pdf :-) ). This chip, and all the bits for the PSU can be bought
+from <A HREF="http://www.farnell.co.uk">Farnell</A>, who have distributors
+almost anywhere and will deal with individuals (as long as you've got Access
+or VISA). One thing that was harder to get off the shelf was the 40uH 10A
+inductor, so I used two of the Newport 11A 22uH ones that Farnell do stock,
+in series. I should say at this point that <A HREF="http://www.reality.demon.co.uk">Patrick</A>,
+a mad inventor friend who's much better at breadboarding than me, actually
+built the circuit!
+<P>As the Advantech manual notes, if you give it a +12v supply to the board,
+you get higher quality audio (it isolates the analogue audio bits from
+the switching noise of the logic circuitry), so I put on a SGS-Thompson
+L4940V12 (Farnell code 413-197), 12v low-drop-out (LDO) regulator, to give
+me a maximum of 1.5A at 12v - might be useful if I ever fit a CD-ROM...
+<P>If you're building the PSU: please note that everything needs to be
+bolted to a heatsink - this means the 4970, the 4940 and the 1545 Schottky
+diode used in the 4970 circuit. However, the heatsink tag on the 1545 is
+<B>NOT
+GROUND</B> and needs an insulator so that it isn't connected to case ground
+otherwise things will go bang - these are easily available from electronics
+suppliers. I suggest you check it with a multimeter before powering it
+up!
+<P><B>UPDATE! I've just (4th September 1998) replaced the 5v PSU with a
+better part. See the news section for details.</B>
+<P>For input power, I used a Neutrik speaker connector (Speakon) which
+will pass an ungodly amount of amps, and as a side-effect both looks cool
+and has the most addictive push-and-twist to lock docking motion of any
+connector I've ever used :-)&nbsp; It's also got 4 poles, which is useful
+for the ignition sense (see below).
+<H3>
+Casing it</H3>
+Finding a box that was the right size wasn't easy... I needed something
+metal, so that it could be used as a heatsink (the power supply especially
+needed the chips bolting to something metal to remove the heat). In the
+end I used two preformed aluminium boxes, one which held the PC and hard
+drive, and the other which held the PSU - both were from <A HREF="http://www.maplin.co.uk">Maplin</A>
+Electronics. Here, the help of Franc Buxton (a technician/car nut who works
+at The Department of Computer Science, Warwick University) came in handy,
+as did the department's fully equipped workshop, full of things like punches,
+drills, rivet guns and so on. Franc basically did all the drilling, cutting,
+punching, crimping, rivetting and that sort of stuff to leave me with two
+boxes attached together, lots of cooling vents, fans, phono connectors
+and 25-way D's on the ends of the box. There are vents above the Pentium
+on the Advantech board to allow it to breathe in, and another fan (off
+a Pentium heatsink, which incidentally is the cheapest/only way to get
+50mm fans) which blows air past the PSU and then through the CPU box, leaving
+at vents towards the front of the car.
+<P>The hard disk is mounted hanging from the lid of the computer's box
+in a small cradle, slightly shock mounted on little rubber gromits, and
+mounted the right way up (it'd have been a lot easier to put it upsidedown,
+but I was a bit nervous about that!).
+<P>Some pictures of inside/outside of the unit <A HREF="inside.htm">can
+be found here</A>.
+<H3>
+Power Control &amp; input</H3>
+After trying the PSU out on the bench, a couple of things became aparent:
+<UL>
+<LI>
+It used shedloads of power and got very hot.</LI>
+
+<LI>
+If the input voltage went below 12v, the 5v line sagged down to about 4v,
+meaning bye bye PC operation.</LI>
+</UL>
+This needed a two-prong attack. One, reduce power consumption - it was
+taking about 5A at 5v, and despite the PSUs ratings, I had doubts about
+it, as it seemed to be cutting out every 30 seconds or so - maybe my inductors
+weren't up to the job, and quite possibly as the example circuit was designed
+for 35v input, something wasn't operating at optimum efficiency. After
+trying downclocking the CPU (to 50Mhz, x2, ie 100Mhz as opposed to the
+normal Cyrix 60Mhz, x2) which saved about 0.5A, I tried fitting the P166-MMX
+from my desktop machine: this has a 2.8v core (as opposed to the Cyrix's
+3.3v), and when underclocked to 125Mhz (50Mhz, x2.5) the whole system took
+just over 3A - much better, and the PSU wasn't trying to burn the house
+down now, either. I ended up buying a new AMD K6-233 for my desktop and
+using the P166MMX in the car! <B>UPDATE</B>: the P166 decided (after 2
+weeks) that it didn't like running at 125Mhz anymore, and is now back at
+166Mhz. The PSU is coping...
+<P>The other problem was that car batteries are usually about 12v, but
+can be below this with the engine off (with it on, they're usually about
+14v) - this wasn't really a problem, as I didn't plan to listen to music
+with the engine off much, anyway. The problem was to ensure the machine
+got powered off reliably, and after it was shut down properly (it runs
+RedHat Linux 5.0) - so, a PIC16LC84 was bought and I breadboarded a little
+power control circuit.
+<P>Basically, this circuit does two things:
+<UL>
+<LI>
+It scans the keypad matrix, a standard 12-key telephone item from Farnell
+on a long lead (so it could be used then dropped on the floor), and converted
+this to serial data to be fed into the Linux box via COM1:. The keypad
+is totally passive, with a keypress just joining together the appropriate
+row and column lines on the keypad connector.</LI>
+
+<LI>
+It monitors the state of the ignition, and controls the power to the main
+switch-mode PSU, using a VN05 high-side driver. This chip will switch up
+to 12A and can be driven from a a logic level output (eg: direct from a
+PIC). It's protected against everything, from over current to over heating,
+and doesn't cost and arm and a leg either.</LI>
+</UL>
+Since this circuit would be powered up <I>all</I> the time (it's directly
+wired into the battery), I wanted a low-power solution - ok, so the 16LC84
+was probably overkill (a 16C84 isn't exactly high-drain!), and a small
+100ma 7805 provides a regulated 5v to power the PIC and the MAX232 which
+gives RS232 drive levels for talking to COM1 on the PC. A dropping resistor
+and a 5.1v Zener diode bring the ignition sense line down into the realm
+of a signal that you can shove into a PIC, and the keypad scan routine
+was helpfully provided as an example that came on the install disk of the
+PIC C compiler used.
+<P>When you get into the car and want music, you just hit any key on the
+keypad: if the ignition is on, it powers up the PC, and then sends any
+keypresses to COM1 as ASCII (0-9, * &amp; #). If the PC is on and the car
+engine is switched off, the PIC notices this, and sends '!' to the PC on
+COM1 every second for 30 seconds, then turns off the PC power supply: the
+PC takes about 15-20 seconds to complete a /sbin/halt, so that works out
+nicely. <b>Update!</b> someone built this circuit, progammed my code, then
+couldn't get it working... I forgot to mention that now you have to type
+"123" in sequence to start the main computer - I changed this from any key to
+prevent accidental powerups.
+<P>The PIC binary (in intel hex format) is <A HREF="car.hex">here</A>:
+remember to set the correct options before programming the pic - I use
+an XT oscillator, watchdog timer off, boot timer on. I've not included
+the source as some of it was from the PIC C compiler examples which are
+copyright (and also, this requires you to have the PIC C compiler!). The
+pinout is as follows:
+<P>A0, serial tx (to pc, via MAX232)
+<BR>A1, serial rx (from pc, via MAX232 - not used as yet)
+<BR>A2, ignition sense (high=on, take ignition line through a 10k resistor
+to this pin, with a 5.1v Zener pointing UP from ground to this pin to limit
+the voltage)
+<BR>A3, pc power control (high=on, this goes directly to the high-side
+driver)
+<BR>A4, pc reset (low=reset, this generates a small reset pulse a second
+after powering the PC on: it's not actually used as the Advantech resets
+OK).
+<BR>B0, keypad column 1 (Pulled to 5v via a 10k resistor)
+<BR>B1, keypad column 2 (Pulled to 5v via a 10k resistor)
+<BR>B2, keypad column 3 (Pulled to 5v via a 10k resistor)
+<BR>B3, keypad row 1 (Pulled to 5v via a 10k resistor)
+<BR>B4, keypad row 2 (Pulled to 5v via a 10k resistor)
+<BR>B5, keypad row 3 (Pulled to 5v via a 10k resistor)
+<BR>B6, keypad row 4 (Pulled to 5v via a 10k resistor)
+<H3>
+The display</H3>
+I needed something pretty to go into the dashboard and tell me what was
+playing (and allow me to select things) - the head unit I've got is the
+original Clarion CRH60, which is just a radio-cassette, but has a good
+amp and is completely removable (essential for a convertible) - so there
+was no CD-autochanger interface to even try to reverse-engineer. Ideally,
+a small TFT display would have been nice, but they're a little expensive
+(like way more than the computer and hard disk put together...). Instead,
+when I was round at Patrick's workshop, he gave me a 16-character vacuum-flourescent
+starburst display (identical to the ones in fruit machines) - Farnell sell
+these: two versions - small (like mine, 9mm characters), code 481-671,
+or large (12.5mm characters) code 942-420. They're driven with a 2 wire
+interface (plus reset), and have onboard PSUs which generate the 50v for
+display drive, and so only need +5v to run: they're also pretty bright,
+and so can be seen in a car in daylight.
+<P>The display was hooked up to the low 3 bits of the PC's parallel port
+and I worked out the command set (having drawn a blank on finding programming
+data on the OKI 1937 VFD driver on internet) - the display can be dimmed
+and you can set the cursor position, basically. There are some other bits
+I havn't worked out which seem to give super-bright, but I can't repeat
+the results reliably! I had thought of using a PIC to drive the display
+from a standard COM port, but the protocol is so simple and with only 16
+characters to refresh a 'hit the hardware' approach doesn't munch too much
+Linux CPU time.
+<P>Both the display and keypad come out on a single 25-way D type, allowing
+me to unplug everything easily when I want to take the PC inside: soon,
+I won't be able to do this, as I'll have bolted down the plate which covers
+the access to the duct - but I'm not doing this until I'm sure I can deal
+with it not fsck'ing properly without removing the machine!
+<H3>
+Audio output</H3>
+During tests indoors, the audio output of the Advantech board was excellent,
+probably better than my AWE64 home PC: out in the car though, there was
+a LOT of ignition noise on the sound, probably due to ground loops (so
+people who know tell me, that's a concept a bit too analogue for me!).
+An in-phono-line audio supressor (isloates everything from everything else)
+from Maplin fixed this amazingly well, but did cost 15 pounds - there's
+probably something I could have done with capacitors that would have had
+the same effect, but that'd be too tricky for me...
+<P>The audio comes out on two poncy gold-plated (99p each) phonos on the
+outside of the case.
+<H2>
+<A NAME="Software"></A>Software</H2>
+I wanted something which would play mp3 tunes without complaining, and
+with an easy-to-use interface for another program (ie my keypad/display
+handlers) to talk to. After playing with the jukebox interfaces of mpg123,
+I tried <A HREF="http://www.xaudio.com">Xaudio</A>, which worked like a
+dream (I use the 'rxaudio' program, which in the current release doesn't
+talk well down pipes, but this can be fixed by talking to it with pty's:
+in fact, this bug has been fixed with version 1.00, so it's now perfect
+:-) ). One of the other things I liked about Xaudio was the provision of
+second-by-second elapsed time, which meant that the time indicator on the
+display was a doddle to implement - the jukebox interfaces of some other
+players didn't have this info easily accessible.
+<P>Currently, the software's pretty basic. On boot, it loads a pre-compiled
+ID3 database (this can be rebuilt using *8). I can then select tunes by
+year, random play, play group, artist, and so on, using a simple back/forward/select
+mechanism from the keypad (unfortunately, the keypad doesn't have the ABC,
+DEF, and so on printed on the keys like a phone, which would have helped
+a lot...). I can mute the tune with #, pause, restart, skip forward and
+back and so on - it's great!
+<P>The display by default shows the artist &amp; title (scrolling in a
+12 character field), one space, and then M.SS (the dot takes no space,
+as it gets turned on in the M segment's display) - * goes into command
+mode, allowing you to pick functions 0-9 (or * to return to play mode).
+*1 is artist select, *2 is year select, *8 does a rescan of the filesystem/rebuild
+of the ID3 database, and *9 will do a shutdown if you need to shutdown
+without turning the ignition off. At any point I can key 9 to build a random
+playlist: eg: *19 builds a random playlist of everything in the database,
+*1 (then select an artist) #9 gives me random play of tunes from that artist,
+and so on.
+<P>People have asked for source for various bits of the system: below are
+some snippets that should help people doing the same sort of things. Please
+note that this is quick-hack code, so don't expect prettyness/whatever.
+It just works. Also, please don't mail me if you have no idea how to do
+anything with these files: I've not got time to teach people programming,
+these are just bits to point people in the right direction (or at least
+a direction).
+<UL>
+<LI>
+<A HREF="display.c">display.c</A>, a program which will display a string
+on a parallel-port attached VFD using a unix command, eg ./display "hello
+there". Note that it doesn't blank-pad the data, so you may need to use
+spaces in the string to clear the display.</LI>
+
+<LI>
+<A HREF="id3.c">id3.c</A>, a fragment which reads an ID3 tag from a song.</LI>
+
+<LI>
+<A HREF="keypad.c">keypad.c</A>, a fragment which opens COM1, sets it to
+1200bps, and also a 'check for user input' function.</LI>
+
+<LI>
+<A HREF="rxaudio.c">rxaudio.c</A>, a fragment which launches rxaudio, attaches
+it to a pty, and has code to send and receive messages to/from it.</LI>
+</UL>
+Have fun :-)
+<H2>
+<A NAME="Commercial"></A>Commercial version</H2>
+I'm currently working on an in-dash commercial version of the mp3mobile:
+more info on this can be found on the <a href="http://www.empeg.com">empeg</a>
+website. Basically this unit will fit in a standard dash-mount slot, and provide
+RCA outs for external head units or amps.
+Pricing will be comparable to high-end cd autochangers/head units, and
+we hope to have prototypes out for testing in the next few months.
+<H2>
+<A NAME="News"></A>News</H2>
+
+<UL>
+<li>
+News: 8th April 1999</li>
+<p><br><b>TV appearance online</b> - Benjamin Bayliss kindly Vivo-encoded the main
+bit of the MP3mobile's TV appearance: you don't get to see it playing in this
+clip, but you get to see where it goes in the car... <a href="dottv.viv">
+click here</a> (you need a Vivo player).
+<p>
+<b>Power supplies available commercially</b> Someone is making MAX787-based
+power supplies and selling them <a href="http://scott.kincaid.net">here</a>,
+along with their own in-car MP3 player. I've not seen one of these PSUs, but
+it's an idea for those of who averse to soldering!
+<p>
+<li>
+News: 29th September 1998</li>
+<p><br><b>Ashis Vaidya's amp (automobile mpeg player)</b>
+<p>Another in-car player, this time using DOS and a parallel-port interfaced
+LCD (plus numeric-keypad in ps/2 compatible form).
+<p>See <a href="http://www.teleport.com/~gurans/amp/">here</a>
+<p>
+<li>
+News: 22nd September 1998</li>
+<p><br><b><a href="http://www.empeg.com">empeg website</a> is up!</b>
+<p>Finally, the empeg website is up: info on the commercial player can be
+found there, plus registration to reserve your place in the queue.
+<p>
+<li>
+News: 15th September 1998</li>
+<p><br><b>PaulB's CAJUN audio jukebox</b>
+<p>Paul's just mailed me about his jukebox project, which uses more
+off-the-shelf PC bits (for those without too much soldering ambition) but
+has a bigger display, an onboard radio, and it looks really neat. Of course,
+he runs Linux too :-)
+<p>Take a look: <a href="http://www.mdc.net/~paulb/cajun">here</a>
+<p>
+<LI>
+News: 4th September 1998</LI>
+
+<P><BR><B>General updates</B><B></B>
+<P>I've gone through the page and added Farnell order codes for parts as
+appropriate. Farnell trade almost everywhere and you can get pricings in
+your local currency from <A HREF="http://www.farnell.com">www.farnell.com</A><B></B>
+<P><B>New power supply</B>
+<P>The original 5v PSU documented above wasn't going too well. At times
+(for example, after a long journey (when the PSU was hot) and the headlights
+and fan were on) I'd get dropouts in the music: the display kept scrolling,
+but the music stopped. This turned out to be the 5v rail drooping enough
+to cause the HDD to spin-down, although the PC was unaffected (remembering
+that the CPU runs on 2.9v, a droop in the +5v rail doesn't affect it too
+much).
+<P>So, I upgraded the PSU. As now (unlike when I started the project) I
+knew that 5A at 5v was sufficient, I tracked down a different switch-mode
+PSU chip, the <A HREF="http://www.maxim-ic.com">Maxim</A> MAX787 (Farnell
+order code 787-530). Again, using the example circuit in the datasheet
+(see Maxim's website &amp; download the .pdf), this was built up and worked
+perfectly. Unlike the L4970A, the MAX787 is fine down to input voltages
+of 8v, which means that the battery would have to be completely dead for
+the computer not to work correctly - and also, it needs almost no external
+components: big electrolytics on the input and output, a timing capacitor
+and resistor, the inductor (50uH this time - I used a 47uH - Farnell code
+482-572) and a MBR745 (Farnell code 364-230). Note that like the 1545 in
+the old PSU, the heatsink mounting point on this diode is NOT GROUND and
+will need a mica spacer and other bits to insulate it - although the MAX787
+is short-circuit protected, so if it shorts you won't blow anything up,
+you'll just get no +5v rail.
+<P>This setup runs <I>much</I> cooler - on the old one, the heat from the
+4970 was major, even after only 30 seconds, whereas the 787 runs warm as
+opposed to hot. You'll still need a heatsink, though. I rescued the old
+L4940V12 (Farnell code 413-197) from the old PSU and reused it, as I'd
+had no problems with this.
+<P>One other thing: my system takes less than 5A. If you use a higher voltage
+processor (eg: non-MMX pentium, Cyrix, etc) then you'll probably need a
+heftier supply, or possibly two of these in parallel. The MAX787 has a
+current limiter set at 6.5A, so you shouldn't fry anything by mistake,
+but be careful. Remember there will be a current peak when turning the
+think on (eg: Inrush and HDD spinup) so it's only the "operational" current
+you have to get worried about.
+<P><B>TV appearance</B>
+<P>Yes, the mp3mobile is going to be on TV! Yesterday, Dave Green from
+the '404 not found' programme on <A HREF="http://www.tvchannel.co.uk">[.tv]</A>,
+Sky's new computer channel, came round and filmed me, the car, and the
+mp3mobile. Hopefully, it should be on in a couple of weeks - I'll give
+more info when I have it - 404 not found is shown on Tuesday nights at
+7pm UK-time. Tuning information: Astra 1D satellite, 10.847GHz, Vertical
+polarisation. [.tv] only broadcast from 6pm, so before that you get some
+Granada channel...
+<P>No idea on encryption and that sort of stuff, it might be in the clear:
+would someone from Europe tell me if [.tv] is encrypted? I know it's part
+of the free Sky package, but I don't know if that means it's encrypted
+or not...
+<P><B>Commercial version update</B>
+<P>Things are going well: we've got the PCBs for the production prototype
+back about a week ago, and Patrick surface-mounted everything by hand (brave
+man...) and it worked! It's a totally sexy 6-layer PCB, measuring only
+6"x5", and can support up to 16Gb of disk :-). I'm currently working on
+the low-level firmware for the unit, then Linux will be fiddled with and
+plonked onto it. More news, a mailing to the announcement list, and www.empeg.com's
+opening will come shortly!
+<BR>&nbsp;
+<LI>
+News: 11th August 1998</LI>
+
+<P><BR><B>Commercial version &amp; other bits</B>
+<P>The commercial version is going nicely, with the first production prototype
+PCB about to be sent off to the PCB-producers. Some of the highlights:
+same size as a euro car stereo (Blaupunkt, Pioneer, etc), graphic display,
+IR remote, IrDA on the front panel for Palmpilot (etc) interface, USB,
+RDS/RBDS FM tuner, high-speed serial for those without USB... and more.
+Still runs linux, too :-)
+<P>When we've got it in its box, www.empeg.com will go up with pictures
+and so on, and there will be a mailing to the annoucement list.
+<P>Completely separately, someone has mailed me who hasn't had time to
+complete their own MP3mobile project and wants to sell their bits:
+<BR>&nbsp;
+<BR>&nbsp;
+<UL>
+<LI>
+New Advantech PCM-5862 (retails for $525)</LI>
+
+<LI>
+PCB-10586-2000 (wiring kit: I didn't use this, but wish I had - brings
+the headers of the advantech board out to standard connectors)</LI>
+
+<LI>
+Intel Pentium 150Mhz</LI>
+
+<LI>
+16Mb RAM</LI>
+</UL>
+
+<P><BR>He wants $450 for the above, and also has a laptop drive for sale.
+If you're interested, mail him (removed - now sold - thanks!)
+<BR>&nbsp;
+<LI>
+News: 13th June 1998</LI>
+
+<H4>
+New domain!</H4>
+In preparation for the commercial site I've just got a catchy new domain...
+there's nothing there (yet) but it's where the info on the commercial version
+will go, and where mailing list stuff will come from. It's www.empeg.com,
+which is very cheesy but quite cool (IMHO) :-)
+<H4>
+Mobile rc5 cracking :-)</H4>
+I've finally got round to putting rc5-64 on the mp3mobile, so in the free
+CPU time (about 50%, now the CPU is clocked at 166Mhz) my car is trying
+to crack some RSA encryption. I wonder how many keys/gallon it gets? I
+have to move the keyfiles around on the laptop at the moment, but when
+I get round to wiring the mobile phone up it'll be much easier to do key
+dumps...
+<P>For those of you who want to help, I'm in the rc5@ant.org (Team 553)
+team, so join it &amp; help us! Distributed.net are (unsuprisingly) at
+<A HREF="http://www.distributed.net">www.distributed.net</A>.
+<H4>
+Software updates</H4>
+I've been tweaking slightly, and now have added code so that in random
+play mode, if (say) you hear an Oasis tune, and want another one, hitting
+8 during play resorts the rest of the playlist so that there's a tune by
+the same artist played next. Good for mood continuation :-)
+<BR>&nbsp;
+<LI>
+News: 12th May 1998</LI>
+</UL>
+
+<UL>
+<H4>
+Paris (1st-4th May, 1998)</H4>
+The Paris trip was brilliant (thankyou Ronald!) only marred by the fact
+that the mp3mobile packed up when we arrived at the hotel, meaning that
+the UK people has seen it in action on the trip down, but noone else :-(
+<P>The problem was traced to the board deciding it was now not interested
+in running at anything below 166Mhz: when in Paris I tried running it <I>slower</I>
+(incase it was a PSU fault and reducing the current might help) but didn't
+think of running it <I>faster</I>! (and it worked fine from then...). Since
+then, someone who looked at the Intel datasheets said that the MMX chips
+don't like running at &lt;166Mhz, as no slower variants were every made.
+Hmm. Strange it didn't even work at 150Mhz, but there you go...
+<P><B>Source and stuff</B>
+<P>I've put up some bits of UNIX source and the PIC object code, and updated
+some bits on the PSU page.
+<BR>&nbsp;</UL>
+If anyone's got any questions, feel free to mail me on <A HREF="mailto:altman@cryton.demon.co.uk">altman@empeg.com</A>
+<P>Hugo
+<P>Page first created 8th April 1998
+<BR>Last modified 8th April 1999 (woo! first anniversary!)
+<BR>
+<HR WIDTH="100%">
+</BODY>
+</HTML>
