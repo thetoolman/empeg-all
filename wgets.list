@@ -9,6 +9,11 @@ wget -r --no-parent -e robots=off http://rtr.ca/dock/
 
 for i in {1..64}; do wget --max-redirect=3 --trust-server-names "http://riocar.org/download.php?op=getit&lid=$i"; done
 
+LAser works:
+
+ sourced from https://web.archive.org/web/20080513010721/http://www.bclaserworks.com/empeg/empeg.html
+which is the final version of the site before they stopped taking orders
+
 
 
 
