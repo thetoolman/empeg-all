@@ -1,0 +1,78 @@
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <META NAME="MSSmartTagsPreventParsing" content="TRUE">
+   <title>Empeg LBA48 support for drives of any size</title>
+</head>
+<BODY BGCOLOR=WHITE>
+<h2>
+BigDisk Builder (and more!) for Empeg/RioCar Mk2/Mk2a players
+</h2>
+These files are safe for use on any Empeg/Rio Car Mk2/Mk2a players
+with any size of hard drive(s) installed.
+<br>Use of these files is <b>required</b> for correct operation with any drives larger than 128GB.
+<p>
+Never use a kernel older than Hijack v464 with such drives!!
+<p>
+<table colspan=2 border=1>
+<tr>
+<td><img src=new.jpg align=left><a href="car2-v21.upgrade">car2-v21.upgrade</a>
+<td>This is <b><u>not</u></b> a disk builder image.  Rather, it is a regular software <b>.upgrade</b> file
+which will install all of the fancy features of the <b>builder_bigdisk_v21</b> (below) onto an existing
+formatted empeg without destroying the tunes/playlists that are already there.  Use this if you
+want to add Hijack, WebLite, rsync, hdparm, smartctl, empeg-remote, etc.. to an existing empeg without having to fuss
+over finding/installing each of those (and more!).  By default it also installs the <b>v2.01</b> player software,
+but this is easily switched to v3alpha11 if desired.  See the notes for <b>builder_bigdisk_v21</b> below.
+<tr>
+<td><img src=new.jpg align=left><a href="builder_bigdisk_v21.upgrade">builder_bigdisk_v21.upgrade</a>
+<td><br><b>This is the one you want!</b>
+<p>Originally released just in time for the <b><i>empeg 21st Anniversary Meet</i></b> in 2019.
+This is a drive initializer for Mk2/Mka2 empeg/RioCar player on any size drive(s),
+with Hijack v526 and LBA48 support.  This version uses a 4KB blocksize (for faster everything).
+This all-in-one builder initializes one or two drives, and then installs v2.01 software (with Hijack)
+onto the primary drive, along with empeg WebLite, rsync, hdparm, smartctl, set_empeg_max_fid,
+fidsift.sh, and other goodies!
+As a result, it takes much less than the usual effort to get a new drive fully set up and running.
+<p><b>New:</b> Now also includes the <b>Android</b> <a href="https://github.com/suomi35/empeg-remote/blob/master/app/build/outputs/apk/">empeg-remote</a> app from git,
+which can be found/installed to an Android phone/tablet from a web browser pointed at the empeg's IP address.
+<p><b>This builder will unconditionally <u>destroy</u> any existing
+data on any/all attached drives.  USE WITH CAUTION.</b>
+<p>By default, the <b>v2.01</b> player software and libaries are installed and initialized for use.
+But one can easily switch to <b>v3alpha11</b> if preferred, by connecting to the serial port,
+hitting Control^C to get a shell prompt, and entering this command: <b>switch_to_v3alpha11</b>
+<p>There is a similar command to switch back to <b>v2.01</b> software:  <b>switch_to_v2.01</b>
+<p>Note that this builder image may be updated here <i>(same name)</i> with fixes/improvements over time.
+<p>The rest of the builders below are here only for historical reasons or really weird situations.
+<tr>
+<td><a href="builder_bigdisk_v6.upgrade">builder_bigdisk_v6.upgrade</a>
+<td>Earlier version.  Drive initializer for any size drive(s), with Hijack v524 and LBA48 support.
+This version uses a 4KB blocksize and 4X fewer inodes than the _v3_ builder (below).
+As a result, it is better suited for very large disks, and requires less memory
+on the player itself at install/run time (including playback etc..).
+<b>Note that this builder will unconditionally <u>destroy</u> any existing
+data on any/all attached drives.  USE WITH CAUTION.</b>
+<tr>
+<td><a href="builder_bigdisk_v3.upgrade">builder_bigdisk_v3.upgrade</a>
+<td>Drive initializer for any size drive(s), with <b>Hijack v524</b> and LBA48 support.
+<tr>
+<td><a href="builder_bigdisk_v3_alt.upgrade">builder_bigdisk_v3_alt.upgrade</a>
+<td>Alternative builder for low-memory Mk2 empegCar units.  This uses larger
+blocksize and inode ratios to reduce the kernel data structures needed for bookkeeping.
+<tr>
+<td><a href="builder_v4.tar.gz">builder_v4.tar.gz</a>
+<td>Linux-based build tree/tools used to update the builder .upgrade files.
+Download this if you want to create/customize your own builder.upgrade file.
+<tr>
+<td><a href="car2_v3a11_hijack.upgrade">car2_v3a11_hijack.upgrade</a>
+<td>v3_alpha_11 software installer, with Hijack v524 and LBA48 support.
+<tr>
+<td><a href="car2_v2.01_hijack.upgrade">car2_v2.01_hijack.upgrade</a>
+<td>v2.01_final software installer, with Hijack v524 and LBA48 support.
+<tr>
+<td><a href="upgrade_v3a11.tar.gz">upgrade_v3a11.tar.gz</a>
+<td>Linux-based build tree/tools used to update the software .upgrade files.
+Download this if you want to create/customize your own software.upgrade file.
+</table>
+</table>
+</body>
+</html>
